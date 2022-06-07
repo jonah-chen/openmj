@@ -9,36 +9,36 @@
 
 namespace mj {
 template <std::size_t MaxSize>
-struct optim
+struct optim : std::allocator<T>
 {
-    optim() = delete;
+    // optim() = delete;
 
-    /**
-     * @brief Allocators for allocating vectors below a certain size on the stack.
-     */
-    template <typename Type>
-    struct allocator
-    {
-        using value_type = Type;
-        using size_type = size_t;
-        using difference_type = std::ptrdiff_t;
-        using propogate_on_container_move_assignment = std::true_type;
-        using is_always_equal = std::true_type;
+    // /**
+    //  * @brief Allocators for allocating vectors below a certain size on the stack.
+    //  */
+    // template <typename Type>
+    // struct allocator
+    // {
+    //     using value_type = Type;
+    //     using size_type = size_t;
+    //     using difference_type = std::ptrdiff_t;
+    //     using propogate_on_container_move_assignment = std::true_type;
+    //     using is_always_equal = std::true_type;
 
-        constexpr Type *allocate(size_type n)
-        {
-            if (n > MaxSize)
-                return new Type[n];
-            return data;
-        }
-        constexpr void deallocate(Type *ptr, size_t n)
-        {
-            if (n > MaxSize)
-                delete[] ptr;
-        }
-    private:
-        Type data[MaxSize];
-    };
+    //     constexpr Type *allocate(size_type n)
+    //     {
+    //         if (n > MaxSize)
+    //             return new Type[n];
+    //         return data;
+    //     }
+    //     constexpr void deallocate(Type *ptr, size_t n)
+    //     {
+    //         if (n > MaxSize)
+    //             delete[] ptr;
+    //     }
+    // private:
+    //     Type data[MaxSize];
+    // };
 };
 
 template <typename T, std::size_t MaxSize>

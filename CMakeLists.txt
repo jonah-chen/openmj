@@ -3,7 +3,7 @@ project(OpenMJ)
 
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 20)
-find_package(OpenMP REQUIRED)
+# find_package(OpenMP REQUIRED)
 
 set(src_dir ${CMAKE_CURRENT_LIST_DIR}/src)
 set(test_dir ${CMAKE_CURRENT_LIST_DIR}/test)
@@ -16,7 +16,7 @@ message(STATUS "Building Libraries")
 add_library(Mahjong STATIC ${src_dir}/core/mahjong/mahjong.cc
                         ${src_dir}/core/mahjong/scoring.cc)
 
-set(libs Mahjong OpenMP::OpenMP_CXX)
+set(libs Mahjong)
 
 add_executable(Benchmark ${test_dir}/bench.cc)
 target_link_libraries(Benchmark ${libs})
