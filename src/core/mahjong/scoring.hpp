@@ -70,13 +70,13 @@ struct ScoringCombo
     std::array<Fast8, k_NumYaku> yaku;
     std::array<Fast8, k_NumYakuman> yakuman;
 
-    constexpr Fast8 &operator[](Yaku y) noexcept
+    CONSTEXPR12 Fast8 &operator[](Yaku y) noexcept
     { return yaku[static_cast<Fast8>(y)]; }
-    constexpr const Fast8 &operator[](Yaku y) const noexcept
+    CONSTEXPR12 const Fast8 &operator[](Yaku y) const noexcept
     { return yaku[static_cast<Fast8>(y)]; }
-    constexpr Fast8 &operator[](Yakuman y) noexcept
+    CONSTEXPR12 Fast8 &operator[](Yakuman y) noexcept
     { return yakuman[static_cast<Fast8>(y)]; }
-    constexpr const Fast8 &operator[](Yakuman y) const noexcept
+    CONSTEXPR12 const Fast8 &operator[](Yakuman y) const noexcept
     { return yakuman[static_cast<Fast8>(y)]; }
 };
 

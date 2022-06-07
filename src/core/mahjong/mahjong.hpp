@@ -1,5 +1,12 @@
 
 #pragma once
+
+#if __GNUC__ >= 12
+#define CONSTEXPR12 constexpr
+#else
+#define CONSTEXPR12 inline
+#endif
+
 #include <array>
 #include <vector>
 #include <cstdint>
@@ -308,25 +315,25 @@ public:
     constexpr void clear(U64 mask) noexcept
     { flags_ &= ~mask; }
 
-    constexpr Fast8 size() const noexcept
+    CONSTEXPR12 Fast8 size() const noexcept
     { return tiles_.size(); }
 
-    constexpr Tile &operator[](Fast8 idx) noexcept
+    CONSTEXPR12 Tile &operator[](Fast8 idx) noexcept
     { sorted_ = false; return tiles_[idx]; }
-    constexpr const Tile &operator[](Fast8 idx) const noexcept
+    CONSTEXPR12 const Tile &operator[](Fast8 idx) const noexcept
     { return tiles_[idx]; }
  
     constexpr void mark_sorted() const noexcept { sorted_ = true; }
-    constexpr void push_back(const Tile &t)
+    CONSTEXPR12 void push_back(const Tile &t)
     { tiles_.push_back(t); sorted_ = false; }
-    constexpr void pop_back()
+    CONSTEXPR12 void pop_back()
     { return tiles_.pop_back(); }
 
-    constexpr Fast8 melds() const noexcept
+    CONSTEXPR12 Fast8 melds() const noexcept
     { return melds_.size(); }
-    constexpr const Meld &meld(Fast8 idx) const noexcept
+    CONSTEXPR12 const Meld &meld(Fast8 idx) const noexcept
     { return melds_[idx]; }
-    constexpr Meld &meld(Fast8 idx) noexcept
+    CONSTEXPR12 Meld &meld(Fast8 idx) noexcept
     { return melds_[idx]; }
 
 private:
