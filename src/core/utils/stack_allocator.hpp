@@ -17,7 +17,7 @@ struct optim
      * @brief Allocators for allocating vectors below a certain size on the stack.
      */
     template <typename Type>
-    struct allocator
+    struct allocator : public std::allocator<T>
     {
         using value_type = Type;
         using size_type = size_t;
