@@ -23,7 +23,7 @@ jobs:
       run: |
            sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
            sudo apt-get update
-           sudo apt install -y gcc-11 g++-11
+           sudo apt install -y gcc-12 g++-12
     #       sudo apt-get upgrade
     #       sudo apt-get install libglfw3-dev libglm-dev libglew-dev
     - name: Configure CMake
@@ -31,8 +31,8 @@ jobs:
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
       run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
       env:
-        CC: gcc-11
-        CXX: g++-11
+        CC: gcc-12
+        CXX: g++-12
 
     - name: Build
       # Build your program with the given configuration
