@@ -21,9 +21,9 @@ jobs:
     - uses: actions/checkout@v3
     - name: Install Deps
       run: |
-           sudo apt-get update
            sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
-           sudo apt install -y gcc-11
+           sudo apt-get update
+           sudo apt install -y gcc-11 g++11
     #       sudo apt-get upgrade
     #       sudo apt-get install libglfw3-dev libglm-dev libglew-dev
     - name: Configure CMake
