@@ -78,8 +78,8 @@ struct HandArray
 {
     std::vector<Node> arr;
     Fast16 count {};
-    constexpr bool empty() { return arr.empty(); }
-    constexpr std::size_t size() const noexcept { return arr.size(); }
+    CONSTEXPR12 bool empty() { return arr.empty(); }
+    CONSTEXPR12 std::size_t size() const noexcept { return arr.size(); }
     void insert(const Meld &meld, std::unique_ptr<HandArray> &&child)
     {
         count += child->count;
