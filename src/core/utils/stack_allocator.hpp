@@ -9,7 +9,7 @@
 
 namespace mj {
 template <std::size_t MaxSize>
-struct optim : std::allocator<T>
+struct optim : public std::allocator<Type>
 {
     // optim() = delete;
 
