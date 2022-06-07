@@ -9,16 +9,16 @@
 
 namespace mj {
 template <std::size_t MaxSize>
-struct optim : public std::allocator<Type>
+struct optim
 {
-    // optim() = delete;
+    optim() = delete;
 
-    // /**
-    //  * @brief Allocators for allocating vectors below a certain size on the stack.
-    //  */
-    // template <typename Type>
-    // struct allocator
-    // {
+    /**
+     * @brief Allocators for allocating vectors below a certain size on the stack.
+     */
+    template <typename Type>
+    struct allocator : public std::allocator<Type>
+    {
     //     using value_type = Type;
     //     using size_type = size_t;
     //     using difference_type = std::ptrdiff_t;
@@ -38,7 +38,7 @@ struct optim : public std::allocator<Type>
     //     }
     // private:
     //     Type data[MaxSize];
-    // };
+    };
 };
 
 template <typename T, std::size_t MaxSize>
