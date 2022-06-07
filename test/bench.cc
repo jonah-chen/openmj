@@ -29,6 +29,32 @@ void bench_Tenpai(const char *hand, int iters=100000)
     std::cout << "Completed with " << iters/ms << "Kiter/s\n";
 }
 
+void bench_Shanten(const char *hand, int iters=1000000)
+{
+    static bool do_first = true;
+    mj::Hand h(hand);
+    std::cout << "Testing " << iters << " iterations of shanten on " << hand << "...\n";
+
+    if (do_first)
+    {
+        auto start = std::chrono::high_resolution_clock::now();
+        h.shanten();
+        auto end = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double> elapsed_seconds = end-start;
+        double ms = 1000* elapsed_seconds.count();
+        std::cout << "First iteration took " << ms << "ms\n";
+        do_first = false;
+    }
+
+    auto start = std::chrono::high_resolution_clock::now();
+    for (int i = 0; i < iters; ++i)
+        h.shanten();
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed_seconds = end-start;
+    double ms = 1000* elapsed_seconds.count();
+    std::cout << "Completed with " << iters/ms << "Kiter/s\n";
+}
+
 int main()
 {
     std::cout << "Begin benchmark\n";
@@ -41,6 +67,16 @@ int main()
     const char *r_h3 = "p1112345678999";
     const char *r_h4 = "w11122233444d22";
     const char *r_h5 = "m1112223334689";
+
+    bench_Shanten(r_h1);
+    bench_Shanten(r_h2);
+    bench_Shanten(r_h3);
+    bench_Shanten(r_h4);
+    bench_Shanten(r_h5);
+    bench_Shanten(a_h1);
+    bench_Shanten(a_h2);
+    bench_Shanten(a_h3);
+    bench_Shanten(a_h4);
 
     bench_Agari(a_h1);
     bench_Agari(a_h2);

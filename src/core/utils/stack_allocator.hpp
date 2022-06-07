@@ -52,6 +52,9 @@ struct s_Vector : public std::vector<T, s_Alloc<T, MaxSize>>
 
     constexpr s_Vector(std::size_t n) : std::vector<T, s_Alloc<T, MaxSize>>(n)
     { this->reserve(MaxSize); }
+
+    constexpr s_Vector(std::size_t n, const T &val) : std::vector<T, s_Alloc<T, MaxSize>>(n, val)
+    { this->reserve(MaxSize); }
 };
 
 } // namespace mj

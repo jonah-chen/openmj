@@ -1,5 +1,6 @@
 
 #include "mahjong.hpp"
+#include "extern/shanten-number/calsht.hpp"
 #include <algorithm>
 
 namespace mj {
@@ -7,6 +8,7 @@ namespace {
 using Pairs = s_Vector<Meld, 7>;
 using Triples = s_Vector<Meld, 32>;
 using Combos = s_Vector<Melds, 16>;
+
 
 Pairs pairs(const Hand &hand) 
 {
@@ -243,9 +245,19 @@ Hand Hand::clean() const
     return output;
 }
 
+Hand4Hot Hand::hand_4hot() const
+{
+    constexpr std::array<int, 5> k_Offsets { 0, 9, 18, 27, 31 };
+    Hand4Hot output(k_UniqueTiles, 0);
+    for (const auto &tile : tiles_)
+        ++output[k_Offsets[static_cast<size_t>(tile.suit())] + tile.num()];
+    return output;
+}
+
 
 Wins Hand::agari() const
 {
+    if (!is_agari()) return {};
     auto p = pairs(*this);
     if (p.empty()) return {};
 
@@ -293,6 +305,7 @@ Wins Hand::agari() const
 WaitingTiles Hand::tenpai() const
 {
     if (size() + 3*melds() != k_MaxHandSize - 1) return {};
+    if (!is_tenpai()) return {};
 
     Fast8 idx = 0;
     WaitingTiles waiting;
@@ -358,6 +371,13 @@ WaitingTiles Hand::tenpai() const
     }
 
     return waiting;
+}
+
+S8 Hand::shanten() const
+{
+    static ext::tomohxx::Calsht sht("../assets/tables");
+    auto [num, mode] = sht(hand_4hot(), k_MaxNumMeld - melds(), ext::tomohxx::k_ModeAll);
+    return num - 1;
 }
 
 } // namespace mj

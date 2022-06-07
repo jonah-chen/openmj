@@ -1,55 +1,12 @@
 
 #pragma once
 
-#if __GNUC__ >= 12
-#define CONSTEXPR12 constexpr
-#else
-#define CONSTEXPR12 inline
-#endif
-
 #include <array>
 #include <vector>
-#include <cstdint>
+#include "constants.hpp"
 #include "core/utils/stack_allocator.hpp"
 
 namespace mj {
-using Fast8 = uint_fast8_t;
-using Fast16 = uint_fast16_t;
-using Fast32 = uint_fast32_t;
-using Fast64 = uint_fast64_t;
-using U8 = uint8_t;
-using U16 = uint16_t;
-using U32 = uint32_t;
-using U64 = uint64_t;
-using S8 = int8_t;
-using S16 = int16_t;
-using S32 = int32_t;
-using S64 = int64_t;
-using F32 = float;
-using F64 = double;
-using F64 = double;
-constexpr U8 f_All8 = (U8)-1;
-constexpr U16 f_All16 = (U16)-1;
-constexpr U32 f_All32 = (U32)-1;
-constexpr U64 f_All64 = (U64)-1;
-
-constexpr Fast8 k_East = 0;
-constexpr Fast8 k_South = 1;
-constexpr Fast8 k_West = 2;
-constexpr Fast8 k_North = 3;
-constexpr Fast8 k_NumWinds = 4;
-
-constexpr Fast8 k_Green = 0;
-constexpr Fast8 k_Red = 1;
-constexpr Fast8 k_White = 2;
-constexpr Fast8 k_NumDragons = 3;
-
-constexpr Fast16 k_UniqueTiles = 34;
-constexpr Fast16 k_DeckSize = 136;
-constexpr Fast16 k_DeadWallSize = 14;
-constexpr Fast16 k_MaxHandSize = 14;
-constexpr Fast16 k_MaxNumMeld = 4;
-
 /**
  * Convert computer-readable tile number to human-readable tile number.
  * 
@@ -67,17 +24,6 @@ constexpr Fast8 h_num(Fast8 c_num) { return c_num + 1; }
  * @warning Does not check for invalid tile number
  */
 constexpr Fast8 c_num(Fast8 h_num) { return h_num - 1; }
-
-namespace tilelayout
-{
-    constexpr Fast8 k_PlayerPos = 6;
-    constexpr Fast8 k_NumPos = 8;
-    constexpr Fast8 k_SuitPos = 12;
-
-    constexpr U16 f_Transparent = 0x0001;
-    constexpr U16 f_Red = 0x0002;
-    constexpr U16 f_Open = 0x0004;
-} // namespace tilelayout
 
 enum class Suit : U16
 {
@@ -145,7 +91,7 @@ constexpr Dir operator++(Dir &dir, int)
 class Tile
 {
 public:
-    constexpr Tile() noexcept : id_(-1) {}
+    constexpr Tile() noexcept : id_(f_All16) {}
     constexpr Tile(U16 id) noexcept : id_(id) {}
     constexpr Tile(Suit suit, Fast8 num, Fast8 player=k_East, U16 flags=0)
     noexcept : id_((U16)suit << tilelayout::k_SuitPos | 
@@ -168,7 +114,7 @@ public:
     { return (id_ >> tilelayout::k_PlayerPos) & 3; }
 
     constexpr operator bool() const noexcept
-    { return id_ != (U16)-1; }
+    { return id_ != f_All16; }
     constexpr U16 id() const noexcept
     { return id_; }
 
@@ -212,7 +158,7 @@ public:
 class Meld
 {
 public:
-    constexpr Meld() noexcept : id_(-1) {}
+    constexpr Meld() noexcept : id_(f_All64) {}
     constexpr Meld(Tile called, Tile t1, Tile t2 = {}, Tile t3 = {})
         : id_(((U64)called.id()<< 48) |
               ((U64)t1.id() << 32) |
@@ -241,7 +187,7 @@ public:
     { return Tile(id_ & 0xffff); }
 
     constexpr operator bool() const noexcept
-    { return id_ != -1; }
+    { return id_ != f_All64; }
     
     constexpr bool operator==(const Meld &rhs) const
     { return id_ == rhs.id_; }
@@ -287,20 +233,17 @@ struct Win
 
 using WaitingTiles = s_Vector<Tile, 13>;
 using Wins = s_Vector<Win, 8>;
-
-constexpr Fast8 fp_Riichi = 62;
-constexpr U64 f_SingleRiichi = 1ull << fp_Riichi;
-constexpr U64 f_DoubleRiichi = 2ull << fp_Riichi;
-constexpr U64 f_Riichi = 3ull << fp_Riichi;
-
-constexpr Fast8 fp_Ippatsu = 61;
-constexpr U64 f_Ippatsu = 1ull << fp_Ippatsu;
+using Hand4Hot = s_Vector<int, k_UniqueTiles>;
 
 class Hand
 {
 public:
     Hand() = default;
     Hand(const char *);
+
+    S8 shanten() const;
+    inline bool is_tenpai() const { return shanten() == 0; }
+    inline bool is_agari() const { return shanten() == -1; }
 
     Wins agari() const;
     WaitingTiles tenpai() const;
@@ -335,6 +278,8 @@ public:
     { return melds_[idx]; }
     CONSTEXPR12 Meld &meld(Fast8 idx) noexcept
     { return melds_[idx]; }
+
+    Hand4Hot hand_4hot() const;
 
 private:
     U64 flags_{};

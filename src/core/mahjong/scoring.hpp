@@ -1,6 +1,6 @@
 
 #pragma once
-#include "core/mahjong/mahjong.hpp"
+#include "mahjong.hpp"
 
 namespace mj {
 namespace scoring {

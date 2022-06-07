@@ -1,5 +1,5 @@
 
-#include "core/mahjong/scoring.hpp"
+#include "scoring.hpp"
 #include <stdexcept>
 
 namespace mj {

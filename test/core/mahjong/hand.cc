@@ -2,7 +2,7 @@
 #include "test/test.hpp"
 #include "core/mahjong/mahjong.hpp"
 
-TEST t_Construct()
+TEST t_Closed()
 {
     mj::Hand h1("m123345567p333sw22d");
     mj::Hand h2("m123345567p333w22");
@@ -10,6 +10,7 @@ TEST t_Construct()
     mj::Hand h4("m12334567p333w22");
     mj::Hand h5("w1112223344d222");
     mj::Hand h6("m1112223334689");
+    mj::Hand h7("m111222333p147w1");
 
     assert_crit(h1.size() == 14, "h1 should have 14 tiles", 255);
     assert_crit(h2.size() == 14, "h2 should have 14 tiles", 255);
@@ -22,10 +23,22 @@ TEST t_Construct()
     assert(!h4.tenpai().empty(), "h4 is in tenpai");
     assert(!h5.tenpai().empty(), "h5 is in tenpai");
     assert(h6.tenpai().empty(), "h6 is not in tenpai");
+
+    assert(h1.is_agari(), "h1 can win");
+    assert(h3.is_agari(), "h3 can win");
+    assert(!h4.is_agari(), "h4 cannot win");
+    assert(h4.is_tenpai(), "h4 is in tenpai");
+    assert(h5.is_tenpai(), "h5 is in tenpai");
+    assert(!h6.is_tenpai(), "h6 is not in tenpai");
+    assert(h6.shanten() == 1, "h6 should have shanten 1, but got " + std::to_string(h6.shanten()));
+    assert(h7.shanten() == 2, "h7 should have shanten 2, but got " + std::to_string(h7.shanten()));
+
 }
+
 
 int main()
 {
-    t_Construct();
+    t_Closed();
+
     return g_FailureCount;
 }
