@@ -27,40 +27,38 @@ Pairs pairs(const Hand &hand)
 
 Triples triples(const Hand &hand)
 {
-    hand.sort();
-    Fast8 j;
-    Fast8 k;
     Triples triples;
-    for (Fast8 i = 0; i < hand.size()-2; ++i)
+    Fast8 idx = 0;
+    const auto &h4 = hand.hand_4hot();
+    // test for sets
+    for (Fast8 i = 0; i < k_UniqueTiles; ++i)
     {
-        if (hand[i].id7() == hand[i+1].id7() &&
-            hand[i].id7() == hand[i+2].id7())
+        switch (h4[i])
         {
-            triples.emplace_back(hand[i], hand[i+1], hand[i+2]);
-            j = i + 3;
+        case 3: 
+            triples.emplace_back(hand[idx], hand[idx+1], hand[idx+2]);
+            break;
+        case 4:
+            triples.emplace_back(hand[idx], hand[idx+1], hand[idx+2], hand[idx+3]);
+            break;
         }
-        else
-            j = i + 1;
-        
-        if (hand[i].suit()==Suit::Wind || hand[i].suit()==Suit::Dragon ||
-            hand[i].num1() > 7) continue;
-        
-        for (; j < hand.size()-1 && hand[i].suit()==hand[j].suit() && hand[j].num() - hand[i].num() <= 1; ++j)
-        { 
-            if (hand[j].num() == 1 + hand[i].num())
-            {
-                for (k = j + 1; k < hand.size() && hand[i].suit()==hand[k].suit() && hand[k].num() - hand[j].num() <= 1; ++k)
-                {   
-                    if (hand[k].num() == 1 + hand[j].num())
-                    {
-                        Meld m(hand[i], hand[j], hand[k]);
-                        if (triples.empty() || m.ne7(triples.back()))
-                            triples.push_back(m);
-                        break;
-                    }
-                }
-            }
+        idx += h4[i];
+    }
+
+    // test for runs
+    idx = 0;
+    for (Suit s = Suit::Man; s < Suit::Wind; ++s)
+    {
+        const Fast8 s9 = static_cast<Fast8>(s)*9;
+        for (Fast8 n = 0; n < 7; ++n)
+        {
+            Fast8 p = s9 + n;
+            if (h4[p] && h4[p+1] && h4[p+2])
+                triples.emplace_back(
+                    hand[idx], hand[idx+h4[p]], hand[idx+h4[p]+h4[p+1]]);
+            idx += h4[p];
         }
+        idx += h4[s9+7] + h4[s9+8];
     }
     return triples;
 }
