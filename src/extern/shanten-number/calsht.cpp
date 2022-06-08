@@ -57,27 +57,20 @@ void Calsht::add2(LVec& lhs, const RVec& rhs, const int m) const
 
 Calsht::Iter Calsht::read_file(Iter first, Iter last, std::filesystem::path file) const
 {
-  std::ifstream fin(file);
-
+  std::ifstream fin(file, std::ios::binary);
   if(!fin){
     throw std::runtime_error("Reading file does not exist: " + file.string());
   }
+  for(; first!=last; ++first)
+    fin.read((char*)(first->data()), 10);
 
-  int tmp;
-
-  for(; first!=last; ++first){
-    for(int j=0; j<10; ++j){
-      fin >> tmp;
-      (*first)[j] = static_cast<int8_t>(tmp);
-    }
-  }
   return first;
 }
 
 void Calsht::initialize(const std::string& dir)
 {
-  read_file(mp1.begin(),mp1.end(),std::filesystem::path(dir)/"index_s.txt");
-  read_file(mp2.begin(),mp2.end(),std::filesystem::path(dir)/"index_h.txt");
+  read_file(mp1.begin(),mp1.end(),std::filesystem::path(dir)/"index_s.bin");
+  read_file(mp2.begin(),mp2.end(),std::filesystem::path(dir)/"index_h.bin");
 }
 
 int Calsht::calc_lh(const int* t, const int m) const
