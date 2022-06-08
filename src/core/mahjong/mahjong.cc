@@ -209,7 +209,7 @@ void add_tenpai_tile(WaitingTiles &waiting, Hand hand_cpy, Suit suit, Fast8 num)
 
 } // anon namespace
 
-Hand::Hand(const char *str)
+Hand::Hand(const char *str) : tiles4_(k_UniqueTiles, 0)
 {
     const char *suits = "mpswd";
     Fast8 cur_suit = 0;
@@ -222,7 +222,7 @@ Hand::Hand(const char *str)
                     return;
         }
         else
-            tiles_.emplace_back(Suit(cur_suit), *str - '1');
+            emplace_back(Suit(cur_suit), *str - '1');
     }
 }
 
@@ -244,16 +244,6 @@ Hand Hand::clean() const
         output.mark_sorted();
     return output;
 }
-
-Hand4Hot Hand::hand_4hot() const
-{
-    constexpr std::array<int, 5> k_Offsets { 0, 9, 18, 27, 31 };
-    Hand4Hot output(k_UniqueTiles, 0);
-    for (const auto &tile : tiles_)
-        ++output[k_Offsets[static_cast<size_t>(tile.suit())] + tile.num()];
-    return output;
-}
-
 
 Wins Hand::agari() const
 {

@@ -238,7 +238,7 @@ using Hand4Hot = s_Vector<int, k_UniqueTiles>;
 class Hand
 {
 public:
-    Hand() = default;
+    Hand() : tiles4_(k_UniqueTiles, 0) {}
     Hand(const char *);
 
     S8 shanten() const;
@@ -267,10 +267,28 @@ public:
     { return tiles_[idx]; }
  
     constexpr void mark_sorted() const noexcept { sorted_ = true; }
-    CONSTEXPR12 void push_back(const Tile &t)
-    { tiles_.push_back(t); sorted_ = false; }
-    CONSTEXPR12 void pop_back()
-    { return tiles_.pop_back(); }
+
+    CONSTEXPR12 void push_back(const Tile &t) 
+    {
+        ++tiles4_[k_Offsets[static_cast<size_t>(t.suit())] + t.num()];
+        tiles_.push_back(t);
+        sorted_ = false; 
+    }
+
+    template<typename... Args>
+    CONSTEXPR12 void emplace_back(Args&&... args)
+    {
+        tiles_.emplace_back(args...);
+        const auto &t = tiles_.back();
+        ++tiles4_[k_Offsets[static_cast<size_t>(t.suit())] + t.num()];
+    }
+
+    CONSTEXPR12 void pop_back() noexcept
+    { 
+        const auto &t = tiles_.back();
+        --tiles4_[k_Offsets[static_cast<size_t>(t.suit())] + t.num()];
+        tiles_.pop_back(); 
+    }
 
     CONSTEXPR12 Fast8 melds() const noexcept
     { return melds_.size(); }
@@ -279,15 +297,18 @@ public:
     CONSTEXPR12 Meld &meld(Fast8 idx) noexcept
     { return melds_[idx]; }
 
-    Hand4Hot hand_4hot() const;
+    CONSTEXPR12 Hand4Hot hand_4hot() const noexcept { return tiles4_; }
 
 private:
     U64 flags_{};
 
     mutable s_Vector<Tile, k_MaxHandSize> tiles_{};
+    Hand4Hot tiles4_;
     mutable bool sorted_{};
-
     Melds melds_;
+
+    constexpr static std::array<int, 5> k_Offsets
+    { 0, 9, 18, 27, 31 };
 };
 
 } // namespace mahjong
