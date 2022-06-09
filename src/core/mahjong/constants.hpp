@@ -47,6 +47,10 @@ constexpr Fast16 k_DeadWallSize = 14;
 constexpr Fast16 k_MaxHandSize = 14;
 constexpr Fast16 k_MaxNumMeld = 4;
 
+/**
+ * fedcba9876543210
+ * sssnnnnppfffffff
+ */
 namespace tilelayout
 {
     constexpr Fast8 k_PlayerPos = 7;

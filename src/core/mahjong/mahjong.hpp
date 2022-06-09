@@ -79,17 +79,14 @@ constexpr Dir &operator++(Dir &dir)
  */
 constexpr Dir operator++(Dir &dir, int)
 {
-    Dir tmp = static_cast<Dir>((static_cast<Fast8>(dir) + 1) & 3);
-    dir++;
+    Dir tmp = dir;
+    ++dir;
     return tmp;
 }
 
 /**
  * The contents of a mahjong tile is represented as a 16-bit integer. The 7 high
  * bits represent the tile itself, and the 9 low bits are reserved for flags.
- * 
- * fedcba9876543210
- * sssnnnnppfffffff
  */
 class Tile
 {

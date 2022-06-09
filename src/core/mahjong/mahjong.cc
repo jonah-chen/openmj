@@ -32,16 +32,7 @@ Triples triples(const Hand &hand)
     Triples triples;
     Fast8 idx = 0;
     const auto &h4 = hand.hand_4hot();
-    // test for sets
-    for (Fast8 i = 0; i < k_UniqueTiles; ++i)
-    {
-        if (h4[i] >= 3)
-            triples.emplace_back(hand[idx], hand[idx+1], hand[idx+2]);
-        idx += h4[i];
-    }
-
     // test for runs
-    idx = 0;
     for (Suit s = Suit::Man; s < Suit::Wind; ++s)
     {
         const Fast8 s9 = static_cast<Fast8>(s)*9;
@@ -55,7 +46,14 @@ Triples triples(const Hand &hand)
         }
         idx += h4[s9+7] + h4[s9+8];
     }
-    std::sort(triples.begin(), triples.end());
+    idx = 0;
+    // test for sets
+    for (Fast8 i = 0; i < k_UniqueTiles; ++i)
+    {
+        if (h4[i] >= 3)
+            triples.emplace_back(hand[idx], hand[idx+1], hand[idx+2]);
+        idx += h4[i];
+    }
     return triples;
 }
 
