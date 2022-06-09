@@ -196,13 +196,23 @@ Combos n_triples(Hand &hand, const Triples &triples, Fast8 n)
     return results;
 }
 
-void add_tenpai_tile(WaitingTiles &waiting, Hand hand_cpy, Suit suit, Fast8 num)
+S8 shanten_impl(const Hand4Hot &h4, Fast8 n_melds, int mode)
 {
-    hand_cpy.push_back(Tile(suit, num));
-    hand_cpy.sort();
-    auto wins = hand_cpy.agari();
-    if (!wins.empty())
-        waiting.emplace_back(suit, num);
+    static ext::tomohxx::Calsht sht("../assets/tables");
+    auto [num, _] = sht(h4, k_MaxNumMeld - n_melds, mode);
+    return num - 1;
+}
+
+void tenpai_win_impl(Fast8 offset, WaitingTiles &res, Hand4Hot &h4, 
+                     Fast8 n_melds, Suit suit, Fast8 num, bool kokushi_possible)
+{
+    using namespace ext::tomohxx;
+    h4[offset]++;
+    if (-1==shanten_impl(h4, n_melds, k_ModeNormal | k_ModeChiitoi))
+        res.emplace_back(suit, num);
+    else if (kokushi_possible && -1==shanten_impl(h4, n_melds, k_ModeKokushi))
+        res.emplace_back(suit, num);
+    h4[offset]--;
 }
 
 } // anon namespace
@@ -294,78 +304,59 @@ WaitingTiles Hand::tenpai() const
 {
     if (size() + 3*melds() != k_MaxHandSize - 1) return {};
     if (!is_tenpai()) return {};
-
-    Fast8 idx = 0;
     WaitingTiles waiting;
-    for (auto suit = Suit::Man;;++suit)
+    Hand4Hot h4 (hand_4hot());
+    bool kokushi_possible = melds();
+    // Fast8 chitoi_possible = melds() ? 0 : 2;
+    // check normal tile waits first
+    for (Suit s = Suit::Man; s < Suit::Wind; ++s)
     {
-        while((*this)[idx].suit() != suit)
-        {
-            if ((*this)[idx].suit() > suit)
-                ++suit;
-            if ((*this)[idx].suit() < suit)
-                ++idx;
-        }
-        if (suit > Suit::Sou) break;
+        using namespace ext::tomohxx;
+        Fast8 s9 = static_cast<Fast8>(s);
 
-        for (int num = 0; num < 9; ++num)
+        // deal with n=0
+        if (h4[s9] || h4[s9+1])
+            tenpai_win_impl(s9, waiting, h4, melds(), s, 0, kokushi_possible);
+
+        for (int n = 1; n < 8; ++n)
         {
-            while(((*this)[idx].suit() == suit && 
-                (*this)[idx].num() < num-1) || 
-                (*this)[idx].num() > num+1)
+            if (h4[s9+n-1] || h4[s9+n] || h4[s9+n+1])
             {
-                if ((*this)[idx].num() < num-1)
-                    ++idx;
-                if ((*this)[idx].num() > num+1)
-                    ++num;
+                if (h4[s9+n]++)
+                    kokushi_possible = false;
+                if (-1==shanten_impl(h4, melds(), k_ModeNormal | k_ModeChiitoi))
+                    waiting.emplace_back(s, n);
+                h4[s9+n]--;
             }
-            if ((*this)[idx].suit() != suit)
-                break;
-            
-            add_tenpai_tile(waiting, *this, suit, num);
         }
+        if (h4[s9+7] || h4[s9+8])
+            tenpai_win_impl(s9+8, waiting, h4, melds(), s, 8, kokushi_possible);
     }
-
-    for (int num = 0;; ++num)
+    // check wind waits
+    constexpr Fast8 k_WindOffset = k_Offsets[static_cast<Fast8>(Suit::Wind)];
+    constexpr Fast8 k_DragonOffset = k_Offsets[static_cast<Fast8>(Suit::Dragon)];
+    for (int n = 0; n < k_NumWinds; ++n)
     {
-        while((*this)[idx].suit() == Suit::Wind &&
-            (*this)[idx].num() != num)
-        {
-            if ((*this)[idx].num() < num)
-                ++idx;
-            if ((*this)[idx].num() > num)
-                ++num;
-        }
-        if (num >= k_NumWinds || (*this)[idx].suit() != Suit::Wind)
-            break;
-        
-        add_tenpai_tile(waiting, *this, Suit::Wind, num);
+        Fast8 offset = k_WindOffset+n;
+        if (h4[offset])
+            tenpai_win_impl(offset, waiting, h4, melds(), Suit::Wind, n, kokushi_possible);
     }
-
-    for (int num = 0;; ++num)
+    // check dragon waits
+    for (int n = 0; n < k_NumDragons; ++n)
     {
-        while((*this)[idx].suit() == Suit::Dragon &&
-            (*this)[idx].num() != num)
-        {
-            if ((*this)[idx].num() < num)
-                ++idx;
-            if ((*this)[idx].num() > num)
-                ++num;
-        }
-        if (num >= k_NumDragons || (*this)[idx].suit() != Suit::Dragon)
-            break;
-        
-        add_tenpai_tile(waiting, *this, Suit::Dragon, num);
+        Fast8 offset = k_DragonOffset+n;
+        if (h4[offset])
+            tenpai_win_impl(offset, waiting, h4, melds(), Suit::Dragon, n, kokushi_possible);
     }
 
     return waiting;
 }
 
 S8 Hand::shanten() const
-{
-    static ext::tomohxx::Calsht sht("../assets/tables");
-    auto [num, mode] = sht(hand_4hot(), k_MaxNumMeld - melds(), ext::tomohxx::k_ModeAll);
-    return num - 1;
-}
+{ 
+    return shanten_impl(hand_4hot(), melds(), ext::tomohxx::k_ModeAll); 
+};
+
+
 
 } // namespace mj
