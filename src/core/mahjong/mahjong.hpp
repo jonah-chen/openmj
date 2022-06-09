@@ -87,9 +87,15 @@ constexpr Dir operator++(Dir &dir, int)
 /**
  * The contents of a mahjong tile is represented as a 16-bit integer. The 7 high
  * bits represent the tile itself, and the 9 low bits are reserved for flags.
+ * 
+ * fedcba9876543210
+ * sssnnnnppfffffff
  */
 class Tile
 {
+public:
+    constexpr static std::array<int, 5> k_Offsets
+    { 0, 9, 18, 27, 31 };
 public:
     constexpr Tile() noexcept : id_(f_All16) {}
     constexpr Tile(U16 id) noexcept : id_(id) {}
@@ -123,6 +129,12 @@ public:
      */
     constexpr Fast8 id7() const noexcept
     { return (id_ >> tilelayout::k_NumPos) & 127; }
+
+    /** 
+     * @return constexpr Fast8 The tile in the order 0 to 33.
+     */
+    constexpr Fast8 id34() const noexcept
+    { return k_Offsets[static_cast<Fast8>(suit())] + num(); }
 
     /**
      * Equality ignoring flags
@@ -194,6 +206,9 @@ public:
     constexpr bool operator!=(const Meld &rhs) const
     { return id_ != rhs.id_; }
 
+    constexpr bool operator<(const Meld &rhs) const
+    { return id_ < rhs.id_; }
+
     /**
      * Equality ignoring flags
      */
@@ -232,7 +247,8 @@ struct Win
 };
 
 using WaitingTiles = s_Vector<Tile, 13>;
-using Wins = s_Vector<Win, 8>;
+using Wins = s_Vector<Win, 16>;
+using HandDense = s_Vector<Tile, k_MaxHandSize>;
 using Hand4Hot = s_Vector<int, k_UniqueTiles>;
 
 class Hand
@@ -270,7 +286,7 @@ public:
 
     CONSTEXPR12 void push_back(const Tile &t) 
     {
-        ++tiles4_[k_Offsets[static_cast<size_t>(t.suit())] + t.num()];
+        ++tiles4_[t.id34()];
         tiles_.push_back(t);
         sorted_ = false; 
     }
@@ -280,13 +296,13 @@ public:
     {
         tiles_.emplace_back(args...);
         const auto &t = tiles_.back();
-        ++tiles4_[k_Offsets[static_cast<size_t>(t.suit())] + t.num()];
+        ++tiles4_[t.id34()];
     }
 
     CONSTEXPR12 void pop_back() noexcept
     { 
         const auto &t = tiles_.back();
-        --tiles4_[k_Offsets[static_cast<size_t>(t.suit())] + t.num()];
+        --tiles4_[t.id34()];
         tiles_.pop_back(); 
     }
 
@@ -297,18 +313,17 @@ public:
     CONSTEXPR12 Meld &meld(Fast8 idx) noexcept
     { return melds_[idx]; }
 
-    CONSTEXPR12 Hand4Hot hand_4hot() const noexcept { return tiles4_; }
+    CONSTEXPR12 Hand4Hot &hand_4hot() noexcept { return tiles4_; }
+    CONSTEXPR12 const Hand4Hot &hand_4hot() const noexcept { return tiles4_; }
 
 private:
     U64 flags_{};
 
-    mutable s_Vector<Tile, k_MaxHandSize> tiles_{};
+    mutable HandDense tiles_{};
     Hand4Hot tiles4_;
     mutable bool sorted_{};
     Melds melds_;
 
-    constexpr static std::array<int, 5> k_Offsets
-    { 0, 9, 18, 27, 31 };
 };
 
 } // namespace mahjong

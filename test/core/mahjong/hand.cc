@@ -17,11 +17,11 @@ TEST t_Closed()
     for (int i = 0; i < 14; ++i)
         assert(h1[i] == h2[i], "h1 and h2 should be equal at idx " + std::to_string(i));
     
-    assert(!h1.agari().empty(), "h1 can win");
-    assert(!h3.agari().empty(), "h3 can win");
-    assert(h4.agari().empty(), "h4 cannot win");
-    assert(!h4.tenpai().empty(), "h4 is in tenpai");
-    assert(!h5.tenpai().empty(), "h5 is in tenpai");
+    assert(!h1.agari().empty(), "h1 can win at least once");
+    assert(!h3.agari().empty(), "h3 can win at least once");
+    assert(h4.agari().empty(), "h4 cannot win at least once");
+    assert(h4.tenpai().size() == 3, "h4 is in 3 sided wait but got " + std::to_string(h4.tenpai().size()));
+    assert(h5.tenpai().size() == 2, "h5 is in 2 sided wait but got " + std::to_string(h5.tenpai().size()));
     assert(h6.tenpai().empty(), "h6 is not in tenpai");
 
     assert(h1.is_agari(), "h1 can win");

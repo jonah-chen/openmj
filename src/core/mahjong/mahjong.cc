@@ -7,7 +7,7 @@ namespace mj {
 namespace {
 using Pairs = s_Vector<Meld, 7>;
 using Triples = s_Vector<Meld, 32>;
-using Combos = s_Vector<Melds, 16>;
+using Combos = s_Vector<Melds, 32>;
 
 
 Pairs pairs(const Hand &hand) 
@@ -16,11 +16,13 @@ Pairs pairs(const Hand &hand)
     Pairs pairs;
     for (Fast8 i = 0; i < hand.size() - 1; ++i)
     {
-        if (hand[i] == hand[i + 1])
+        if (hand[i] == hand[i+1])
         {
-            pairs.emplace_back(hand[i], hand[i + 1]);
+            pairs.emplace_back(hand[i], hand[i+1]);
             ++i;
         }
+        if (hand[i] == hand[i+1])
+            ++i;
     }
     return pairs;
 }
@@ -33,15 +35,8 @@ Triples triples(const Hand &hand)
     // test for sets
     for (Fast8 i = 0; i < k_UniqueTiles; ++i)
     {
-        switch (h4[i])
-        {
-        case 3: 
+        if (h4[i] >= 3)
             triples.emplace_back(hand[idx], hand[idx+1], hand[idx+2]);
-            break;
-        case 4:
-            triples.emplace_back(hand[idx], hand[idx+1], hand[idx+2], hand[idx+3]);
-            break;
-        }
         idx += h4[i];
     }
 
@@ -60,6 +55,7 @@ Triples triples(const Hand &hand)
         }
         idx += h4[s9+7] + h4[s9+8];
     }
+    std::sort(triples.begin(), triples.end());
     return triples;
 }
 
@@ -88,28 +84,22 @@ struct HandArray
 };
 
 
-Fast16 traverse_tree(Hand &hand, Fast8 begin, Meld branch)
+int_fast8_t traverse_tree(Hand4Hot &hand, Fast8 size, Meld branch)
 {
-    if (hand.size() - begin < 3) return 0;
-
-    for (; hand[begin] != branch.first(); ++begin)
-        if (begin == hand.size() - 2) return 0;
-    
-    hand[begin++] = {};
-    Fast8 i = begin;
-    for (; hand[i] != branch.second(); ++i)
-        if (i == hand.size() - 1) return 0;
-    
-    hand[i++] = {};
-    for (; hand[i] != branch.third(); ++i)
-        if (i == hand.size()) return 0;
-    
-    hand[i++] = {};
-
-    return begin; // next time, only traverse from here (due to order)
+    auto &first = hand[branch.first().id34()];
+    auto &second = hand[branch.second().id34()];
+    auto &third = hand[branch.third().id34()];
+    if (size >= 3 && first && second && third)
+    {
+        --first;
+        --second;
+        --third;
+        return size - 3;
+    }
+    return -1;
 }
 
-std::unique_ptr<HandArray> dfs(Hand &tiles, const Meld *triples, Fast16 num_melds, Fast16 n)
+std::unique_ptr<HandArray> dfs(Hand4Hot &tiles, Fast8 size, const Meld *triples, Fast16 num_melds, Fast16 n)
 {
     if (n == 0)
     {
@@ -118,14 +108,16 @@ std::unique_ptr<HandArray> dfs(Hand &tiles, const Meld *triples, Fast16 num_meld
         return res;
     }
 
+    if (num_melds < n)
+        return nullptr;
+
     std::unique_ptr<HandArray> children = nullptr;
     for (Fast16 i = 0; i <= num_melds - n; ++i)
     {
-        Hand tmp_hand = tiles.clean();
-        Fast16 next = traverse_tree(tmp_hand, 0, triples[i]);
-        if (next == 0) continue;
-
-        auto found = dfs(tmp_hand, triples + i + 1, num_melds-i-1, n - 1);
+        Hand4Hot tmp_hand = tiles;
+        int_fast8_t next = traverse_tree(tmp_hand, size, triples[i]);
+        if (next == -1) continue;
+        auto found = dfs(tmp_hand, next, triples+i+1, num_melds-i-1, n-1);
         if (!found) continue;
         children = std::make_unique<HandArray>();
         children->insert(triples[i], std::move(found));
@@ -155,7 +147,7 @@ void add_arrays(const std::unique_ptr<HandArray> &root, Combos &result, std::siz
     }
 }
 
-Combos n_triples(Hand &hand, const Triples &triples, Fast8 n)
+Combos n_triples(Hand &&hand, const Triples &triples, Fast8 n)
 {
     if (triples.size() < n) return {};
 
@@ -177,14 +169,7 @@ Combos n_triples(Hand &hand, const Triples &triples, Fast8 n)
         else break;
     }
 
-    // remove all wind and dragon tiles from the hand
-    while (hand.size() && (
-        hand[hand.size()-1].suit() == Suit::Wind || 
-        hand[hand.size()-1].suit() == Suit::Dragon)
-    )
-        hand.pop_back();
-    
-    auto children = dfs(hand, triples.data(), triples.size(), n-perms.size());
+    auto children = dfs(hand.hand_4hot(), hand.size(), triples.data(), triples.size(), n-perms.size());
     if (!children) return {};
 
     Combos results(children->count);
@@ -207,8 +192,7 @@ void tenpai_win_impl(Fast8 offset, WaitingTiles &res, Hand4Hot &h4,
                      Fast8 n_melds, Suit suit, Fast8 num, bool kokushi_possible)
 {
     using namespace ext::tomohxx;
-    h4[offset]++;
-    if (-1==shanten_impl(h4, n_melds, k_ModeNormal | k_ModeChiitoi))
+    if (++h4[offset] <= 4 && -1==shanten_impl(h4, n_melds, k_ModeNormal | k_ModeChiitoi))
         res.emplace_back(suit, num);
     else if (kokushi_possible && -1==shanten_impl(h4, n_melds, k_ModeKokushi))
         res.emplace_back(suit, num);
@@ -272,14 +256,16 @@ Wins Hand::agari() const
     {
         auto tmp_hand = *this;
         auto first = std::find(tmp_hand.tiles_.begin(), tmp_hand.tiles_.end(), pair.first());
-        tmp_hand.tiles_.erase(first, first+2);
+        tmp_hand.hand_4hot()[pair.first().id34()]-=2;
         auto trips = triples(tmp_hand);
+        tmp_hand.tiles_.erase(first, first+2);
         if (trips.size() < closed_melds) continue;
-        auto combos = n_triples(tmp_hand, trips, closed_melds);
+        auto combos = n_triples(std::move(tmp_hand), trips, closed_melds);
         if (combos.empty()) continue;
         for (auto &combo : combos)
         {
-            combo.insert(combo.end(), melds_.begin(), melds_.end());
+            if (!melds_.empty())
+                combo.insert(combo.end(), melds_.begin(), melds_.end());
             if (wins.empty())
             {
                 wins.emplace_back(combo, pair, flags_);
@@ -311,8 +297,7 @@ WaitingTiles Hand::tenpai() const
     // check normal tile waits first
     for (Suit s = Suit::Man; s < Suit::Wind; ++s)
     {
-        using namespace ext::tomohxx;
-        Fast8 s9 = static_cast<Fast8>(s);
+        Fast8 s9 = static_cast<Fast8>(s)*9;
 
         // deal with n=0
         if (h4[s9] || h4[s9+1])
@@ -322,9 +307,10 @@ WaitingTiles Hand::tenpai() const
         {
             if (h4[s9+n-1] || h4[s9+n] || h4[s9+n+1])
             {
+                using namespace ext::tomohxx;
                 if (h4[s9+n]++)
                     kokushi_possible = false;
-                if (-1==shanten_impl(h4, melds(), k_ModeNormal | k_ModeChiitoi))
+                if (h4[s9+n] <= 4 && -1==shanten_impl(h4, melds(), k_ModeNormal | k_ModeChiitoi))
                     waiting.emplace_back(s, n);
                 h4[s9+n]--;
             }
@@ -333,8 +319,8 @@ WaitingTiles Hand::tenpai() const
             tenpai_win_impl(s9+8, waiting, h4, melds(), s, 8, kokushi_possible);
     }
     // check wind waits
-    constexpr Fast8 k_WindOffset = k_Offsets[static_cast<Fast8>(Suit::Wind)];
-    constexpr Fast8 k_DragonOffset = k_Offsets[static_cast<Fast8>(Suit::Dragon)];
+    constexpr Fast8 k_WindOffset = Tile::k_Offsets[static_cast<Fast8>(Suit::Wind)];
+    constexpr Fast8 k_DragonOffset = Tile::k_Offsets[static_cast<Fast8>(Suit::Dragon)];
     for (int n = 0; n < k_NumWinds; ++n)
     {
         Fast8 offset = k_WindOffset+n;

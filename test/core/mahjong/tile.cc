@@ -33,6 +33,8 @@ TEST t_NorthWind()
 {
     constexpr mj::Tile t5(mj::Suit::Wind, mj::k_North, mj::k_North);
     assert(t5.suit() == mj::Suit::Wind, "suit() should be Wind");
+    assert(t5.num() == mj::k_North, "num() should be North");
+    assert(t5.num1() == mj::k_North+1, "num1() should be North+1");
 }
 
 int main()

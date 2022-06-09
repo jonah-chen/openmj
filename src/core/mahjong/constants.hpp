@@ -49,10 +49,9 @@ constexpr Fast16 k_MaxNumMeld = 4;
 
 namespace tilelayout
 {
-    constexpr Fast8 k_PlayerPos = 6;
-    constexpr Fast8 k_NumPos = 8;
-    constexpr Fast8 k_SuitPos = 12;
-
+    constexpr Fast8 k_PlayerPos = 7;
+    constexpr Fast8 k_NumPos = 9;
+    constexpr Fast8 k_SuitPos = 13;
     constexpr U16 f_Transparent = 0x0001;
     constexpr U16 f_Red = 0x0002;
     constexpr U16 f_Open = 0x0004;
