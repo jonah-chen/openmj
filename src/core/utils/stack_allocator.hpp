@@ -28,13 +28,13 @@ struct optim
         constexpr Type *allocate(size_type n)
         {
             if (n > MaxSize)
-                return new Type[n];
+                return std::allocator<Type>::allocate(n);
             return data;
         }
         constexpr void deallocate(Type *ptr, size_t n)
         {
             if (n > MaxSize)
-                delete[] ptr;
+                std::allocator<Type>::deallocate(ptr, n);
         }
     private:
         Type data[MaxSize];
@@ -47,13 +47,8 @@ using s_Alloc = typename optim<MaxSize>::template allocator<T>;
 template <typename T, std::size_t MaxSize>
 struct s_Vector : public std::vector<T, s_Alloc<T, MaxSize>>
 {
+    using std::vector<T, s_Alloc<T, MaxSize>>::vector;
     constexpr s_Vector() : std::vector<T, s_Alloc<T, MaxSize>>() 
-    { this->reserve(MaxSize); }
-
-    constexpr s_Vector(std::size_t n) : std::vector<T, s_Alloc<T, MaxSize>>(n)
-    { this->reserve(MaxSize); }
-
-    constexpr s_Vector(std::size_t n, const T &val) : std::vector<T, s_Alloc<T, MaxSize>>(n, val)
     { this->reserve(MaxSize); }
 };
 
