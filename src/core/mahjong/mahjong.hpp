@@ -237,17 +237,9 @@ struct Win
 {
     Melds melds;
     Meld pair;
-    U64 flags;
-    Win() noexcept : flags() {}
+    Win() = default;
     Win(const Melds &melds, const Meld &pair, U64 flags=0)
-        : melds(melds), pair(pair), flags(flags) {}
-    
-    constexpr U64 check(U64 mask, Fast8 offset=0) const noexcept
-    { return (flags & mask) >> offset; }
-    constexpr void set(U64 mask) noexcept
-    { flags |= mask; }
-    constexpr void clear(U64 mask) noexcept
-    { flags &= ~mask; }
+        : melds(melds), pair(pair) {}
 };
 
 using WaitingTiles = s_Vector<Tile, 13>;
@@ -349,4 +341,4 @@ private:
 
 };
 
-} // namespace mahjong
+} // namespace mj

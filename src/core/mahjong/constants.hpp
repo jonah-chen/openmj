@@ -49,6 +49,11 @@ constexpr Fast16 k_MaxHandSize = 14;
 constexpr Fast16 k_MaxNumMeld = 4;
 constexpr Fast16 k_MaxDiscards = 24;
 
+constexpr int k_ModeNormal = 1;
+constexpr int k_ModeChiitoi = 2;
+constexpr int k_ModeKokushi = 4;
+constexpr int k_ModeAll = k_ModeNormal | k_ModeChiitoi | k_ModeKokushi;
+
 /**
  * fedcba9876543210
  * sssnnnnppfffffff

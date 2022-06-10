@@ -54,6 +54,7 @@ enum class Yakuman : Fast8
 {
     chuuren_poutou,
     suu_ankou,
+    suu_kantsu,
     daisangen,
     shosushi,
     daisushi,
@@ -85,22 +86,24 @@ struct ScoringCombo
  * 
  * @tparam yaku The yaku to evaluate
  * @param combo The scoring combo reference to aggregate the result
+ * @param hand The hand to evaluate.
  * @param win The win (set of sequences and pairs) to evaluate
  * @return Fast8 The number of fan for yaku (0 to 6)
  */
 template<Yaku yaku>
-Fast8 eval(ScoringCombo &combo, const Win &win);
+Fast8 eval(ScoringCombo &combo, const Hand &hand, const Win &win);
 
 /**
  * Evaluate a particular yakuman
  * 
  * @tparam yakuman The yakuman to evaluate
  * @param combo The scoring combo reference to aggregate the result
+ * @param hand The hand to evaluate.
  * @param win The win (set of sequences and pairs) to evaluate
  * @return Fast8 The number of counts for the yakuman (0, 1, or 2)
  */
 template<Yakuman yakuman>
-Fast8 eval(ScoringCombo &combo, const Win &win);
+Fast8 eval(ScoringCombo &combo, const Hand &hand, const Win &win);
 
 } // namespace scoring
 } // namespace mj

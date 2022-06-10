@@ -246,7 +246,7 @@ Wins Hand::agari() const
     if (closed_melds == 0)
     {
         for (const auto &pair : p)
-            wins.emplace_back(melds_, pair, flags_);
+            wins.emplace_back(melds_, pair);
         return wins;
     }
 
@@ -266,7 +266,7 @@ Wins Hand::agari() const
                 combo.insert(combo.end(), melds_.begin(), melds_.end());
             if (wins.empty())
             {
-                wins.emplace_back(combo, pair, flags_);
+                wins.emplace_back(combo, pair);
                 continue;
             }
 
@@ -275,7 +275,7 @@ Wins Hand::agari() const
             {
                 if (combo[i].ne7(prev.melds[i]))
                 {
-                    wins.emplace_back(combo, pair, flags_);
+                    wins.emplace_back(combo, pair);
                     break;
                 }
             }
@@ -338,9 +338,7 @@ WaitingTiles Hand::tenpai() const
 
 S8 Hand::shanten() const
 { 
-    return mj::shanten(hand_4hot(), melds(), ext::tomohxx::k_ModeAll); 
+    return mj::shanten(hand_4hot(), melds(), k_ModeAll); 
 };
-
-
 
 } // namespace mj
