@@ -21,7 +21,7 @@ TEST t_BasicMeld()
     constexpr Tile t2(Suit::Man, c_num(2));
     constexpr Tile t3(Suit::Man, c_num(3));
     constexpr Tile t4(Suit::Dragon, k_Green);
-    constexpr Tile t5(Suit::Dragon, k_Green, tilelayout::f_Transparent);
+    constexpr Tile t5(Suit::Dragon, k_Green, Tile::f_Transparent);
 
     constexpr Meld pair(t1, t2);
     constexpr Meld triple(t1, t2, t3);
