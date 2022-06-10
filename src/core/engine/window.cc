@@ -4,9 +4,12 @@
 
 namespace mj {
 namespace draw {
-
-namespace {
 #if MJ_LOGGING > 0
+namespace {
+struct GLException : public std::exception 
+{
+    constexpr const char* what() const noexcept override { return "GLException"; }
+};
 void APIENTRY 
 debugCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length,
     const GLchar *message, const void *userParam)
@@ -14,22 +17,21 @@ debugCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei le
     switch (severity) 
     {
     case GL_DEBUG_SEVERITY_HIGH:
-        MJ_CRIT("GL_DEBUG_SEVERITY_HIGH (%d): %s", id, message);
-        break;
+        MJ_CRIT("HIGH SEVERITY (%d:%d): %s", type, id, message);
+        throw GLException();
     case GL_DEBUG_SEVERITY_MEDIUM:
-        MJ_WARN("GL_DEBUG_SEVERITY_MEDIUM: %s", message);
-        break;
+        MJ_WARN("Medium Severity (%d:%d): %s", type, id, message);
+        throw GLException();
     case GL_DEBUG_SEVERITY_LOW:
-        MJ_INFO("GL_DEBUG_SEVERITY_LOW: %s", message);
+        MJ_INFO("Low Severity (%d:%d): %s", type, id, message);
         break;
     case GL_DEBUG_SEVERITY_NOTIFICATION:
-        MJ_INFO("GL_DEBUG_SEVERITY_NOTIFICATION: %s", message);
+        MJ_INFO("GL Notification (%d:%d): %s", type, id, message);
         break;
     }
 }
+} // anon namespace
 #endif
-
-} // namespace
 
 Window::Window(const char* title, int width, int height, bool resizable)
 {
