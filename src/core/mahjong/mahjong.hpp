@@ -95,6 +95,11 @@ class Tile
 public:
     constexpr static std::array<int, 5> k_Offsets
     { 0, 9, 18, 27, 31 };
+
+    constexpr static U16 f_Transparent  = 0x0001;
+    constexpr static U16 f_Red          = 0x0002;
+    constexpr static U16 f_Open         = 0x0004;
+    constexpr static U16 f_Tsumogiri    = 0x0008;
 public:
     constexpr Tile() noexcept : id_(f_All16) {}
     constexpr Tile(U16 id) noexcept : id_(id) {}

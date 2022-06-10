@@ -12,7 +12,7 @@ TEST t_1Man()
 {
     constexpr mj::Tile t2(mj::Suit::Man, mj::c_num(1), mj::k_East);
     constexpr mj::Tile t3(mj::Suit::Man, mj::c_num(1), mj::k_South);
-    constexpr mj::Tile t4(mj::Suit::Man, mj::c_num(1), mj::k_East, mj::tilelayout::f_Transparent);
+    constexpr mj::Tile t4(mj::Suit::Man, mj::c_num(1), mj::k_East, mj::Tile::f_Transparent);
 
     assert(t2, "Falsy valid 1 man");
     assert(t2.suit() == mj::Suit::Man, "suit() should be Man");

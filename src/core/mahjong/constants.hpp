@@ -35,6 +35,7 @@ constexpr Fast8 k_South = 1;
 constexpr Fast8 k_West = 2;
 constexpr Fast8 k_North = 3;
 constexpr Fast8 k_NumWinds = 4;
+constexpr Fast8 k_NumPlayers = 4;
 
 constexpr Fast8 k_Green = 0;
 constexpr Fast8 k_Red = 1;
@@ -57,9 +58,6 @@ namespace tilelayout
     constexpr Fast8 k_PlayerPos = 7;
     constexpr Fast8 k_NumPos = 9;
     constexpr Fast8 k_SuitPos = 13;
-    constexpr U16 f_Transparent = 0x0001;
-    constexpr U16 f_Red = 0x0002;
-    constexpr U16 f_Open = 0x0004;
 } // namespace tilelayout
 
 
