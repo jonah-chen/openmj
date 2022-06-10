@@ -5,6 +5,7 @@
 #include <vector>
 #include "constants.hpp"
 #include "core/utils/stack_allocator.hpp"
+#include "core/utils/logging.hpp"
 
 namespace mj {
 /**
@@ -30,22 +31,23 @@ enum class Suit : U16
     Man, Pin, Sou, Wind, Dragon
 };
 
-constexpr Suit &operator++(Suit &suit)
+constexpr Suit &operator++(Suit &suit) MJ_EXCEPT_WARN
 {
+    MJ_ASSERT(suit < Suit::Dragon, "Suit overflows");
     return suit = static_cast<Suit>(static_cast<U16>(suit) + 1);
 }
 
-constexpr bool operator==(Suit lhs, Suit rhs)
+constexpr bool operator==(Suit lhs, Suit rhs) noexcept
 {
     return static_cast<U16>(lhs) == static_cast<U16>(rhs);
 }
 
-constexpr bool operator<(Suit lhs, Suit rhs)
+constexpr bool operator<(Suit lhs, Suit rhs) noexcept
 {
     return static_cast<U16>(lhs) < static_cast<U16>(rhs);
 }
 
-constexpr bool operator>(Suit lhs, Suit rhs)
+constexpr bool operator>(Suit lhs, Suit rhs) noexcept
 {
     return static_cast<U16>(lhs) > static_cast<U16>(rhs);
 }
@@ -65,7 +67,7 @@ enum class Dir : Fast8
  * @param dir Direction to increment
  * @return constexpr Dir& Incremented direction
  */
-constexpr Dir &operator++(Dir &dir)
+constexpr Dir &operator++(Dir &dir) noexcept
 {
     dir = static_cast<Dir>((static_cast<Fast8>(dir) + 1) & 3);
     return dir;
@@ -77,7 +79,7 @@ constexpr Dir &operator++(Dir &dir)
  * @param dir Direction to increment
  * @return constexpr Dir Incremented direction
  */
-constexpr Dir operator++(Dir &dir, int)
+constexpr Dir operator++(Dir &dir, int) noexcept
 {
     Dir tmp = dir;
     ++dir;
@@ -281,9 +283,10 @@ public:
  
     constexpr void mark_sorted() const noexcept { sorted_ = true; }
 
-    CONSTEXPR12 void push_back(const Tile &t) 
+    CONSTEXPR12 void push_back(const Tile &t)
     {
         ++tiles4_[t.id34()];
+        MJ_ASSERT(tiles4_[t.id34()] <= 4, "More than 4 same tiles is not allowed");
         tiles_.push_back(t);
         sorted_ = false; 
     }
@@ -294,13 +297,16 @@ public:
         tiles_.emplace_back(args...);
         const auto &t = tiles_.back();
         ++tiles4_[t.id34()];
+        MJ_ASSERT(tiles4_[t.id34()] <= 4, "More than 4 same tiles is not allowed");
     }
 
-    CONSTEXPR12 void pop_back() noexcept
+    CONSTEXPR12 void pop_back() MJ_EXCEPT_CRIT
     { 
         const auto &t = tiles_.back();
+        MJ_ASSERT_CRIT(tiles4_[t.id34()] > 0, "Something is wrong with 4hot tiles");
         --tiles4_[t.id34()];
         tiles_.pop_back(); 
+
     }
 
     CONSTEXPR12 Fast8 melds() const noexcept
