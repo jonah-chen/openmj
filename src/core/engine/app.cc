@@ -1,5 +1,6 @@
 
 #include "app.hpp"
+#include "core/utils/logging.hpp"
 
 namespace mj {
 namespace draw {
@@ -7,9 +8,8 @@ App *App::instance = nullptr;
 
 App::App()
 {
-    if (instance)
-        throw std::runtime_error("App already exists");
-    
+    MJ_THROW(instance, std::runtime_error, "App already exists");
+
     instance = this;
     primary_window_ = std::make_unique<Window>("Default App", 1920, 1080);
     gui_ = std::make_unique<Gui>("default_app.ini");

@@ -1,6 +1,6 @@
 
 #include "window.hpp"
-#include <stdexcept>
+#include "core/utils/logging.hpp"
 
 namespace mj {
 namespace draw {
@@ -8,9 +8,7 @@ Window::Window(const char* title, int width, int height, bool resizable)
 {
     if (!windows)
     {
-        if (glfwInit() != GLFW_TRUE)
-            throw std::runtime_error("Failed to initialize GLFW");
-        
+        MJ_ALWAYS_THROW(glfwInit() != GLFW_TRUE, std::runtime_error, "Failed to initialize GLFW");
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, k_OpenglMajorVersion);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, k_OpenglMinorVersion);
         glfwWindowHint(GLFW_OPENGL_PROFILE, k_OpenglProfile);
@@ -42,9 +40,7 @@ Window::Window(const char* title, int width, int height, bool resizable)
 
     glfwMakeContextCurrent(window_);
 
-    if (!windows && glewInit() != GLEW_OK)
-        throw std::runtime_error("Failed to initialize GLEW");
-
+    MJ_ALWAYS_THROW(!windows && glewInit() != GLEW_OK, std::runtime_error, "Failed to initialize GLEW");
     windows++;
 }
 
