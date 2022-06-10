@@ -256,6 +256,8 @@ using HandDense = s_Vector<Tile, k_MaxHandSize>;
 using Hand4Hot = s_Vector<int, k_UniqueTiles>;
 using Discards = s_Vector<Tile, k_MaxDiscards>;
 
+S8 shanten(const Hand4Hot &h4, Fast8 n_melds, int mode);
+
 class Hand
 {
 public:

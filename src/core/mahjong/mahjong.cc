@@ -179,25 +179,25 @@ Combos n_triples(Hand &&hand, const Triples &triples, Fast8 n)
     return results;
 }
 
-S8 shanten_impl(const Hand4Hot &h4, Fast8 n_melds, int mode)
-{
-    static ext::tomohxx::Calsht sht("../assets/tables");
-    auto [num, _] = sht(h4, k_MaxNumMeld - n_melds, mode);
-    return num - 1;
-}
-
 void tenpai_win_impl(Fast8 offset, WaitingTiles &res, Hand4Hot &h4, 
                      Fast8 n_melds, Suit suit, Fast8 num, bool kokushi_possible)
 {
     using namespace ext::tomohxx;
-    if (++h4[offset] <= 4 && -1==shanten_impl(h4, n_melds, k_ModeNormal | k_ModeChiitoi))
+    if (++h4[offset] <= 4 && -1==shanten(h4, n_melds, k_ModeNormal | k_ModeChiitoi))
         res.emplace_back(suit, num);
-    else if (kokushi_possible && -1==shanten_impl(h4, n_melds, k_ModeKokushi))
+    else if (kokushi_possible && -1==shanten(h4, n_melds, k_ModeKokushi))
         res.emplace_back(suit, num);
     h4[offset]--;
 }
 
 } // anon namespace
+
+S8 shanten(const Hand4Hot &h4, Fast8 n_melds, int mode)
+{
+    static ext::tomohxx::Calsht sht("../assets/tables");
+    auto [num, _] = sht(h4, k_MaxNumMeld - n_melds, mode);
+    return num - 1;
+}
 
 Hand::Hand(const char *str) : tiles4_(k_UniqueTiles, 0)
 {
@@ -308,7 +308,7 @@ WaitingTiles Hand::tenpai() const
                 using namespace ext::tomohxx;
                 if (h4[s9+n]++)
                     kokushi_possible = false;
-                if (h4[s9+n] <= 4 && -1==shanten_impl(h4, melds(), k_ModeNormal | k_ModeChiitoi))
+                if (h4[s9+n] <= 4 && -1==mj::shanten(h4, melds(), k_ModeNormal | k_ModeChiitoi))
                     waiting.emplace_back(s, n);
                 h4[s9+n]--;
             }
@@ -338,7 +338,7 @@ WaitingTiles Hand::tenpai() const
 
 S8 Hand::shanten() const
 { 
-    return shanten_impl(hand_4hot(), melds(), ext::tomohxx::k_ModeAll); 
+    return mj::shanten(hand_4hot(), melds(), ext::tomohxx::k_ModeAll); 
 };
 
 
