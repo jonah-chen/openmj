@@ -6,7 +6,7 @@ namespace mj {
 namespace draw {
 
 namespace {
-
+#if MJ_LOGGING > 0
 void APIENTRY 
 debugCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length,
     const GLchar *message, const void *userParam)
@@ -27,6 +27,7 @@ debugCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei le
         break;
     }
 }
+#endif
 
 } // namespace
 

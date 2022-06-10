@@ -19,15 +19,16 @@ int main(int, char**)
         d1.push_back(t);
     }
     mj::draw::Texture tex("../assets/textures/tiles.png");
-    mj::draw::config::set_tex_id(tex.id());
+    mj::draw::Config cfg = mj::draw::Config::d_GameConfig();
+    cfg.tex_id = tex.id();
     app.push_layer(new mj::draw::ImGuiDockspace);
     auto *vp = new mj::draw::Viewport("Viewport");
-    auto *mh = new mj::draw::HandElem(h1.tiles(), mj::Dir::East);
+    auto *mh = new mj::draw::HandElem(cfg, h1.tiles(), mj::Dir::East);
     vp->push_element(mh);
-    // auto *md = new mj::draw::DiscardElem(d1);
-    vp->push_element(new mj::draw::HandElem(h2.tiles(), mj::Dir::South));
-    vp->push_element(new mj::draw::HandElem(h3.tiles(), mj::Dir::West));
-    vp->push_element(new mj::draw::HandElem(h4.tiles(), mj::Dir::North));
+    // auto *md = new mj::draw::DiscardElem(cfg, d1);
+    vp->push_element(new mj::draw::HandElem(cfg, h2.tiles(), mj::Dir::South));
+    vp->push_element(new mj::draw::HandElem(cfg, h3.tiles(), mj::Dir::West));
+    vp->push_element(new mj::draw::HandElem(cfg, h4.tiles(), mj::Dir::North));
     // vp->push_element(md);
     // md->set_callback([](mj::Tile t) {
     //     std::cout << "Discard: " << (int)t.id34() << std::endl;
