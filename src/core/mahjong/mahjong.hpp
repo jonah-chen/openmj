@@ -249,6 +249,7 @@ using WaitingTiles = s_Vector<Tile, 13>;
 using Wins = s_Vector<Win, 16>;
 using HandDense = s_Vector<Tile, k_MaxHandSize>;
 using Hand4Hot = s_Vector<int, k_UniqueTiles>;
+using Discards = s_Vector<Tile, k_MaxDiscards>;
 
 class Hand
 {
@@ -272,6 +273,9 @@ public:
     { flags_ |= mask; }
     constexpr void clear(U64 mask) noexcept
     { flags_ &= ~mask; }
+
+    CONSTEXPR12 HandDense &tiles() noexcept { return tiles_; }
+    CONSTEXPR12 const HandDense &tiles() const noexcept { return tiles_; }
 
     CONSTEXPR12 Fast8 size() const noexcept
     { return tiles_.size(); }
@@ -318,6 +322,15 @@ public:
 
     CONSTEXPR12 Hand4Hot &hand_4hot() noexcept { return tiles4_; }
     CONSTEXPR12 const Hand4Hot &hand_4hot() const noexcept { return tiles4_; }
+
+    CONSTEXPR12 HandDense::iterator begin() noexcept
+    { return tiles_.begin(); }
+    CONSTEXPR12 HandDense::iterator end() noexcept
+    { return tiles_.end(); }
+    CONSTEXPR12 HandDense::const_iterator begin() const noexcept
+    { return tiles_.begin(); }
+    CONSTEXPR12 HandDense::const_iterator end() const noexcept
+    { return tiles_.end(); }
 
 private:
     U64 flags_{};

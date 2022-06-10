@@ -46,6 +46,7 @@ constexpr Fast16 k_DeckSize = 136;
 constexpr Fast16 k_DeadWallSize = 14;
 constexpr Fast16 k_MaxHandSize = 14;
 constexpr Fast16 k_MaxNumMeld = 4;
+constexpr Fast16 k_MaxDiscards = 24;
 
 /**
  * fedcba9876543210

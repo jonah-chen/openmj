@@ -95,5 +95,23 @@ void ImGuiDockspace::on_gui_render()
     ImGui::End();
 }
 
+void Viewport::on_gui_render()
+{
+    ImGui::Begin(name_);
+    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.0f, 0.0f));
+    for (auto *elem : elements_)
+        elem->on_gui_render();
+    ImGui::PopStyleVar();
+    ImGui::End();
+}
+
+void Viewport::on_detach()
+{
+    for (auto *elem : elements_)
+    {
+        delete elem;
+    }
+}
+
 } // namespace draw
 } // namespace mj

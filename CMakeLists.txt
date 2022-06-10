@@ -41,7 +41,8 @@ add_library(Engine STATIC ${src_dir}/core/engine/gui.cc ${extern_dir}/imgui/imgu
                         ${src_dir}/core/engine/layerstack.cc
                         ${src_dir}/core/engine/window.cc
                         ${src_dir}/core/engine/app.cc
-                        ${src_dir}/core/engine/texture.cc)
+                        ${src_dir}/core/engine/texture.cc
+                        ${src_dir}/core/engine/hand.cc)
 target_link_libraries(Engine PUBLIC glfw imgui_GLFW GLEW OpenGL)
 
 set(libs Mahjong tomohxx_Shanten)
