@@ -35,7 +35,7 @@ add_library(imgui_GLFW STATIC ${extern_dir}/imgui/imgui_impl_glfw.cpp
                           ${extern_dir}/imgui/imgui_tables.cpp
                           ${extern_dir}/imgui/imgui_draw.cpp
                           ${extern_dir}/imgui/imgui_widgets.cpp)
-target_link_libraries(imgui_GLFW PUBLIC ${glfw3_LIBRARIES})
+target_link_libraries(imgui_GLFW PUBLIC ${glfw3_LIBRARIES} ${CMAKE_DL_LIBS})
 
 add_library(Engine STATIC ${src_dir}/core/engine/gui.cc ${extern_dir}/imgui/imgui_demo.cpp
                         ${src_dir}/core/engine/layerstack.cc
