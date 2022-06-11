@@ -1,6 +1,7 @@
 
 #pragma once
 #include "mahjong.hpp"
+#include "core/utils/logging.hpp"
 
 namespace mj {
 namespace scoring {
@@ -18,8 +19,9 @@ constexpr Fast8 k_NumYakuman = 11;
 
 using Doras = s_Vector<Tile, 10>;
 
-enum class Yaku : Fast8
+enum class Yaku : Fast64
 {
+    invalid = 0,
     riichi,
     ippatsu,
     men_tsumo,
@@ -67,19 +69,28 @@ enum class Yakuman : Fast8
     chihou
 };
 
+constexpr Yaku operator|(Yaku a, Yaku b) 
+{
+    return static_cast<Yaku>(static_cast<Fast64>(a) << 8 | static_cast<Fast64>(b));
+}
+
 struct ScoringCombo
 {
-    U16 flags;
-    std::array<Fast8, k_NumYaku> yaku;
-    std::array<Fast8, k_NumYakuman> yakuman;
+    U16 flags {};
+    std::array<Fast8, k_NumYaku> yaku {};
+    std::array<Fast8, k_NumYakuman> yakuman {};
     Doras *doras { nullptr };
     Fast16 fu {};
-    Dir round;
+    Dir round {};
 
-    CONSTEXPR12 Fast8 &operator[](Yaku y) noexcept
-    { return yaku[static_cast<Fast8>(y)]; }
-    CONSTEXPR12 const Fast8 &operator[](Yaku y) const noexcept
-    { return yaku[static_cast<Fast8>(y)]; }
+    CONSTEXPR12 Fast8 &operator[](Yaku y) MJ_EXCEPT_CRIT
+    {   MJ_ASSERT_CRIT(static_cast<Fast64>(y) <= k_NumYaku,
+        "Cannot index multiple yaku at once.");
+        return yaku[static_cast<Fast64>(y)-1]; }
+    CONSTEXPR12 const Fast8 &operator[](Yaku y) const MJ_EXCEPT_CRIT
+    {   MJ_ASSERT_CRIT(static_cast<Fast64>(y) <= k_NumYaku,
+        "Cannot index multiple yaku at once.");
+        return yaku[static_cast<Fast64>(y)-1]; }
     CONSTEXPR12 Fast8 &operator[](Yakuman y) noexcept
     { return yakuman[static_cast<Fast8>(y)]; }
     CONSTEXPR12 const Fast8 &operator[](Yakuman y) const noexcept
@@ -111,6 +122,8 @@ Fast8 eval(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai
  */
 template<Yakuman yakuman>
 Fast8 eval(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai);
+
+Fast32 basic_score(Fast16 fu, Fast8 fan);
 
 } // namespace scoring
 } // namespace mj
