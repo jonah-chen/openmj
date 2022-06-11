@@ -8,14 +8,16 @@ namespace scoring {
 constexpr Fast16 k_BonusScore = 100;
 constexpr Fast16 k_RiichiDeposit = 1000;
 constexpr Fast16 k_BaseFu = 20;
-constexpr Fast16 k_Yakuman = 13;
 constexpr Fast16 k_Mangan = 2000;
 constexpr Fast16 k_Haneman = 3000;
 constexpr Fast16 k_Baiman = 4000;
 constexpr Fast16 k_Sanbaiman = 6000;
+constexpr Fast16 k_Yakuman = 8000;
 
 constexpr Fast8 k_NumYaku = 30;
 constexpr Fast8 k_NumYakuman = 11;
+
+constexpr U16 f_DoubleYakuman = 0x0001;
 
 using Doras = s_Vector<Tile, 10>;
 
@@ -124,6 +126,8 @@ template<Yakuman yakuman>
 Fast8 eval(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai);
 
 Fast32 basic_score(Fast16 fu, Fast8 fan);
+
+Fast32 score_hand(const Hand &hand, const Win &win, Tile agari_pai);
 
 } // namespace scoring
 } // namespace mj

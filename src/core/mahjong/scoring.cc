@@ -288,7 +288,10 @@ Fast8 eval<Yaku::chitoitsu>(ScoringCombo &combo, const Hand &hand, const Win &wi
 {
     MJ_ASSERT(combo[Yaku::chitoitsu] == 0, "Cannot evaluate a chitoitsu twice.");
     if (shanten(hand.hand_4hot(), 0, k_ModeChiitoi) == -1)
+    {
+        combo.fu = 25;
         return combo[Yaku::chitoitsu] = 2;
+    }
     return combo[Yaku::chitoitsu] = 0;
 }
 
@@ -598,15 +601,91 @@ Fast8 eval
 
 Fast32 basic_score(Fast16 fu, Fast8 fan)
 {
+    if (fan >= 13)
+        return k_Yakuman;
     if (fan >= 11)
         return k_Sanbaiman;
     if (fan >= 8)
         return k_Baiman;
     if (fan >= 6)
-        return k_Saiman;
+        return k_Haneman;
     if (fan == 5 || (fu >= 40 && fan == 4) || (fu >= 70 && fan == 3))
         return k_Mangan;
     return fu << (2 + fan);
+}
+
+Fast32 score_hand(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai)
+{
+    eval<Yakuman::chuuren_poutou>(combo, hand, win, agari_pai);
+    eval<Yakuman::suu_ankou>(combo, hand, win, agari_pai);
+    eval<Yakuman::suu_kantsu>(combo, hand, win, agari_pai);
+    eval<Yakuman::daisangen>(combo, hand, win, agari_pai);
+    eval<Yakuman::shosushi>(combo, hand, win, agari_pai);
+    eval<Yakuman::daisushi>(combo, hand, win, agari_pai);
+    eval<Yakuman::kokushi>(combo, hand, win, agari_pai);
+    eval<Yakuman::ryuisou>(combo, hand, win, agari_pai);
+    eval<Yakuman::chinroutou>(combo, hand, win, agari_pai);
+    eval<Yakuman::tenhou>(combo, hand, win, agari_pai);
+    eval<Yakuman::chihou>(combo, hand, win, agari_pai);
+    
+    Fast8 yakumans = std::accumulate(combo.yakuman.begin(), combo.yakuman.end(), 0);
+    if (yakumans >= 1)
+        return k_Yakuman*((combo.flags & f_DoubleYakuman) ? yakumans : 1);
+    
+    if (eval<Yaku::chitoitsu>(combo, hand, win, agari_pai))
+    {
+    if(eval<Yaku::chinitsu | Yaku::honitsu>(combo, hand, win, agari_pai)){}
+    else if (eval<Yaku::honroutou>(combo, hand, win, agari_pai)){}
+    else eval<Yaku::tanyao>(combo, hand, win, agari_pai);
+    }
+    else
+    {
+    eval<Yaku::pinfu>(combo, hand, win, agari_pai);
+    eval<Yaku::riichi>(combo, hand, win, agari_pai);
+    eval<Yaku::ippatsu>(combo, hand, win, agari_pai);
+    eval<Yaku::men_tsumo>(combo, hand, win, agari_pai);
+    eval<Yaku::haitei>(combo, hand, win, agari_pai);
+    eval<Yaku::houtei>(combo, hand, win, agari_pai);
+    eval<Yaku::rinshan>(combo, hand, win, agari_pai);
+    eval<Yaku::chankan>(combo, hand, win, agari_pai);
+    if (
+    eval<Yaku::prevailing_wind>(combo, hand, win, agari_pai) |
+    eval<Yaku::seat_wind>(combo, hand, win, agari_pai) |
+    eval<Yaku::hatsu>(combo, hand, win, agari_pai) |
+    eval<Yaku::chun>(combo, hand, win, agari_pai) |
+    eval<Yaku::haku>(combo, hand, win, agari_pai) 
+    ){}
+    else
+    {
+    eval<Yaku::tanyao>(combo, hand, win, agari_pai);
+    eval<Yaku::ryanpeikou>(combo, hand, win, agari_pai);
+    }
+    if(
+    eval<Yaku::chinitsu | Yaku::honitsu>(combo, hand, win, agari_pai)
+    ){}
+    else
+    {
+    eval<Yaku::sanshoku_seq | Yaku::sanshoku_set>(combo, hand, win, agari_pai);
+    }
+    if(
+    eval<Yaku::honroutou>(combo, hand, win, agari_pai)
+    ){}
+    else if(
+    eval<Yaku::junchan | Yaku::chanta>(combo, hand, win, agari_pai)
+    ){}
+    else
+    {
+    eval<Yaku::ittsu>(combo, hand, win, agari_pai);
+    }
+    eval<Yaku::ipeikou>(combo, hand, win, agari_pai);
+    eval<Yaku::shousangen>(combo, hand, win, agari_pai);
+    eval<Yaku::toitoi>(combo, hand, win, agari_pai);
+    eval<Yaku::sanankou>(combo, hand, win, agari_pai);
+    eval<Yaku::sankantsu>(combo, hand, win, agari_pai);
+    }
+
+    Fast8 fan = std::accumulate(combo.yaku.begin(), combo.yaku.end(), 0);
+    return basic_score(combo.fu, fan);
 }
 
 } // namespace scoring
