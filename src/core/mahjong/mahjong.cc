@@ -286,7 +286,7 @@ Wins Hand::agari() const
 
 WaitingTiles Hand::tenpai() const
 {
-    if (size() + 3*melds() != k_MaxHandSize - 1) return {};
+    if (size() + 3u*melds() < k_MaxHandSize - 1u) return {};
     if (!is_tenpai()) return {};
     WaitingTiles waiting;
     Hand4Hot h4 (hand_4hot());

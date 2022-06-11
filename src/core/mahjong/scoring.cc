@@ -1,6 +1,8 @@
 
 #include "scoring.hpp"
 #include "core/utils/logging.hpp"
+#include <algorithm>
+#include <numeric>
 
 namespace mj {
 namespace scoring {
@@ -50,7 +52,7 @@ Fast8 eval<Yaku::pinfu>(ScoringCombo &combo, const Hand &hand, const Win &win, T
                 triple_pts <<= 1;
             fu += triple_pts;
         }
-        else if (meld.first() == agari_pai && agari_pai.num() != c_num(7) || meld.third() == agari_pai && agari_pai.num() != c_num(3))
+        else if ((meld.first() == agari_pai && agari_pai.num() != c_num(7)) || (meld.third() == agari_pai && agari_pai.num() != c_num(3)))
             wait_fu = 0;
     }
 
@@ -86,7 +88,7 @@ Fast8 eval<Yaku::ipeikou>(ScoringCombo &combo, const Hand &hand, const Win &win,
 {
     if (hand.check(Hand::f_Open))
         return combo[Yaku::ipeikou] = 0;
-    for (int i = 0; i < win.melds.size() - 1; i++)
+    for (std::size_t i = 0; i < win.melds.size() - 1; i++)
     {
         if (win.melds[i].eq7(win.melds[i + 1]))
             return combo[Yaku::ipeikou] = 1;
@@ -115,7 +117,8 @@ Fast8 eval<Yaku::rinshan>(ScoringCombo &combo, const Hand &hand, const Win &win,
 template<>
 Fast8 eval<Yaku::chankan>(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai)
 {
-    throw std::logic_error("not implemented yet");
+    MJ_WARN("chankan is not implemented");
+    return combo[Yaku::chankan] = 0;
 }
 
 template<>
@@ -160,6 +163,7 @@ Fast8 eval<Yaku::prevailing_wind>(ScoringCombo &combo, const Hand &hand, const W
     for (const auto &meld : win.melds)
         if (meld.first().eq7({Suit::Wind, combo.round}))
             return combo[Yaku::prevailing_wind] = 1;
+    return combo[Yaku::prevailing_wind] = 0;
 }
 
 template<>
@@ -168,6 +172,7 @@ Fast8 eval<Yaku::seat_wind>(ScoringCombo &combo, const Hand &hand, const Win &wi
     for (const auto &meld : win.melds)
         if (meld.first().eq7({Suit::Wind, hand[0].player()}))
             return combo[Yaku::seat_wind] = 1;
+    return combo[Yaku::seat_wind] = 0;
 }
 
 template<>
@@ -184,19 +189,53 @@ Fast8 eval<Yaku::chanta>(ScoringCombo &combo, const Hand &hand, const Win &win, 
 template<>
 Fast8 eval<Yaku::sanshoku_seq>(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai)
 {
-    throw std::logic_error("not implemented yet");
+    std::array<Fast8, 9> seq {{}};
+    for (const auto &meld : win.melds)
+    {
+        if (meld.is_set() || meld.first().is_honor())
+            continue;
+        seq[meld.first().num()] |= 1 << static_cast<Fast8>(meld.first().suit()); 
+    }
+    return combo[Yaku::sanshoku_seq] = (std::find(seq.begin(), seq.end(), 7) != seq.end())*(hand.check(Hand::f_Open) ? 1 : 2);
 }
 
 template<>
 Fast8 eval<Yaku::sanshoku_set>(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai)
 {
-    throw std::logic_error("not implemented yet");
+    std::array<Fast8, 9> set {{}};
+    for (const auto &meld : win.melds)
+    {
+        if (!meld.is_set() || meld.first().is_honor())
+            continue;
+        set[meld.first().num()] |= 1 << static_cast<Fast8>(meld.first().suit()); 
+    }
+    return combo[Yaku::sanshoku_seq] = (std::find(set.begin(), set.end(), 7) != set.end())*2;
 }
 
 template<>
 Fast8 eval<Yaku::ittsu>(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai)
 {
-    throw std::logic_error("not implemented yet");
+    std::array<Fast8, 3> straights {{}};
+    for (const auto &meld : win.melds)
+    {
+        if (meld.is_set() || meld.first().is_honor())
+            continue;
+        switch (meld.first().num())
+        {
+        case 0:
+            straights[static_cast<Fast8>(meld.first().suit())] |= 1 << 0;
+            break;
+        case 3:
+            straights[static_cast<Fast8>(meld.first().suit())] |= 1 << 1;
+            break;
+        case 6:
+            straights[static_cast<Fast8>(meld.first().suit())] |= 1 << 2;
+            break;
+        default:
+            break;
+        }
+    }
+    return combo[Yaku::ittsu] = (std::find(straights.begin(), straights.end(), 7) != straights.end()) * (hand.check(Hand::f_Open) ? 1 : 2);
 }
 
 template<>
@@ -283,8 +322,8 @@ Fast8 eval<Yaku::junchan>(ScoringCombo &combo, const Hand &hand, const Win &win,
     if (!win.pair.first().is_19())
         return combo[Yaku::junchan] = 0;
     for (const auto &meld : win.melds)
-        if (!(meld.first().is_19() && !meld.first().is_honor() || 
-                meld.third().is_19() && !meld.third().is_honor()))
+        if (!((meld.first().is_19() && !meld.first().is_honor()) || 
+                (meld.third().is_19() && !meld.third().is_honor())))
             return combo[Yaku::junchan] = 0;
     return combo[Yaku::chanta] = hand.check(Hand::f_Open) ? 2 : 3;
 }
@@ -322,7 +361,14 @@ Fast8 eval<Yaku::chinitsu>(ScoringCombo &combo, const Hand &hand, const Win &win
 template<>
 Fast8 eval<Yaku::dora>(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai)
 {
-    throw std::logic_error("not implemented yet");
+    const auto &h4 = hand.hand_4hot();
+    combo[Yaku::dora] = std::count_if(hand.begin(), hand.end(), [](Tile t) { return t & Tile::f_Red; });
+
+    if (combo.doras)
+        combo[Yaku::dora] = std::accumulate(combo.doras->begin(), combo.doras->end(), combo[Yaku::dora], 
+        [&h4](Fast8 acc, Tile t) { return acc + h4[t.id34()]; });
+
+    return combo[Yaku::dora];
 }
 
 template<>
@@ -335,7 +381,7 @@ Fast8 eval<Yakuman::chuuren_poutou>(ScoringCombo &combo, const Hand &hand, const
         for (Fast8 n = 0; n < 9; ++n)
             if (hand.hand_4hot()[s9+n] <= counts[n])
                 goto FAILURE;
-    SUCCESS:
+    // SUCCESS
         if (hand.hand_4hot()[agari_pai.id34()] > counts[agari_pai.num()])
             return combo[Yakuman::chuuren_poutou] = 2;
         return combo[Yakuman::chuuren_poutou] = 1;

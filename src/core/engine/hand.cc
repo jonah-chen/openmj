@@ -38,12 +38,10 @@ inline ImVec2 operator*(float lhs, const ImVec2& rhs)
 
 HandElem::HandElem(const Config &cfg, const HandDense &hand, Dir relative_pos)
     : cfg_(cfg), hand_(hand)
-{
-    std::size_t i_relative_pos = static_cast<std::size_t>(relative_pos);
-    
-    move_dir_ = cfg.dx[i_relative_pos];
-    rot_ = cfg.rot[i_relative_pos];
-    base_ = cfg.hand_base[i_relative_pos];
+{    
+    move_dir_ = cfg.dx[relative_pos];
+    rot_ = cfg.rot[relative_pos];
+    base_ = cfg.hand_base[relative_pos];
 }
 
 void HandElem::on_gui_render()
@@ -86,11 +84,10 @@ void HandElem::on_gui_render()
 DiscardElem::DiscardElem(const Config &cfg, const Discards &discards, Dir relative_pos)
     : cfg_(cfg), discards_(discards)
 {
-    std::size_t i_relative_pos = static_cast<std::size_t>(relative_pos);
-    base_ = cfg.discard_base[i_relative_pos];
-    dx_ = cfg.dx[i_relative_pos];
-    dy_ = cfg.dy[i_relative_pos];
-    rot_ = cfg.rot[i_relative_pos];
+    base_ = cfg.discard_base[relative_pos];
+    dx_ = cfg.dx[relative_pos];
+    dy_ = cfg.dy[relative_pos];
+    rot_ = cfg.rot[relative_pos];
     throw std::runtime_error("DiscardElem::DiscardElem: not fully implemented");
 }
 

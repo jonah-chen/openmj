@@ -14,7 +14,9 @@ constexpr Fast16 k_Baiman = 4000;
 constexpr Fast16 k_Sanbaiman = 6000;
 
 constexpr Fast8 k_NumYaku = 30;
-constexpr Fast8 k_NumYakuman = 10;
+constexpr Fast8 k_NumYakuman = 11;
+
+using Doras = s_Vector<Tile, 10>;
 
 enum class Yaku : Fast8
 {
@@ -70,6 +72,7 @@ struct ScoringCombo
     U16 flags;
     std::array<Fast8, k_NumYaku> yaku;
     std::array<Fast8, k_NumYakuman> yakuman;
+    Doras *doras { nullptr };
     Fast16 fu {};
     Dir round;
 
