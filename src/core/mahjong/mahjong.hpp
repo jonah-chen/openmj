@@ -52,12 +52,9 @@ constexpr bool operator>(Suit lhs, Suit rhs) noexcept
     return static_cast<U16>(lhs) > static_cast<U16>(rhs);
 }
 
-enum class Dir : Fast8
+enum Dir : Fast8
 {
-    East = k_East,
-    South = k_South,
-    West = k_West,
-    North = k_North
+    k_East, k_South, k_West, k_North
 };
 
 /**
@@ -69,7 +66,7 @@ enum class Dir : Fast8
  */
 constexpr Dir &operator++(Dir &dir) noexcept
 {
-    dir = static_cast<Dir>((static_cast<Fast8>(dir) + 1) & 3);
+    dir = static_cast<Dir>((dir + 1) & 3);
     return dir;
 }
 /**
@@ -98,8 +95,10 @@ public:
 
     constexpr static U16 f_Transparent  = 0x0001;
     constexpr static U16 f_Red          = 0x0002;
-    constexpr static U16 f_Open         = 0x0004;
-    constexpr static U16 f_Tsumogiri    = 0x0008;
+    constexpr static U16 f_Tsumogiri    = 0x0004;
+    constexpr static U16 f_LastTile     = 0x0008;
+    constexpr static U16 f_FirstTurn    = 0x0010;
+    constexpr static U16 f_Rinshan      = 0x0020;
 public:
     constexpr Tile() noexcept : id_(f_All16) {}
     constexpr Tile(U16 id) noexcept : id_(id) {}
@@ -152,6 +151,14 @@ public:
     constexpr bool ne7(const Tile& rhs) const noexcept
     { return id7() != rhs.id7(); }
 
+    constexpr bool is_honor() const MJ_EXCEPT_WARN
+    {   MJ_ASSERT(*this, "is_honor() called on invalid tile");
+        return suit() >= Suit::Wind; }
+
+    constexpr bool is_19() const MJ_EXCEPT_WARN
+    {   MJ_ASSERT(*this, "is_19() called on invalid tile");
+        return num() == c_num(1) || num() == c_num(9) || is_honor(); }
+
     constexpr bool operator==(const Tile &rhs) const
     { return id_ == rhs.id_; }
     constexpr bool operator!=(const Tile &rhs) const
@@ -160,7 +167,6 @@ public:
     { return id_ < rhs.id_; }
     constexpr bool operator>(const Tile &rhs) const
     { return id_ > rhs.id_; }
-
     constexpr bool operator<=(const Tile &rhs) const
     { return id_ <= rhs.id_; }
     constexpr bool operator>=(const Tile &rhs) const
@@ -173,6 +179,8 @@ public:
  */
 class Meld
 {
+    constexpr static U64 mask7 = 127ul << tilelayout::k_NumPos;
+    constexpr static U64 Mask7 = mask7 | mask7 << 16 | mask7 << 32 | mask7 << 48;
 public:
     constexpr Meld() noexcept : id_(f_All64) {}
     constexpr Meld(Tile called, Tile t1, Tile t2 = {}, Tile t3 = {})
@@ -186,6 +194,8 @@ public:
      */
     constexpr Tile first() const noexcept
     { return Tile(id_ >> 48); }
+    constexpr Tile called() const noexcept
+    { return first(); }
     /** 
      * @return constexpr Tile The second tile in the meld.
      */
@@ -224,11 +234,11 @@ public:
     constexpr bool ne7(const Meld& rhs) const noexcept
     { return (id_ & Mask7) != (rhs.id_ & Mask7); }
 
+    constexpr bool is_set() const noexcept 
+    { return first().id7() == third().id7();  }
+
 private:
     U64 id_;
-
-    constexpr static U64 mask7 = 127ul << tilelayout::k_NumPos;
-    constexpr static U64 Mask7 = mask7 | mask7 << 16 | mask7 << 32 | mask7 << 48;
 };
 
 using Melds = s_Vector<Meld, k_MaxNumMeld>;
@@ -252,6 +262,18 @@ S8 shanten(const Hand4Hot &h4, Fast8 n_melds, int mode);
 
 class Hand
 {
+public:
+    constexpr static Fast8 fp_Riichi = 62;
+    constexpr static Fast8 fp_Ippatsu = 61;
+    constexpr static Fast8 fp_Open = 60;
+    constexpr static Fast8 fp_Haitei = 59;
+    constexpr static Fast8 fp_FirstTurn = 58;
+
+    constexpr static U64 f_SingleRiichi = 1ull << fp_Riichi;
+    constexpr static U64 f_DoubleRiichi = 2ull << fp_Riichi;
+    constexpr static U64 f_Riichi = f_SingleRiichi | f_DoubleRiichi;
+    constexpr static U64 f_Ippatsu = 1ull << fp_Ippatsu;
+    constexpr static U64 f_Open = 1ull << fp_Open;
 public:
     Hand() : tiles4_(k_UniqueTiles, 0) {}
     Hand(const char *);

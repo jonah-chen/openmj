@@ -30,10 +30,6 @@ constexpr U16 f_All16 = (U16)-1;
 constexpr U32 f_All32 = (U32)-1;
 constexpr U64 f_All64 = (U64)-1;
 
-constexpr Fast8 k_East = 0;
-constexpr Fast8 k_South = 1;
-constexpr Fast8 k_West = 2;
-constexpr Fast8 k_North = 3;
 constexpr Fast8 k_NumWinds = 4;
 constexpr Fast8 k_NumPlayers = 4;
 
@@ -54,6 +50,8 @@ constexpr int k_ModeChiitoi = 2;
 constexpr int k_ModeKokushi = 4;
 constexpr int k_ModeAll = k_ModeNormal | k_ModeChiitoi | k_ModeKokushi;
 
+constexpr Fast16 k_BaseFu = 20;
+
 /**
  * fedcba9876543210
  * sssnnnnppfffffff
@@ -64,15 +62,5 @@ namespace tilelayout
     constexpr Fast8 k_NumPos = 9;
     constexpr Fast8 k_SuitPos = 13;
 } // namespace tilelayout
-
-
-constexpr Fast8 fp_Riichi = 62;
-constexpr U64 f_SingleRiichi = 1ull << fp_Riichi;
-constexpr U64 f_DoubleRiichi = 2ull << fp_Riichi;
-constexpr U64 f_Riichi = 3ull << fp_Riichi;
-
-constexpr Fast8 fp_Ippatsu = 61;
-constexpr U64 f_Ippatsu = 1ull << fp_Ippatsu;
-
 
 } // namespace mj

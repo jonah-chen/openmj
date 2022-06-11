@@ -70,6 +70,8 @@ struct ScoringCombo
     U16 flags;
     std::array<Fast8, k_NumYaku> yaku;
     std::array<Fast8, k_NumYakuman> yakuman;
+    Fast16 fu {};
+    Dir round;
 
     CONSTEXPR12 Fast8 &operator[](Yaku y) noexcept
     { return yaku[static_cast<Fast8>(y)]; }
@@ -88,10 +90,11 @@ struct ScoringCombo
  * @param combo The scoring combo reference to aggregate the result
  * @param hand The hand to evaluate.
  * @param win The win (set of sequences and pairs) to evaluate
+ * @param agari_pai The tile that caused the win.
  * @return Fast8 The number of fan for yaku (0 to 6)
  */
 template<Yaku yaku>
-Fast8 eval(ScoringCombo &combo, const Hand &hand, const Win &win);
+Fast8 eval(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai);
 
 /**
  * Evaluate a particular yakuman
@@ -100,10 +103,11 @@ Fast8 eval(ScoringCombo &combo, const Hand &hand, const Win &win);
  * @param combo The scoring combo reference to aggregate the result
  * @param hand The hand to evaluate.
  * @param win The win (set of sequences and pairs) to evaluate
+ * @param agari_pai The tile that caused the win.
  * @return Fast8 The number of counts for the yakuman (0, 1, or 2)
  */
 template<Yakuman yakuman>
-Fast8 eval(ScoringCombo &combo, const Hand &hand, const Win &win);
+Fast8 eval(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai);
 
 } // namespace scoring
 } // namespace mj
