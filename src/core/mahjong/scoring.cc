@@ -690,3 +690,5 @@ Fast32 score_hand(ScoringCombo &combo, const Hand &hand, const Win &win, Tile ag
 
 } // namespace scoring
 } // namespace mj
+
+#include "rng.hpp"

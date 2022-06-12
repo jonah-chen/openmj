@@ -254,9 +254,12 @@ Wins Hand::agari() const
     {
         auto tmp_hand = *this;
         auto first = std::find(tmp_hand.tiles_.begin(), tmp_hand.tiles_.end(), pair.first());
+        tmp_hand.tiles_.erase(first, first+2);
+        // *first = {};
+        // *(first+1) = {};
+        // tmp_hand = tmp_hand.clean();
         tmp_hand.hand_4hot()[pair.first().id34()]-=2;
         auto trips = triples(tmp_hand);
-        tmp_hand.tiles_.erase(first, first+2);
         if (trips.size() < closed_melds) continue;
         auto combos = n_triples(std::move(tmp_hand), trips, closed_melds);
         if (combos.empty()) continue;

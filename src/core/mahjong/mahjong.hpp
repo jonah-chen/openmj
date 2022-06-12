@@ -3,6 +3,7 @@
 
 #include <array>
 #include <vector>
+#include <algorithm>
 #include "constants.hpp"
 #include "core/utils/stack_allocator.hpp"
 #include "core/utils/logging.hpp"
@@ -101,11 +102,14 @@ public:
     constexpr static U16 f_Rinshan      = 0x0020;
 public:
     constexpr Tile() noexcept : id_(f_All16) {}
-    constexpr Tile(U16 id) noexcept : id_(id) {}
+    constexpr explicit Tile(U16 id) : id_(id) {}
     constexpr Tile(Suit suit, Fast8 num, Fast8 player=k_East, U16 flags=0)
     noexcept : id_((U16)suit << tilelayout::k_SuitPos | 
                         num << tilelayout::k_NumPos | 
                         player << tilelayout::k_PlayerPos | flags) {}
+    constexpr void set(U16 flag) { id_ |= flag; }
+    constexpr void set_dir(Dir dir) { id_ |= (U16)dir << tilelayout::k_PlayerPos; }
+    constexpr bool check(U16 flag) const { return id_ & flag; }
 
 private:
     U16 id_;
@@ -173,6 +177,15 @@ public:
     { return id_ >= rhs.id_; }
 };
 
+constexpr Tile convert34(int n)
+{
+    U16 suit = std::count_if(Tile::k_Offsets.begin(), Tile::k_Offsets.end(), 
+        [n](int offset) { return n >= offset; })-1;
+    U16 num = n - Tile::k_Offsets[suit];
+    return Tile(suit << tilelayout::k_SuitPos | num << tilelayout::k_NumPos);
+}
+
+
 /**
  * Melds, which represent all sets of tiles possible in the game, including
  * pairs, triples, and quads.
@@ -184,10 +197,10 @@ class Meld
 public:
     constexpr Meld() noexcept : id_(f_All64) {}
     constexpr Meld(Tile called, Tile t1, Tile t2 = {}, Tile t3 = {})
-        : id_(((U64)called.id()<< 48) |
-              ((U64)t1.id() << 32) |
-              ((U64)t2.id() << 16) |
-               t3.id()) {}
+        : id_((static_cast<U64>(called.id())<< 48) |
+              (static_cast<U64>(t1.id()) << 32) |
+              (static_cast<U64>(t2.id()) << 16) |
+               static_cast<U64>(t3.id())) {}
 
     /** 
      * @return constexpr Tile The first tile in the meld.
