@@ -2,182 +2,230 @@
 #include "mahjong.hpp"
 #include "extern/shanten-number/calsht.hpp"
 #include <algorithm>
+#include <optional>
 
 namespace mj {
 namespace {
-using Pairs = s_Vector<Meld, 7>;
-using Triples = s_Vector<Meld, 32>;
-using Combos = s_Vector<Melds, 32>;
+using Pair_s = std::variant<int, cPairs>;
+using Runs4Hot = std::array<Fast8, k_FirstHonorIdx>;
+using Sets4Hot = std::array<bool, 34>;
+using Triples = std::pair<Runs4Hot, Sets4Hot>; 
+using cMeldsI = std::pair<cMelds, Triples>;
+using TempTrip = s_Vector<Meld, 4>;
 
-
-Pairs pairs(const Hand &hand) 
+Pair_s pairs(const Hand4Hot &h4) 
 {
-    hand.sort();
-    Pairs pairs;
-    for (Fast8 i = 0; i < hand.size() - 1; ++i)
+    cPairs pairs;
+    for (Suit s = Suit::Man; s < Suit::Wind; ++s)
     {
-        if (hand[i] == hand[i+1])
+        const Fast8 s9 = static_cast<Fast8>(s)*9;
+        // for 1s
+        if (h4[s9]==2 && h4[s9+1]==0)
+            return s9;
+        else if (h4[s9]>=2)
+            pairs.push_back(s9);
+        for (Fast8 i = 1; i < 8; ++i)
         {
-            pairs.emplace_back(hand[i], hand[i+1]);
-            ++i;
+            if (h4[s9+i]==2 && h4[s9+i-1]==0 && h4[s9+i+1]==0)
+                return s9+i;
+            else if (h4[s9+i]>=2)
+                pairs.push_back(s9+i);
         }
-        if (hand[i] == hand[i+1])
-            ++i;
+        if (h4[s9+8]==2 && h4[s9+7]==0)
+            return s9+8;
+        else if (h4[s9+8]>=2)
+            pairs.push_back(s9+8);
     }
+    for (Fast8 t = k_FirstHonorIdx; t < k_UniqueTiles; ++t)
+    {
+        if (h4[t] == 2)
+            return t;
+        else if (h4[t] > 2)
+            pairs.push_back(t);
+    }
+    if (pairs.size() == 1)
+        return pairs.back();
     return pairs;
 }
 
-Triples triples(const Hand &hand)
+std::optional<cPairs> seven_pairs(const Hand4Hot &h4)
 {
-    Triples triples;
-    Fast8 idx = 0;
-    const auto &h4 = hand.hand_4hot();
+    cPairs p;
+    for (Fast8 t = 0; t < k_UniqueTiles; ++t)
+    {
+        if (h4[t] == 2)
+            p.push_back(t);
+        else if (h4[t])
+            return {};
+    }
+    return p;
+}
+
+Triples triples(const Hand4Hot &h4)
+{
+    // test for sets
+    Sets4Hot sets {};
+    for (Fast8 i = 0; i < k_UniqueTiles; ++i)
+        if (h4[i] >= 3)
+            sets[i] = true;    
     // test for runs
+    Runs4Hot runs {};
     for (Suit s = Suit::Man; s < Suit::Wind; ++s)
     {
         const Fast8 s9 = static_cast<Fast8>(s)*9;
         for (Fast8 n = 0; n < 7; ++n)
         {
             Fast8 p = s9 + n;
-            Fast8 min = std::min({h4[p], h4[p+1], h4[p+2]});
-            for (Fast8 o = 0; o < min; ++o)
-                triples.emplace_back(
-                    hand[idx+o], hand[idx+h4[p]+o], hand[idx+h4[p]+h4[p+1]+o]);
-            idx += h4[p];
+            runs[p] = std::min({h4[p], h4[p+1], h4[p+2]});
         }
-        idx += h4[s9+7] + h4[s9+8];
     }
-    idx = 0;
-    // test for sets
-    for (Fast8 i = 0; i < k_UniqueTiles; ++i)
-    {
-        if (h4[i] >= 3)
-            triples.emplace_back(hand[idx], hand[idx+1], hand[idx+2]);
-        idx += h4[i];
-    }
-    return triples;
+    return {runs, sets};
 }
 
-struct HandArray;
-
-struct Node
+std::variant<cMelds, cMeldsI> perms(Hand4Hot &h4, Fast8 N)
 {
-    Meld meld;
-    std::unique_ptr<HandArray> child;
-    Node(const Meld &meld, std::unique_ptr<HandArray> &&child)
-        : meld(meld), child(std::move(child))
-    {}
-};   
-
-struct HandArray
-{
-    std::vector<Node> arr;
-    Fast16 count {};
-    CONSTEXPR12 bool empty() { return arr.empty(); }
-    CONSTEXPR12 std::size_t size() const noexcept { return arr.size(); }
-    void insert(const Meld &meld, std::unique_ptr<HandArray> &&child)
+    cMelds all_perms;
+    while (all_perms.size() < N)
     {
-        count += child->count;
-        arr.emplace_back(meld, std::move(child));
-    }
-};
-
-
-int_fast8_t traverse_tree(Hand4Hot &hand, Fast8 size, Meld branch)
-{
-    auto &first = hand[branch.first().id34()];
-    auto &second = hand[branch.second().id34()];
-    auto &third = hand[branch.third().id34()];
-    if (size >= 3 && first && second && third)
-    {
-        --first;
-        --second;
-        --third;
-        return size - 3;
-    }
-    return -1;
-}
-
-std::unique_ptr<HandArray> dfs(Hand4Hot &tiles, Fast8 size, const Meld *triples, Fast16 num_melds, Fast16 n)
-{
-    if (n == 0)
-    {
-        auto res = std::make_unique<HandArray>();
-        res->count = 1;
-        return res;
-    }
-
-    if (num_melds < n)
-        return nullptr;
-
-    std::unique_ptr<HandArray> children = nullptr;
-    for (Fast16 i = 0; i <= num_melds - n; ++i)
-    {
-        Hand4Hot tmp_hand = tiles;
-        int_fast8_t next = traverse_tree(tmp_hand, size, triples[i]);
-        if (next == -1) continue;
-        auto found = dfs(tmp_hand, next, triples+i+1, num_melds-i-1, n-1);
-        if (!found) continue;
-        children = std::make_unique<HandArray>();
-        children->insert(triples[i], std::move(found));
-    }
-
-    return children;
-}
-
-void add_perms(const Melds &perms, Combos &results)
-{
-    for (const auto &perm : perms)
-        for (Melds &result : results)
-            result.push_back(perm);
-}
-
-void add_arrays(const std::unique_ptr<HandArray> &root, Combos &result, std::size_t offset)
-{
-    if (root->empty()) return;
-
-    std::size_t cur_offset = offset;
-    for (const auto &node : root->arr)
-    {
-        for (Fast16 j = 0; j < node.child->count; ++j)
-            result[cur_offset+j].push_back(node.meld);
-        add_arrays(node.child, result, cur_offset);
-        cur_offset += node.child->count;
-    }
-}
-
-Combos n_triples(Hand &&hand, const Triples &triples, Fast8 n)
-{
-    if (triples.size() < n) return {};
-
-    // temporary id to ensure no 4-of-a-kinds are counted as two triples
-    Fast8 tmp_id = Tile().id7();
-
-    Melds perms; // We start from the end of the list because the triples are
-                 // weakly ordered. We want to detect triples for the wind and
-                 // dragon tiles then remove them to optimize performence.
-    for (auto it = triples.rbegin(); it != triples.rend(); ++it)
-    {
-        const auto &tile = it->first();
-        if (tile.suit() == Suit::Wind || tile.suit() == Suit::Dragon)
+        cMelds new_perms;
+        auto [runs, sets] = triples(h4);
+        for (Suit s = Suit::Man; s < Suit::Wind; ++s)
         {
-            if (tile.id7() == tmp_id) continue;
-            tmp_id = tile.id7();
-            perms.push_back(*it);
+            const Fast8 s9 = static_cast<Fast8>(s)*9;
+            if (runs[s9] && h4[s9]!=3)  // 123 run. 
+                                        // Only not perm when there's 3 1's
+                new_perms.push_back(_run(s9));
+
+            for (int i = 1; i < 6; ++i) // 234 ... 678 runs
+                if (runs[s9+i] && (
+                (h4[s9+i-1]==0 && h4[s9+i]!=3) || 
+                (h4[s9+i+3]==0 && h4[s9+i+2]!=3))) // check both sides
+                    new_perms.push_back(_run(s9+i));
+
+            if (runs[s9+6] && h4[s9+8]!=3)  // 789 run.
+                                            // Only not perm when there's 3 9's
+                new_perms.push_back(_run(s9+6));
+
+            if (sets[s9] && runs[s9]<3) // 1 set
+                new_perms.push_back(_set(s9));
+            if (sets[s9+1] && (h4[s9+2]==0 || (h4[s9]==0 && runs[s9+1]<3))) // 2
+                new_perms.push_back(_set(s9+1));
+            for (int i = 2; i < 7; ++i) // 34567
+            {
+                bool upper = h4[s9+i-1]==0 && runs[s9+i]<3;
+                bool lower = h4[s9+i+1]==0 && runs[s9+i-2]<3;
+                if (sets[s9+i] && (upper || lower))
+                    new_perms.push_back(_set(s9+i));
+            }
+            if (sets[s9+7] && (h4[s9+6]==0 || (h4[s9+8]==0 && runs[s9+5]<3))) // 8
+                new_perms.push_back(_set(s9+7));
+            if (sets[s9+8] && runs[s9+6]<3) // 9
+                new_perms.push_back(_set(s9+8));
         }
-        else break;
+        // sets of honors only have to be searched once
+        if (all_perms.empty())
+            for (Fast8 t = k_FirstHonorIdx; t < k_UniqueTiles; ++t)
+                if (sets[t])
+                    new_perms.push_back(_set(t));
+        
+        // If there are no new perms, there's nothing we can do so just return.
+        if (new_perms.empty())
+            return cMeldsI(all_perms, {runs, sets});
+        
+        // subtract the new perms from the hand, add them to all_perms, try again.
+        for (int perm : new_perms)
+        {
+            all_perms.push_back(perm);
+            if (_is_set(perm))
+                h4[_int(perm)] -= 3;
+            else for (int i = _int(perm); i < _int(perm)+3; ++i)
+                h4[i] -= 1;
+        }
     }
+    return all_perms;
+}
 
-    auto children = dfs(hand.hand_4hot(), hand.size(), triples.data(), triples.size(), n-perms.size());
-    if (!children) return {};
+void normal_win(Hand4Hot h4, int pair, Fast8 n_melds, Wins &wins)
+{
+    h4[pair]-=2;
+    // check if it is a win at all by adding a dummy honor pair
+    for (int t = k_UniqueTiles - 1; t >= k_FirstHonorIdx; --t)
+    {
+        if (h4[t]==0)
+        {
+            h4[t]=2;
+            if (mj::shanten(h4, n_melds, k_ModeNormal) == -1)
+            {
+                h4[t]=0;
+                break;
+            }
+            else return;
+        }
+    }
+    Fast8 N = k_MaxNumMeld - n_melds;
+    auto p = perms(h4, N);
+    auto *ptr = std::get_if<cMelds>(&p);
+    if (ptr)
+    {
+        wins.push_back(std::move(NormalWin(std::move(*ptr), pair)));
+    }
+    else
+    {
+        auto [melds, trips] = std::get<cMeldsI>(p);
+        auto [runs, sets] = trips;
+        if (N - melds.size() == 3)
+        {
+            auto pos = std::distance(runs.begin(), std::find(runs.begin(), runs.end(), 3));
+            MJ_ASSERT(pos != runs.size(), "no 3-run found should never happen");
 
-    Combos results(children->count);
-    if (perms.size() < n)
-        add_arrays(children, results, 0);
-    if (perms.size())
-        add_perms(perms, results);
-    
-    return results;
+            auto cpy_melds = melds;
+            for (int i = 0; i < 3; ++i)
+            {
+                cpy_melds.push_back(_run(pos));
+                melds.push_back(_set(pos+i));
+            }
+            wins.emplace_back(NormalWin(cpy_melds, pair));
+            wins.emplace_back(NormalWin(melds, pair));
+        }
+        else if (N - melds.size() == 4)
+        {
+            auto it4 = std::find(runs.begin(), runs.end(), 4);
+            if (it4 != runs.end())
+            {
+                auto pos = std::distance(runs.begin(), it4);
+                melds.push_back(_run(pos));
+                auto cpy_melds = melds;
+                for (int i = 0; i < 3; ++i)
+                {
+                    cpy_melds.push_back(_set(pos+i));
+                    melds.push_back(_run(pos));
+                }
+                wins.emplace_back(NormalWin(melds, pair));
+                wins.emplace_back(NormalWin(cpy_melds, pair));
+            }
+            else
+            {
+                auto pos = std::distance(runs.begin(), std::find(runs.begin(), runs.end(), 3));
+                MJ_ASSERT(pos != runs.size(), "no 3-run found should never happen after 4-run");
+                auto melds_b = melds;
+                auto melds_e = melds;
+                melds_b.push_back(_set(pos));
+                melds_e.push_back(_set(pos+1));
+                for (int i = 0; i < 3; ++i)
+                {
+                    melds.push_back(_set(pos+i));
+                    melds_b.push_back(_run(pos+1));
+                    melds_e.push_back(_run(pos));
+                }
+                melds.push_back(_set(pos+3));
+                wins.emplace_back(NormalWin(melds, pair));
+                wins.emplace_back(NormalWin(melds_b, pair));
+                wins.emplace_back(NormalWin(melds_e, pair));
+            }
+        }
+        else
+        MJ_ALWAYS_THROW(true, std::runtime_error, "unexpected number of unidentified melds" + std::to_string(N - melds.size()));
+    }
 }
 
 void tenpai_win_impl(Fast8 offset, WaitingTiles &res, Hand4Hot &h4, 
@@ -238,53 +286,23 @@ Hand Hand::clean() const
 
 Wins Hand::agari() const
 {
-    if (!is_agari()) return {};
-    auto p = pairs(*this);
-    if (p.empty()) return {};
-
     Wins wins;
-    const Fast8 closed_melds = k_MaxNumMeld - melds();
-    if (closed_melds == 0)
+    if (melds() == 0)
     {
-        for (const auto &pair : p)
-            wins.emplace_back(melds_, pair);
-        return wins;
-    }
-
-    for (const auto &pair : p)
-    {
-        auto tmp_hand = *this;
-        auto first = std::find(tmp_hand.tiles_.begin(), tmp_hand.tiles_.end(), pair.first());
-        tmp_hand.tiles_.erase(first, first+2);
-        // *first = {};
-        // *(first+1) = {};
-        // tmp_hand = tmp_hand.clean();
-        tmp_hand.hand_4hot()[pair.first().id34()]-=2;
-        auto trips = triples(tmp_hand);
-        if (trips.size() < closed_melds) continue;
-        auto combos = n_triples(std::move(tmp_hand), trips, closed_melds);
-        if (combos.empty()) continue;
-        for (auto &combo : combos)
+        if (mj::shanten(hand_4hot(), 0, k_ModeKokushi) == -1)
         {
-            if (!melds_.empty())
-                combo.insert(combo.end(), melds_.begin(), melds_.end());
-            if (wins.empty())
-            {
-                wins.emplace_back(combo, pair);
-                continue;
-            }
-
-            const auto &prev = wins.back();
-            for (size_t i = 0; i < combo.size(); ++i)
-            {
-                if (combo[i].ne7(prev.melds[i]))
-                {
-                    wins.emplace_back(combo, pair);
-                    break;
-                }
-            }
+            wins.emplace_back(true);
+            return wins;
         }
+        auto sp = seven_pairs(hand_4hot());
+        if (sp) wins.emplace_back(sp.value());
     }
+    Pair_s p = pairs(hand_4hot());
+    int *pair_ptr = std::get_if<int>(&p);
+    if (pair_ptr)
+        normal_win(hand_4hot(), *pair_ptr, melds(), wins);
+    else for (const auto &pair : std::get<cPairs>(p))
+        normal_win(hand_4hot(), pair, melds(), wins);
     return wins;
 }
 

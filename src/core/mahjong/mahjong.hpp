@@ -1,9 +1,11 @@
 
 #pragma once
 
-#include <array>
-#include <vector>
 #include <algorithm>
+#include <array>
+#include <variant>
+#include <vector>
+
 #include "constants.hpp"
 #include "core/utils/stack_allocator.hpp"
 #include "core/utils/logging.hpp"
@@ -175,6 +177,16 @@ public:
     { return id_ <= rhs.id_; }
     constexpr bool operator>=(const Tile &rhs) const
     { return id_ >= rhs.id_; }
+
+public:
+    [[gnu::noinline]] std::string to_string() const
+    {
+        constexpr std::array<char, 5> suits =
+        { 'm', 'p', 's', 'w', 'd' };
+        if (*this)
+            return std::to_string(num1()) + suits[static_cast<int>(suit())];
+        return "??";
+    }
 };
 
 constexpr Tile convert34(int n)
@@ -252,23 +264,50 @@ public:
 
 private:
     U64 id_;
+
+public:
+    [[gnu::noinline]] std::string to_string() const
+    {
+        return first().to_string() + second().to_string() +
+            third().to_string() + fourth().to_string();
+    }
 };
+/**
+ * Compactified types
+ */
+using cPairs = s_Vector<int, 7>;
+using cMelds = s_Vector<int, 4>;
+using NormalWin = std::pair<cMelds, int>;
+using Win = std::variant<bool, cPairs, NormalWin>;
+using Hand4Hot = s_Vector<int, k_UniqueTiles>;
+
+/**
+ * Functions to deal with compactified types
+ */
+constexpr bool _is_honor(int x) MJ_EXCEPT_WARN
+{   MJ_ASSERT(x < k_UniqueTiles, "_is_honor() called on invalid tile");
+    return x >= k_FirstHonorIdx; }
+constexpr bool _is_19(int x) MJ_EXCEPT_WARN
+{   MJ_ASSERT(x < k_UniqueTiles, "_is_19() called on invalid tile");
+    return x % 9 == c_num(1) || x % 9 == c_num(9) || _is_honor(x); }
+constexpr bool _is_17(int x) MJ_EXCEPT_WARN
+{   MJ_ASSERT(x < k_UniqueTiles, "_is_17() called on invalid tile");
+    MJ_ASSERT(!_is_honor(x), "_is_17() called on honor tile");
+    return x % 9 == c_num(1) || x % 9 == c_num(7); }
+
+constexpr bool _is_set(int x) noexcept { return x & 0x100; }
+constexpr bool _is_run(int x) noexcept { return !(x & 0x100); }
+constexpr int _set(int x) noexcept { return x | 0x100; }
+constexpr int _run(int x) noexcept { return x; }
+constexpr int _int(int x) noexcept { return x & 0xff; }
+constexpr int _2nd(int x) noexcept { return _int(x)+1; }
+constexpr int _3rd(int x) noexcept { return _int(x)+2; }
+
 
 using Melds = s_Vector<Meld, k_MaxNumMeld>;
-
-struct Win
-{
-    Melds melds;
-    Meld pair;
-    Win() = default;
-    Win(const Melds &melds, const Meld &pair, U64 flags=0)
-        : melds(melds), pair(pair) {}
-};
-
 using WaitingTiles = s_Vector<Tile, 13>;
 using Wins = s_Vector<Win, 16>;
 using HandDense = s_Vector<Tile, k_MaxHandSize>;
-using Hand4Hot = s_Vector<int, k_UniqueTiles>;
 using Discards = s_Vector<Tile, k_MaxDiscards>;
 
 S8 shanten(const Hand4Hot &h4, Fast8 n_melds, int mode);
@@ -373,6 +412,18 @@ private:
     Hand4Hot tiles4_;
     mutable bool sorted_{};
     Melds melds_;
+
+public:
+    std::string to_string() const
+    {
+        std::string s;
+        for (const auto &t : tiles_)
+            s += t.to_string();
+        s += "|";
+        for (const auto &m : melds_)
+            s += m.to_string();
+        return s;
+    }
 
 };
 

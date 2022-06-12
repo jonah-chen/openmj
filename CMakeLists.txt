@@ -85,5 +85,5 @@ if (BUILD_TESTS)
     makeTest(core/mahjong hand)
     makeTest(core/mahjong scoring)
 
-    makeTest(core/utils stack_allocator)
+    # makeTest(core/utils stack_allocator)
 endif()

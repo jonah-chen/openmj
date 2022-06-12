@@ -19,6 +19,7 @@ TEST t_Closed()
     
     assert(!h1.agari().empty(), "h1 can win at least once");
     assert(!h3.agari().empty(), "h3 can win at least once");
+    std::cerr << h3.agari().size() << std::endl;
     assert(h4.agari().empty(), "h4 cannot win at least once");
     assert(h4.tenpai().size() == 3, "h4 is in 3 sided wait but got " + std::to_string(h4.tenpai().size()));
     assert(h5.tenpai().size() == 2, "h5 is in 2 sided wait but got " + std::to_string(h5.tenpai().size()));

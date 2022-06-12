@@ -37,6 +37,7 @@ constexpr Fast8 k_Green = 0;
 constexpr Fast8 k_Red = 1;
 constexpr Fast8 k_White = 2;
 constexpr Fast8 k_NumDragons = 3;
+constexpr Fast8 k_FirstHonorIdx = 27;
 
 constexpr Fast16 k_UniqueTiles = 34;
 constexpr Fast16 k_DeckSize = 136;
