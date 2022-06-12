@@ -39,9 +39,10 @@ Triples triples(const Hand &hand)
         for (Fast8 n = 0; n < 7; ++n)
         {
             Fast8 p = s9 + n;
-            if (h4[p] && h4[p+1] && h4[p+2])
+            Fast8 min = std::min({h4[p], h4[p+1], h4[p+2]});
+            for (Fast8 o = 0; o < min; ++o)
                 triples.emplace_back(
-                    hand[idx], hand[idx+h4[p]], hand[idx+h4[p]+h4[p+1]]);
+                    hand[idx+o], hand[idx+h4[p]+o], hand[idx+h4[p]+h4[p+1]+o]);
             idx += h4[p];
         }
         idx += h4[s9+7] + h4[s9+8];
