@@ -89,7 +89,7 @@ public:
     }
     Hand4Hot draw_n(Fast8 n) MJ_EXCEPT_WARN
     {
-        Hand4Hot h;
+        Hand4Hot h {};
         draw_n(n, h);
         return h;
     }

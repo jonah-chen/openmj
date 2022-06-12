@@ -60,7 +60,7 @@ set(libs Mahjong tomohxx_Shanten)
 
 
 message(STATUS "Building Examples")
-add_executable(gui_example ${example_dir}/gui.cc)
+add_executable(gui_example ${example_dir}/gui.cc ${src_dir}/sims/selector.cc)
 target_link_libraries(gui_example PUBLIC ${libs} Engine)
 
 

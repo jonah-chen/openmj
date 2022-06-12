@@ -279,7 +279,7 @@ using cPairs = s_Vector<int, 7>;
 using cMelds = s_Vector<int, 4>;
 using NormalWin = std::pair<cMelds, int>;
 using Win = std::variant<bool, cPairs, NormalWin>;
-using Hand4Hot = s_Vector<int, k_UniqueTiles>;
+using Hand4Hot = std::array<int, k_UniqueTiles>;
 
 /**
  * Functions to deal with compactified types
@@ -327,7 +327,7 @@ public:
     constexpr static U64 f_Ippatsu = 1ull << fp_Ippatsu;
     constexpr static U64 f_Open = 1ull << fp_Open;
 public:
-    Hand() : tiles4_(k_UniqueTiles, 0) {}
+    Hand() : tiles4_() {}
     Hand(const char *);
 
     S8 shanten() const;

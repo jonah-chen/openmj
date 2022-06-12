@@ -248,7 +248,7 @@ S8 shanten(const Hand4Hot &h4, Fast8 n_melds, int mode)
     return num - 1;
 }
 
-Hand::Hand(const char *str) : tiles4_(k_UniqueTiles, 0)
+Hand::Hand(const char *str) : tiles4_()
 {
     const char *suits = "mpswd";
     Fast8 cur_suit = 0;
