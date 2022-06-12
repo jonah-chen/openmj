@@ -129,7 +129,7 @@ static void Rand_Shanten(benchmark::State& state) {
         mj::random::Rng34 rng34(rng);
         mj::Hand4Hot h4 = rng34.draw_n(state.range(0));
         state.ResumeTiming();
-        mj::shanten(h4, 0, mj::k_ModeAll);
+        benchmark::DoNotOptimize(mj::shanten(h4, 0, mj::k_ModeAll));
     }
 }
 
@@ -160,27 +160,27 @@ void Agari(benchmark::State& state, Args&&... args) {
     }
 }
 
-// BENCHMARK_CAPTURE(Shanten, m123345567p333w22, "m123345567p333w22")
-//     ->Repetitions(MJ_BENCH_REPS)->DisplayAggregatesOnly(true);
-// BENCHMARK_CAPTURE(Shanten, s3334445566677, "s3334445566677")
-//     ->Repetitions(MJ_BENCH_REPS)->DisplayAggregatesOnly(true);
-// BENCHMARK_CAPTURE(Shanten, p1112345678999, "p1112345678999")
-//     ->Repetitions(MJ_BENCH_REPS)->DisplayAggregatesOnly(true);
-// BENCHMARK_CAPTURE(Shanten, w11122233444d22, "w11122233444d22")
-//     ->Repetitions(MJ_BENCH_REPS)->DisplayAggregatesOnly(true);
-// BENCHMARK_CAPTURE(Shanten, m1112223334689, "m1112223334689")
-//     ->Repetitions(MJ_BENCH_REPS)->DisplayAggregatesOnly(true);
+BENCHMARK_CAPTURE(Shanten, m123345567p333w22, "m123345567p333w22")
+    ->Repetitions(MJ_BENCH_REPS)->DisplayAggregatesOnly(true);
+BENCHMARK_CAPTURE(Shanten, s3334445566677, "s3334445566677")
+    ->Repetitions(MJ_BENCH_REPS)->DisplayAggregatesOnly(true);
+BENCHMARK_CAPTURE(Shanten, p1112345678999, "p1112345678999")
+    ->Repetitions(MJ_BENCH_REPS)->DisplayAggregatesOnly(true);
+BENCHMARK_CAPTURE(Shanten, w11122233444d22, "w11122233444d22")
+    ->Repetitions(MJ_BENCH_REPS)->DisplayAggregatesOnly(true);
+BENCHMARK_CAPTURE(Shanten, m1112223334689, "m1112223334689")
+    ->Repetitions(MJ_BENCH_REPS)->DisplayAggregatesOnly(true);
 
-// BENCHMARK_CAPTURE(Tenpai, m123345567p333w2, "m123345567p333w2")
-//     ->Repetitions(MJ_BENCH_REPS)->DisplayAggregatesOnly(true);
-// BENCHMARK_CAPTURE(Tenpai, s3334445566677, "s3334445566677")
-//     ->Repetitions(MJ_BENCH_REPS)->DisplayAggregatesOnly(true);
-// BENCHMARK_CAPTURE(Tenpai, p1112345678999, "p1112345678999")
-//     ->Repetitions(MJ_BENCH_REPS)->DisplayAggregatesOnly(true);
-// BENCHMARK_CAPTURE(Tenpai, w11122233444d22, "w11122233444d22")
-//     ->Repetitions(MJ_BENCH_REPS)->DisplayAggregatesOnly(true);
-// BENCHMARK_CAPTURE(Tenpai, m1112223334689, "m1112223334689")
-//     ->Repetitions(MJ_BENCH_REPS)->DisplayAggregatesOnly(true);
+BENCHMARK_CAPTURE(Tenpai, m123345567p333w2, "m123345567p333w2")
+    ->Repetitions(MJ_BENCH_REPS)->DisplayAggregatesOnly(true);
+BENCHMARK_CAPTURE(Tenpai, s3334445566677, "s3334445566677")
+    ->Repetitions(MJ_BENCH_REPS)->DisplayAggregatesOnly(true);
+BENCHMARK_CAPTURE(Tenpai, p1112345678999, "p1112345678999")
+    ->Repetitions(MJ_BENCH_REPS)->DisplayAggregatesOnly(true);
+BENCHMARK_CAPTURE(Tenpai, w11122233444d22, "w11122233444d22")
+    ->Repetitions(MJ_BENCH_REPS)->DisplayAggregatesOnly(true);
+BENCHMARK_CAPTURE(Tenpai, m1112223334689, "m1112223334689")
+    ->Repetitions(MJ_BENCH_REPS)->DisplayAggregatesOnly(true);
 
 BENCHMARK_CAPTURE(Agari, m123345567p333w22, "m123345567p333w22")->Setup(DoSetup)
     ->Repetitions(MJ_BENCH_REPS)->DisplayAggregatesOnly(true);
