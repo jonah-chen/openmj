@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.23.2 FATAL_ERROR)
 project(OpenMJ)
+include(CheckLanguage)
 
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 20)
@@ -8,6 +9,15 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O3 -Wall -fno-rtti -flto=auto -DNDEBUG -DMJ_LOGGIN
 
 option(BUILD_BENCH "Build Benchmarks" ON)
 option(BUILD_TESTS "Build Tests" ON)
+
+check_language(CUDA)
+if (CMAKE_CUDA_COMPILER)
+    enable_language(CUDA)
+    message(STATUS "CUDA found, will compile CUDA modules")
+    set(CMAKE_CUDA_STANDARD 17)
+    set(CMAKE_CUDA_FLAGS_DEBUG "${CMAKE_CUDA_FLAGS_DEBUG} -G -Wall -Wextra")
+    # add_executable(c.out test.cu)
+endif()
 
 find_package(OpenGL REQUIRED)
 find_package(glfw3 REQUIRED)
@@ -78,12 +88,23 @@ if (BUILD_TESTS)
     add_test(${test_name} ${test_name})
     endfunction()
 
+    function(makeTestCU test_rp test_name)
+    add_executable(CU${test_name} ${test_dir}/${test_rp}/${test_name}.cu)
+    target_link_libraries(CU${test_name} ${libs})
+    add_test(CU${test_name} CU${test_name})
+    endfunction()
+
     message(STATUS "Building Tests")
 
     makeTest(core/mahjong tile)
     makeTest(core/mahjong meld)
     makeTest(core/mahjong hand)
     makeTest(core/mahjong scoring)
+    makeTest(cuda vector)
 
+    if (CMAKE_CUDA_COMPILER)
+    makeTestCU(cuda vector)
+
+    endif()
     # makeTest(core/utils stack_allocator)
 endif()

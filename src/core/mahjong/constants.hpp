@@ -7,6 +7,16 @@
 #define CONSTEXPR12 inline
 #endif
 
+#ifdef __NVCC__
+#define CUDACOMPAT __host__ __device__
+#define CUDAGPU __device__
+#define CUDAKERNEL __global__ void
+#else
+#define CUDACOMPAT
+#define CUDAGPU
+#define CUDAKERNEL
+#endif
+
 #include <cstdint>
 
 namespace mj {
