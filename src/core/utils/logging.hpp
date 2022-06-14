@@ -20,6 +20,7 @@ public:
 
 #if MJ_LOGGING > 0
 #warning "critical logging enabled"
+#include <string>
 #define MJ_ASSERT_CRIT(x, ...) \
     if (!(x)) { \
         fprintf(stderr, "Critical Assertion Failed: %s:%s(%d):\n", __FILE__, __func__, __LINE__); \

@@ -11,7 +11,7 @@ env:
   BUILD_TYPE: Release
 
 jobs:
-  build:
+  build_release:
     # The CMake configure and build commands are platform agnostic and should work equally well on Windows or Mac.
     # You can convert this to a matrix build if you need cross-platform coverage.
     # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
@@ -25,6 +25,19 @@ jobs:
            sudo apt-get update
            sudo apt install -y gcc-11 g++-11
            sudo apt install -y libglfw3-dev libglew-dev libglm-dev
+    - name: Install GTest
+      run: |
+           git clone https://github.com/google/benchmark.git
+           cd benchmark
+           cmake -E make_directory "build"
+           cmake -E chdir "build" cmake -DBENCHMARK_DOWNLOAD_DEPENDENCIES=on -DCMAKE_BUILD_TYPE=Release -DBENCHMARK_ENABLE_LTO=true ../
+           cmake --build "build" --config Release -j
+           cmake -E chdir "build" ctest --build-config Release
+           sudo cmake --build "build" --config Release --target install
+      env:
+        CC: gcc-11
+        CXX: g++-11
+
 
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.

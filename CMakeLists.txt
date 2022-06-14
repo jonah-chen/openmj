@@ -3,12 +3,23 @@ project(OpenMJ)
 
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_FLAGS_DEBUG "-O0 -Wall -g -DMJ_LOGGING=2")
-set(CMAKE_CXX_FLAGS_RELEASE "-O3 -Wall -DNDEBUG -DMJ_LOGGING=0")
+set(CMAKE_CXX_FLAGS_DEBUG "-O0 -Wall -g -fno-rtti -DMJ_LOGGING=2")
+set(CMAKE_CXX_FLAGS_RELEASE "-O3 -Wall -fno-rtti -flto=auto -DNDEBUG -DMJ_LOGGING=0")
+
+option(BUILD_BENCH "Build Benchmarks" ON)
+option(BUILD_TESTS "Build Tests" ON)
 
 find_package(OpenGL REQUIRED)
 find_package(glfw3 REQUIRED)
 find_package(GLEW REQUIRED)
+if (BUILD_BENCH)
+    if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+        message(WARNING "Benchmarks should be built in Release mode, but are being built in Debug mode. Results may be inaccurate.")
+    endif()
+    find_package(benchmark REQUIRED)
+    set(bench_libs benchmark::benchmark)
+endif()
+
 # find_package(OpenMP REQUIRED)
 
 
@@ -49,25 +60,30 @@ set(libs Mahjong tomohxx_Shanten)
 
 
 message(STATUS "Building Examples")
-add_executable(gui_example ${example_dir}/gui.cc)
+add_executable(gui_example ${example_dir}/gui.cc ${src_dir}/sims/selector.cc)
 target_link_libraries(gui_example PUBLIC ${libs} Engine)
 
-add_executable(Benchmark ${test_dir}/bench.cc)
-target_link_libraries(Benchmark ${libs})
 
-enable_testing()
+if (BUILD_BENCH)
+    add_executable(Benchmark ${test_dir}/bench.cc)
+    target_link_libraries(Benchmark ${libs} ${bench_libs})
+endif()
 
-function(makeTest test_rp test_name)
-add_executable(${test_name} ${test_dir}/${test_rp}/${test_name}.cc)
-target_link_libraries(${test_name} ${libs})
-add_test(${test_name} ${test_name})
-endfunction()
+if (BUILD_TESTS)
+    enable_testing()
 
-message(STATUS "Building Tests")
+    function(makeTest test_rp test_name)
+    add_executable(${test_name} ${test_dir}/${test_rp}/${test_name}.cc)
+    target_link_libraries(${test_name} ${libs})
+    add_test(${test_name} ${test_name})
+    endfunction()
 
-makeTest(core/mahjong tile)
-makeTest(core/mahjong meld)
-makeTest(core/mahjong hand)
-makeTest(core/mahjong scoring)
+    message(STATUS "Building Tests")
 
-makeTest(core/utils stack_allocator)
+    makeTest(core/mahjong tile)
+    makeTest(core/mahjong meld)
+    makeTest(core/mahjong hand)
+    makeTest(core/mahjong scoring)
+
+    # makeTest(core/utils stack_allocator)
+endif()

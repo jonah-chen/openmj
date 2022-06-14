@@ -23,12 +23,12 @@ int main(int, char**)
     cfg.tex_id = tex.id();
     app.push_layer(new mj::draw::ImGuiDockspace);
     auto *vp = new mj::draw::Viewport("Viewport");
-    auto *mh = new mj::draw::HandElem(cfg, h1.tiles(), mj::Dir::East);
+    auto *mh = new mj::draw::HandElem(cfg, h1.tiles(), mj::k_East);
     vp->push_element(mh);
     // auto *md = new mj::draw::DiscardElem(cfg, d1);
-    vp->push_element(new mj::draw::HandElem(cfg, h2.tiles(), mj::Dir::South));
-    vp->push_element(new mj::draw::HandElem(cfg, h3.tiles(), mj::Dir::West));
-    vp->push_element(new mj::draw::HandElem(cfg, h4.tiles(), mj::Dir::North));
+    vp->push_element(new mj::draw::HandElem(cfg, h2.tiles(), mj::k_South));
+    vp->push_element(new mj::draw::HandElem(cfg, h3.tiles(), mj::k_West));
+    vp->push_element(new mj::draw::HandElem(cfg, h4.tiles(), mj::k_North));
     // vp->push_element(md);
     // md->set_callback([](mj::Tile t) {
     //     std::cout << "Discard: " << (int)t.id34() << std::endl;
