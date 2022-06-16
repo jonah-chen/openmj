@@ -27,7 +27,7 @@ void TileSelector::on_gui_render()
     float info_height = height_abs * 0.5f;
     ImVec2 child_size(width_abs, height_abs + info_height);
 
-    for (Fast8 i = 0; i < k_UniqueTiles; ++i)
+    for (U8f i = 0; i < k_UniqueTiles; ++i)
     {
         ImVec2 pos = i < 18 ? ImVec2(i * width_abs * (1.f + k_TileXGap), size.y * 0.2f) :
             ImVec2((i - 18) * width_abs * (1.f + k_TileXGap), size.y * 0.6f);
@@ -68,7 +68,7 @@ std::array<float, k_UniqueTiles> TileSelector::prob() const
     std::array<float, k_UniqueTiles> ret;
     // sum
     float sum = std::inner_product(weights_.begin(), weights_.end(), remain_.begin(), 0.f);
-    for (Fast8 i = 0; i < k_UniqueTiles; ++i)
+    for (U8f i = 0; i < k_UniqueTiles; ++i)
         ret[i] = weights_[i] * remain_[i] / sum;
     return ret;
 }

@@ -1,5 +1,6 @@
 
 #include "scoring.hpp"
+#include "compact_helpers.hpp"
 #include "core/utils/logging.hpp"
 #include <algorithm>
 #include <numeric>
@@ -7,27 +8,27 @@
 namespace mj {
 namespace scoring {
 template<>
-Fast8 eval<Yaku::invalid>(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai)
+U8f eval<Yaku::invalid>(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai)
 {
     MJ_ALWAYS_THROW(1, std::logic_error, "Invalid yaku");
 }
 
 template<>
-Fast8 eval<Yaku::riichi>(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai)
+U8f eval<Yaku::riichi>(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai)
 {
     MJ_ASSERT(combo[Yaku::riichi] == 0, "Cannot evaluate a riichi twice.");
     return combo[Yaku::riichi] = hand.check(Hand::f_Riichi, Hand::fp_Riichi);
 }
 
 template<>
-Fast8 eval<Yaku::ippatsu>(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai)
+U8f eval<Yaku::ippatsu>(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai)
 {
     MJ_ASSERT(combo[Yaku::ippatsu] == 0, "Cannot evaluate an ippatsu twice.");
     return combo[Yaku::ippatsu] = (bool)hand.check(Hand::f_Ippatsu);
 }
 
 template<>
-Fast8 eval<Yaku::men_tsumo>(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai)
+U8f eval<Yaku::men_tsumo>(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai)
 {
     MJ_ASSERT(combo[Yaku::men_tsumo] == 0, "Cannot evaluate men_tsumo twice.");
     MJ_ASSERT(hand.size(), "Empty Hand is not allowed");
@@ -35,7 +36,7 @@ Fast8 eval<Yaku::men_tsumo>(ScoringCombo &combo, const Hand &hand, const Win &wi
 }
 
 // template<>
-// Fast8 eval<Yaku::pinfu>(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai)
+// U8f eval<Yaku::pinfu>(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai)
 // {
 //     MJ_ASSERT(combo[Yaku::pinfu] == 0, "Cannot evaluate a pinfu twice.");
 //     auto win_ptr = std::get_if<NormalWin>(&win);
@@ -45,16 +46,16 @@ Fast8 eval<Yaku::men_tsumo>(ScoringCombo &combo, const Hand &hand, const Win &wi
 //         return combo[Yaku::pinfu] = (combo.fu == k_BaseFu) || 
 //         (agari_pai.player()!=hand[0].player() && combo.fu == k_BaseFu + 10 && !hand.check(Hand::f_Open));
     
-//     Fast16 &fu = combo.fu; 
+//     U16f &fu = combo.fu; 
 //     fu = k_BaseFu;
 
-//     Fast16 wait_fu = 2;
+//     U16f wait_fu = 2;
 
 //     for (const auto &meld : melds)
 //     {
 //         if (_is_set(meld))
 //         {
-//             Fast16 triple_pts = 2;
+//             U16f triple_pts = 2;
 //             if (meld.fourth())
 //                 triple_pts <<= 2;
             
@@ -96,7 +97,7 @@ Fast8 eval<Yaku::men_tsumo>(ScoringCombo &combo, const Hand &hand, const Win &wi
 // }
 
 // template<>
-// Fast8 eval<Yaku::ipeikou>(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai)
+// U8f eval<Yaku::ipeikou>(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai)
 // {
 //     MJ_ASSERT(combo[Yaku::ipeikou] == 0, "Cannot evaluate an ipeikou twice.");
 //     if (combo[Yaku::ryanpeikou])
@@ -117,28 +118,28 @@ Fast8 eval<Yaku::men_tsumo>(ScoringCombo &combo, const Hand &hand, const Win &wi
 // }
 
 template<>
-Fast8 eval<Yaku::haitei>(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai)
+U8f eval<Yaku::haitei>(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai)
 {
     MJ_ASSERT(combo[Yaku::haitei] == 0, "Cannot evaluate a haitei twice.");
     return combo[Yaku::haitei] = agari_pai & Tile::f_LastTile && agari_pai.player() == hand[0].player();
 }
 
 template<>
-Fast8 eval<Yaku::houtei>(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai)
+U8f eval<Yaku::houtei>(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai)
 {
     MJ_ASSERT(combo[Yaku::houtei] == 0, "Cannot evaluate a houtei twice.");
     return combo[Yaku::houtei] = agari_pai & Tile::f_LastTile && agari_pai.player() != hand[0].player();
 }
 
 template<>
-Fast8 eval<Yaku::rinshan>(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai)
+U8f eval<Yaku::rinshan>(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai)
 {
     MJ_ASSERT(combo[Yaku::rinshan] == 0, "Cannot evaluate a rinshan twice.");
     return combo[Yaku::rinshan] = agari_pai & Tile::f_Rinshan && agari_pai.player() == hand[0].player();
 }
 
 template<>
-Fast8 eval<Yaku::chankan>(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai)
+U8f eval<Yaku::chankan>(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai)
 {
     MJ_ASSERT(combo[Yaku::chankan] == 0, "Cannot evaluate a chankan twice.");
     MJ_WARN("chankan is not implemented");
@@ -146,52 +147,53 @@ Fast8 eval<Yaku::chankan>(ScoringCombo &combo, const Hand &hand, const Win &win,
 }
 
 template<>
-Fast8 eval<Yaku::tanyao>(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai)
+U8f eval<Yaku::tanyao>(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai)
 {
     MJ_ASSERT(combo[Yaku::tanyao] == 0, "Cannot evaluate a tanyao twice.");
+    auto h4m = hand.hand_4hot_melds();
     for (int i : {0,8,9,17,18,26,27,28,29,30,31,32,33})
-        if (hand.hand_4hot()[i])
+        if (h4m[i])
             return combo[Yaku::tanyao] = 0;
     return combo[Yaku::tanyao] = 1;
 }
 
 template<>
-Fast8 eval<Yaku::hatsu>(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai)
+U8f eval<Yaku::hatsu>(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai)
 {
     MJ_ASSERT(combo[Yaku::hatsu] == 0, "Cannot evaluate a hatsu twice.");
     return combo[Yaku::hatsu] = hand.hand_4hot()[31] >= 3;
 }
 
 template<>
-Fast8 eval<Yaku::chun>(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai)
+U8f eval<Yaku::chun>(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai)
 {
     MJ_ASSERT(combo[Yaku::chun] == 0, "Cannot evaluate a chun twice.");
     return combo[Yaku::chun] = hand.hand_4hot()[32] >= 3;
 }
 
 template<>
-Fast8 eval<Yaku::haku>(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai)
+U8f eval<Yaku::haku>(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai)
 {
     MJ_ASSERT(combo[Yaku::haku] == 0, "Cannot evaluate a haku twice.");
     return combo[Yaku::haku] = hand.hand_4hot()[33] >= 3;
 }
 
 template<>
-Fast8 eval<Yaku::prevailing_wind>(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai)
+U8f eval<Yaku::prevailing_wind>(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai)
 {
     MJ_ASSERT(combo[Yaku::prevailing_wind] == 0, "Cannot evaluate a prevailing wind twice.");
     return combo[Yaku::prevailing_wind] = hand.hand_4hot()[27+combo.round] >= 3;
 }
 
 template<>
-Fast8 eval<Yaku::seat_wind>(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai)
+U8f eval<Yaku::seat_wind>(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai)
 {
     MJ_ASSERT(combo[Yaku::seat_wind] == 0, "Cannot evaluate a seat wind twice.");
     return combo[Yaku::seat_wind] = hand.hand_4hot()[27+hand[0].player()] >= 3;
 }
 
 // template<>
-// Fast8 eval<Yaku::chanta>(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai)
+// U8f eval<Yaku::chanta>(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai)
 // {
 //     MJ_ASSERT(combo[Yaku::chanta] == 0, "Cannot evaluate a chanta twice.");
 //     if (combo[Yaku::junchan])
@@ -205,38 +207,38 @@ Fast8 eval<Yaku::seat_wind>(ScoringCombo &combo, const Hand &hand, const Win &wi
 // }
 
 // template<>
-// Fast8 eval<Yaku::sanshoku_seq>(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai)
+// U8f eval<Yaku::sanshoku_seq>(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai)
 // {
 //     MJ_ASSERT(combo[Yaku::sanshoku_seq] == 0, "Cannot evaluate a sanshoku seq twice.");
-//     std::array<Fast8, 9> seq {{}};
+//     std::array<U8f, 9> seq {{}};
 //     for (const auto &meld : win.melds)
 //     {
 //         if (meld.is_set() || meld.first().is_honor())
 //             continue;
-//         seq[meld.first().num()] |= 1 << static_cast<Fast8>(meld.first().suit()); 
+//         seq[meld.first().num()] |= 1 << static_cast<U8f>(meld.first().suit()); 
 //     }
 //     return combo[Yaku::sanshoku_seq] = (std::find(seq.begin(), seq.end(), 7) != seq.end())*(hand.check(Hand::f_Open) ? 1 : 2);
 // }
 
 // template<>
-// Fast8 eval<Yaku::sanshoku_set>(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai)
+// U8f eval<Yaku::sanshoku_set>(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai)
 // {
 //     MJ_ASSERT(combo[Yaku::sanshoku_set] == 0, "Cannot evaluate a sanshoku set twice.");
-//     std::array<Fast8, 9> set {{}};
+//     std::array<U8f, 9> set {{}};
 //     for (const auto &meld : win.melds)
 //     {
 //         if (!meld.is_set() || meld.first().is_honor())
 //             continue;
-//         set[meld.first().num()] |= 1 << static_cast<Fast8>(meld.first().suit()); 
+//         set[meld.first().num()] |= 1 << static_cast<U8f>(meld.first().suit()); 
 //     }
 //     return combo[Yaku::sanshoku_seq] = (std::find(set.begin(), set.end(), 7) != set.end())*2;
 // }
 
 // template<>
-// Fast8 eval<Yaku::ittsu>(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai)
+// U8f eval<Yaku::ittsu>(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai)
 // {
 //     MJ_ASSERT(combo[Yaku::ittsu] == 0, "Cannot evaluate a ittsu twice.");
-//     std::array<Fast8, 3> straights {{}};
+//     std::array<U8f, 3> straights {{}};
 //     for (const auto &meld : win.melds)
 //     {
 //         if (meld.is_set() || meld.first().is_honor())
@@ -244,13 +246,13 @@ Fast8 eval<Yaku::seat_wind>(ScoringCombo &combo, const Hand &hand, const Win &wi
 //         switch (meld.first().num())
 //         {
 //         case 0:
-//             straights[static_cast<Fast8>(meld.first().suit())] |= 1 << 0;
+//             straights[static_cast<U8f>(meld.first().suit())] |= 1 << 0;
 //             break;
 //         case 3:
-//             straights[static_cast<Fast8>(meld.first().suit())] |= 1 << 1;
+//             straights[static_cast<U8f>(meld.first().suit())] |= 1 << 1;
 //             break;
 //         case 6:
-//             straights[static_cast<Fast8>(meld.first().suit())] |= 1 << 2;
+//             straights[static_cast<U8f>(meld.first().suit())] |= 1 << 2;
 //             break;
 //         default:
 //             break;
@@ -260,7 +262,7 @@ Fast8 eval<Yaku::seat_wind>(ScoringCombo &combo, const Hand &hand, const Win &wi
 // }
 
 // template<>
-// Fast8 eval<Yaku::toitoi>(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai)
+// U8f eval<Yaku::toitoi>(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai)
 // {
 //     MJ_ASSERT(combo[Yaku::toitoi] == 0, "Cannot evaluate a toitoi twice.");
 //     for (const auto &meld : win.melds)
@@ -270,29 +272,29 @@ Fast8 eval<Yaku::seat_wind>(ScoringCombo &combo, const Hand &hand, const Win &wi
 // }
 
 // template<>
-// Fast8 eval<Yaku::sanankou>(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai)
+// U8f eval<Yaku::sanankou>(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai)
 // {
 //     MJ_ASSERT(combo[Yaku::sanankou] == 0, "Cannot evaluate a sanankou twice.");
-//     Fast8 ankou = 0;
+//     U8f ankou = 0;
 //     for (const auto &meld : win.melds)
 //         if (meld.is_set() && meld.called().player() == meld.third().player())
 //             ankou++;
 //     return combo[Yaku::sanankou] = 2*(ankou == 3);
 // }
 
-// template<>
-// Fast8 eval<Yaku::sankantsu>(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai)
-// {
-//     MJ_ASSERT(combo[Yaku::sankantsu] == 0, "Cannot evaluate a sankantsu twice.");
-//     Fast8 kantsu = 0;
-//     for (const auto &meld : win.melds)
-//         if (meld.fourth())
-//             kantsu++;
-//     return combo[Yaku::sankantsu] = 2*(kantsu == 3);
-// }
+template<>
+U8f eval<Yaku::sankantsu>(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai)
+{
+    MJ_ASSERT(combo[Yaku::sankantsu] == 0, "Cannot evaluate a sankantsu twice.");
+    U8f kantsu = 0;
+    for (const auto &meld : hand.melds())
+        if (meld.fourth())
+            kantsu++;
+    return combo[Yaku::sankantsu] = 2*(kantsu == 3);
+}
 
 // template<>
-// Fast8 eval<Yaku::chitoitsu>(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai)
+// U8f eval<Yaku::chitoitsu>(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai)
 // {
 //     MJ_ASSERT(combo[Yaku::chitoitsu] == 0, "Cannot evaluate a chitoitsu twice.");
 //     if (shanten(hand.hand_4hot(), 0, k_ModeChiitoi) == -1)
@@ -303,23 +305,23 @@ Fast8 eval<Yaku::seat_wind>(ScoringCombo &combo, const Hand &hand, const Win &wi
 //     return combo[Yaku::chitoitsu] = 0;
 // }
 
-// template<>
-// Fast8 eval<Yaku::honroutou>(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai)
-// {
-//     MJ_ASSERT(combo[Yaku::honroutou] == 0, "Cannot evaluate a honroutou twice.");
-//     for (int i : {1,2,3,4,5,6,7,10,11,12,13,14,15,16,19,20,21,22,23,24,25})
-//         if (hand.hand_4hot()[i])
-//             return combo[Yaku::honroutou] = 0;
-//     return combo[Yaku::honroutou] = 2;
-// }
+template<>
+U8f eval<Yaku::honroutou>(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai)
+{
+    MJ_ASSERT(combo[Yaku::honroutou] == 0, "Cannot evaluate a honroutou twice.");
+    for (int i : {1,2,3,4,5,6,7,10,11,12,13,14,15,16,19,20,21,22,23,24,25})
+        if (hand.hand_4hot()[i])
+            return combo[Yaku::honroutou] = 0;
+    return combo[Yaku::honroutou] = 2;
+}
 
 // template<>
-// Fast8 eval<Yaku::shousangen>(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai)
+// U8f eval<Yaku::shousangen>(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai)
 // {
 //     MJ_ASSERT(combo[Yaku::shousangen] == 0, "Cannot evaluate a shousangen twice.");
 //     if (win.pair.first().suit() != Suit::Dragon)
 //         return combo[Yaku::shousangen] = 0;
-//     Fast8 gen = 1;
+//     U8f gen = 1;
 //     for (const auto &meld : win.melds)
 //         if (meld.first().suit() == Suit::Dragon)
 //             if (++gen == 3)
@@ -328,17 +330,17 @@ Fast8 eval<Yaku::seat_wind>(ScoringCombo &combo, const Hand &hand, const Win &wi
 // }
 
 // template<>
-// Fast8 eval<Yaku::honitsu>(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai)
+// U8f eval<Yaku::honitsu>(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai)
 // {
 //     MJ_ASSERT(combo[Yaku::honitsu] == 0, "Cannot evaluate a honitsu twice.");
 //     if (combo[Yaku::chinitsu])
 //         return 0;
 
-//     Fast8 tsu = 0;
+//     U8f tsu = 0;
 //     for (Suit s = Suit::Man; s < Suit::Wind; ++s)
 //     {
-//         Fast8 s9 = 9*static_cast<Fast8>(s);
-//         for (Fast8 n = s9; n < s9+8; ++n)
+//         U8f s9 = 9*static_cast<U8f>(s);
+//         for (U8f n = s9; n < s9+8; ++n)
 //         {
 //             if (hand.hand_4hot()[n])
 //             {
@@ -351,7 +353,7 @@ Fast8 eval<Yaku::seat_wind>(ScoringCombo &combo, const Hand &hand, const Win &wi
 // }
 
 // template<>
-// Fast8 eval<Yaku::junchan>(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai)
+// U8f eval<Yaku::junchan>(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai)
 // {
 //     MJ_ASSERT(combo[Yaku::junchan] == 0, "Cannot evaluate a junchan twice.");
 //     if (!win.pair.first().is_19())
@@ -366,7 +368,7 @@ Fast8 eval<Yaku::seat_wind>(ScoringCombo &combo, const Hand &hand, const Win &wi
 // }
 
 // template<>
-// Fast8 eval<Yaku::ryanpeikou>(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai)
+// U8f eval<Yaku::ryanpeikou>(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai)
 // {
 //     MJ_ASSERT(combo[Yaku::ryanpeikou] == 0, "Cannot evaluate a ryanpeikou twice.");
 //     if (hand.check(Hand::f_Open))
@@ -377,14 +379,14 @@ Fast8 eval<Yaku::seat_wind>(ScoringCombo &combo, const Hand &hand, const Win &wi
 // }
 
 // template<>
-// Fast8 eval<Yaku::chinitsu>(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai)
+// U8f eval<Yaku::chinitsu>(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai)
 // {
 //     MJ_ASSERT(combo[Yaku::chinitsu] == 0, "Cannot evaluate a chinitsu twice.");
-//     Fast8 tsu = 0;
+//     U8f tsu = 0;
 //     for (Suit s = Suit::Man; s < Suit::Wind; ++s)
 //     {
-//         Fast8 s9 = 9*static_cast<Fast8>(s);
-//         for (Fast8 n = s9; n < s9+8; ++n)
+//         U8f s9 = 9*static_cast<U8f>(s);
+//         for (U8f n = s9; n < s9+8; ++n)
 //         {
 //             if (hand.hand_4hot()[n])
 //             {
@@ -402,7 +404,7 @@ Fast8 eval<Yaku::seat_wind>(ScoringCombo &combo, const Hand &hand, const Win &wi
 // }
 
 // template<>
-// Fast8 eval<Yaku::dora>(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai)
+// U8f eval<Yaku::dora>(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai)
 // {
 //     MJ_ASSERT(combo[Yaku::dora] == 0, "Cannot evaluate a dora twice.");
 //     const auto &h4 = hand.hand_4hot();
@@ -410,19 +412,19 @@ Fast8 eval<Yaku::seat_wind>(ScoringCombo &combo, const Hand &hand, const Win &wi
 
 //     if (combo.doras)
 //         combo[Yaku::dora] = std::accumulate(combo.doras->begin(), combo.doras->end(), combo[Yaku::dora], 
-//         [&h4](Fast8 acc, Tile t) { return acc + h4[t.id34()]; });
+//         [&h4](U8f acc, Tile t) { return acc + h4[t.id34()]; });
 
 //     return combo[Yaku::dora];
 // }
 
 // template<>
-// Fast8 eval<Yakuman::chuuren_poutou>(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai)
+// U8f eval<Yakuman::chuuren_poutou>(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai)
 // {
-//     constexpr std::array<Fast8, 9> counts = {3,1,1,1,1,1,1,1,3};
+//     constexpr std::array<U8f, 9> counts = {3,1,1,1,1,1,1,1,3};
 //     for (Suit s = Suit::Man; s < Suit::Wind; ++s)
 //     {
-//         Fast8 s9 = 9*static_cast<Fast8>(s);
-//         for (Fast8 n = 0; n < 9; ++n)
+//         U8f s9 = 9*static_cast<U8f>(s);
+//         for (U8f n = 0; n < 9; ++n)
 //             if (hand.hand_4hot()[s9+n] <= counts[n])
 //                 goto FAILURE;
 //     // SUCCESS
@@ -436,7 +438,7 @@ Fast8 eval<Yaku::seat_wind>(ScoringCombo &combo, const Hand &hand, const Win &wi
 // }
 
 // template<>
-// Fast8 eval<Yakuman::suu_ankou>(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai)
+// U8f eval<Yakuman::suu_ankou>(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai)
 // {
 //     for (const auto &meld : win.melds)
 //         if (!(meld.is_set() && meld.first().player() == meld.third().player()))
@@ -447,7 +449,7 @@ Fast8 eval<Yaku::seat_wind>(ScoringCombo &combo, const Hand &hand, const Win &wi
 // }
 
 // template<>
-// Fast8 eval<Yakuman::suu_kantsu>(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai)
+// U8f eval<Yakuman::suu_kantsu>(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai)
 // {
 //     for (const auto &meld : win.melds)
 //         if (!meld.fourth())
@@ -456,9 +458,9 @@ Fast8 eval<Yaku::seat_wind>(ScoringCombo &combo, const Hand &hand, const Win &wi
 // }
 
 // template<>
-// Fast8 eval<Yakuman::daisangen>(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai)
+// U8f eval<Yakuman::daisangen>(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai)
 // {
-//     Fast8 gen = 0;
+//     U8f gen = 0;
 //     for (const auto &meld : win.melds)
 //         if (meld.first().suit() == Suit::Dragon)
 //             if (++gen == 3)
@@ -468,12 +470,12 @@ Fast8 eval<Yaku::seat_wind>(ScoringCombo &combo, const Hand &hand, const Win &wi
 // }
 
 // template<>
-// Fast8 eval<Yakuman::shosushi>(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai)
+// U8f eval<Yakuman::shosushi>(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai)
 // {
 //     if (win.pair.first().suit() != Suit::Wind)
 //         return combo[Yakuman::shosushi] = 0;
     
-//     Fast8 shi = 1;
+//     U8f shi = 1;
 //     for (const auto &meld : win.melds)
 //         if (meld.first().suit() == Suit::Wind)
 //             if (++shi == 4)
@@ -482,7 +484,7 @@ Fast8 eval<Yaku::seat_wind>(ScoringCombo &combo, const Hand &hand, const Win &wi
 // }
 
 // template<>
-// Fast8 eval<Yakuman::daisushi>(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai)
+// U8f eval<Yakuman::daisushi>(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai)
 // {
 //     for (const auto &meld : win.melds)
 //         if (meld.first().suit() != Suit::Wind)
@@ -491,7 +493,7 @@ Fast8 eval<Yaku::seat_wind>(ScoringCombo &combo, const Hand &hand, const Win &wi
 // }
 
 // template<>
-// Fast8 eval<Yakuman::kokushi>(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai)
+// U8f eval<Yakuman::kokushi>(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai)
 // {
 //     if (shanten(hand.hand_4hot(), 0, k_ModeKokushi) != -1)
 //         return combo[Yakuman::kokushi] = 0;
@@ -499,27 +501,27 @@ Fast8 eval<Yaku::seat_wind>(ScoringCombo &combo, const Hand &hand, const Win &wi
 // }
 
 // template<>
-// Fast8 eval<Yakuman::ryuisou>(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai)
+// U8f eval<Yakuman::ryuisou>(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai)
 // {
 //     const auto &h4= hand.hand_4hot();
 //     return combo[Yakuman::ryuisou] = 14 <= h4[19]+h4[20]+h4[21]+h4[23]+h4[25]+h4[31];
 // }
 
 // template<>
-// Fast8 eval<Yakuman::chinroutou>(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai)
+// U8f eval<Yakuman::chinroutou>(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai)
 // {
 //     const auto &h4= hand.hand_4hot();
 //     return combo[Yakuman::chinroutou] = 14 <= h4[0]+h4[8]+h4[9]+h4[17]+h4[18]+h4[26]; 
 // }
 
 // template<>
-// Fast8 eval<Yakuman::tenhou>(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai)
+// U8f eval<Yakuman::tenhou>(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai)
 // {
 //     return combo[Yakuman::tenhou] = agari_pai & Tile::f_FirstTurn && hand[0].player() == agari_pai.player() && agari_pai.player() == k_East;
 // }
 
 // template<>
-// Fast8 eval<Yakuman::chihou>(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai)
+// U8f eval<Yakuman::chihou>(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai)
 // {
 //     return combo[Yakuman::chihou] = agari_pai & Tile::f_FirstTurn && hand[0].player() == agari_pai.player() && agari_pai.player() != k_West;
 // }
@@ -528,15 +530,15 @@ Fast8 eval<Yaku::seat_wind>(ScoringCombo &combo, const Hand &hand, const Win &wi
 //  * Hybrid Scoring for optimized performance
 //  ******************************************************************************/
 // template<>
-// Fast8 eval
+// U8f eval
 // <Yaku::chinitsu | Yaku::honitsu>
 // (ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai)
 // {
-//     Fast8 tsu = 0;
+//     U8f tsu = 0;
 //     for (Suit s = Suit::Man; s < Suit::Wind; ++s)
 //     {
-//         Fast8 s9 = 9*static_cast<Fast8>(s);
-//         for (Fast8 n = s9; n < s9+8; ++n)
+//         U8f s9 = 9*static_cast<U8f>(s);
+//         for (U8f n = s9; n < s9+8; ++n)
 //         {
 //             if (hand.hand_4hot()[n])
 //             {
@@ -554,18 +556,18 @@ Fast8 eval<Yaku::seat_wind>(ScoringCombo &combo, const Hand &hand, const Win &wi
 // }
 
 // template<>
-// Fast8 eval
+// U8f eval
 // <Yaku::sanshoku_seq | Yaku::sanshoku_set>
 // (ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai)
 // {
 //     MJ_ASSERT(combo[Yaku::sanshoku_seq] == 0, "sanshoku_seq already set");
 //     MJ_ASSERT(combo[Yaku::sanshoku_set] == 0, "sanshoku_set already set");
-//     std::array<Fast8, 9> seq {{}}, set {{}};
+//     std::array<U8f, 9> seq {{}}, set {{}};
 //     for (const auto &meld : win.melds)
 //     {
 //         if (meld.first().is_honor())
 //             continue;
-//         (meld.is_set() ? set : seq)[meld.first().num()] |= 1 << static_cast<Fast8>(meld.first().suit()); 
+//         (meld.is_set() ? set : seq)[meld.first().num()] |= 1 << static_cast<U8f>(meld.first().suit()); 
 //     }
 //     combo[Yaku::sanshoku_seq] = (std::find(seq.begin(), seq.end(), 7) != seq.end())*(hand.check(Hand::f_Open) ? 1 : 2);
 //     combo[Yaku::sanshoku_set] = (std::find(set.begin(), set.end(), 7) != set.end())*2;
@@ -574,7 +576,7 @@ Fast8 eval<Yaku::seat_wind>(ScoringCombo &combo, const Hand &hand, const Win &wi
 // }
 
 // template<>
-// Fast8 eval
+// U8f eval
 // <Yaku::sanshoku_set | Yaku::sanshoku_seq>
 // (ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai)
 // {
@@ -582,7 +584,7 @@ Fast8 eval<Yaku::seat_wind>(ScoringCombo &combo, const Hand &hand, const Win &wi
 // }
 
 // template<>
-// Fast8 eval
+// U8f eval
 // <Yaku::junchan | Yaku::chanta>
 // (ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai)
 // {
@@ -607,7 +609,7 @@ Fast8 eval<Yaku::seat_wind>(ScoringCombo &combo, const Hand &hand, const Win &wi
 //     return combo[Yaku::chanta] = hand.check(Hand::f_Open) ? 1 : 2;
 // }
 
-// Fast32 basic_score(Fast16 fu, Fast8 fan)
+// U32f basic_score(U16f fu, U8f fan)
 // {
 //     if (fan >= 13)
 //         return k_Yakuman;
@@ -622,7 +624,7 @@ Fast8 eval<Yaku::seat_wind>(ScoringCombo &combo, const Hand &hand, const Win &wi
 //     return fu << (2 + fan);
 // }
 
-// Fast32 score_hand(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai)
+// U32f score_hand(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai)
 // {
 //     eval<Yakuman::chuuren_poutou>(combo, hand, win, agari_pai);
 //     eval<Yakuman::suu_ankou>(combo, hand, win, agari_pai);
@@ -636,7 +638,7 @@ Fast8 eval<Yaku::seat_wind>(ScoringCombo &combo, const Hand &hand, const Win &wi
 //     eval<Yakuman::tenhou>(combo, hand, win, agari_pai);
 //     eval<Yakuman::chihou>(combo, hand, win, agari_pai);
     
-//     Fast8 yakumans = std::accumulate(combo.yakuman.begin(), combo.yakuman.end(), 0);
+//     U8f yakumans = std::accumulate(combo.yakuman.begin(), combo.yakuman.end(), 0);
 //     if (yakumans >= 1)
 //         return k_Yakuman*((combo.flags & f_DoubleYakuman) ? yakumans : 1);
     
@@ -692,7 +694,7 @@ Fast8 eval<Yaku::seat_wind>(ScoringCombo &combo, const Hand &hand, const Win &wi
 //     eval<Yaku::sankantsu>(combo, hand, win, agari_pai);
 //     }
 
-//     Fast8 fan = std::accumulate(combo.yaku.begin(), combo.yaku.end(), 0);
+//     U8f fan = std::accumulate(combo.yaku.begin(), combo.yaku.end(), 0);
 //     return basic_score(combo.fu, fan);
 // }
 

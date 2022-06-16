@@ -10,10 +10,14 @@
 #include <cstdint>
 
 namespace mj {
-using Fast8 = uint_fast8_t;
-using Fast16 = uint_fast16_t;
-using Fast32 = uint_fast32_t;
-using Fast64 = uint_fast64_t;
+using U8f = uint_fast8_t;
+using U16f = uint_fast16_t;
+using U32f = uint_fast32_t;
+using U64f = uint_fast64_t;
+using S8f = int_fast8_t;
+using S16f = int_fast16_t;
+using S32f = int_fast32_t;
+using S64f = int_fast64_t;
 using U8 = uint8_t;
 using U16 = uint16_t;
 using U32 = uint32_t;
@@ -30,28 +34,28 @@ constexpr U16 f_All16 = (U16)-1;
 constexpr U32 f_All32 = (U32)-1;
 constexpr U64 f_All64 = (U64)-1;
 
-constexpr Fast8 k_NumWinds = 4;
-constexpr Fast8 k_NumPlayers = 4;
+constexpr U8f k_NumWinds = 4;
+constexpr U8f k_NumPlayers = 4;
 
-constexpr Fast8 k_Green = 0;
-constexpr Fast8 k_Red = 1;
-constexpr Fast8 k_White = 2;
-constexpr Fast8 k_NumDragons = 3;
-constexpr Fast8 k_FirstHonorIdx = 27;
+constexpr U8f k_Green = 0;
+constexpr U8f k_Red = 1;
+constexpr U8f k_White = 2;
+constexpr U8f k_NumDragons = 3;
+constexpr U8f k_FirstHonorIdx = 27;
 
-constexpr Fast16 k_UniqueTiles = 34;
-constexpr Fast16 k_DeckSize = 136;
-constexpr Fast16 k_DeadWallSize = 14;
-constexpr Fast16 k_MaxHandSize = 14;
-constexpr Fast16 k_MaxNumMeld = 4;
-constexpr Fast16 k_MaxDiscards = 24;
+constexpr U16f k_UniqueTiles = 34;
+constexpr U16f k_DeckSize = 136;
+constexpr U16f k_DeadWallSize = 14;
+constexpr U16f k_MaxHandSize = 14;
+constexpr U16f k_MaxNumMeld = 4;
+constexpr U16f k_MaxDiscards = 24;
 
 constexpr int k_ModeNormal = 1;
 constexpr int k_ModeChiitoi = 2;
 constexpr int k_ModeKokushi = 4;
 constexpr int k_ModeAll = k_ModeNormal | k_ModeChiitoi | k_ModeKokushi;
 
-constexpr Fast16 k_BaseFu = 20;
+constexpr U16f k_BaseFu = 20;
 
 /**
  * fedcba9876543210
@@ -59,9 +63,9 @@ constexpr Fast16 k_BaseFu = 20;
  */
 namespace tilelayout
 {
-    constexpr Fast8 k_PlayerPos = 7;
-    constexpr Fast8 k_NumPos = 9;
-    constexpr Fast8 k_SuitPos = 13;
+    constexpr U8f k_PlayerPos = 7;
+    constexpr U8f k_NumPos = 9;
+    constexpr U8f k_SuitPos = 13;
 } // namespace tilelayout
 
 } // namespace mj

@@ -5,23 +5,23 @@
 
 namespace mj {
 namespace scoring {
-constexpr Fast16 k_BonusScore = 100;
-constexpr Fast16 k_RiichiDeposit = 1000;
-constexpr Fast16 k_BaseFu = 20;
-constexpr Fast16 k_Mangan = 2000;
-constexpr Fast16 k_Haneman = 3000;
-constexpr Fast16 k_Baiman = 4000;
-constexpr Fast16 k_Sanbaiman = 6000;
-constexpr Fast16 k_Yakuman = 8000;
+constexpr U16f k_BonusScore = 100;
+constexpr U16f k_RiichiDeposit = 1000;
+constexpr U16f k_BaseFu = 20;
+constexpr U16f k_Mangan = 2000;
+constexpr U16f k_Haneman = 3000;
+constexpr U16f k_Baiman = 4000;
+constexpr U16f k_Sanbaiman = 6000;
+constexpr U16f k_Yakuman = 8000;
 
-constexpr Fast8 k_NumYaku = 30;
-constexpr Fast8 k_NumYakuman = 11;
+constexpr U8f k_NumYaku = 30;
+constexpr U8f k_NumYakuman = 11;
 
 constexpr U16 f_DoubleYakuman = 0x0001;
 
 using Doras = s_Vector<Tile, 10>;
 
-enum class Yaku : Fast64
+enum class Yaku : U64f
 {
     invalid = 0,
     riichi,
@@ -56,7 +56,7 @@ enum class Yaku : Fast64
     dora
 };
 
-enum class Yakuman : Fast8
+enum class Yakuman : U8f
 {
     chuuren_poutou,
     suu_ankou,
@@ -73,30 +73,30 @@ enum class Yakuman : Fast8
 
 constexpr Yaku operator|(Yaku a, Yaku b) 
 {
-    return static_cast<Yaku>(static_cast<Fast64>(a) << 8 | static_cast<Fast64>(b));
+    return static_cast<Yaku>(static_cast<U64f>(a) << 8 | static_cast<U64f>(b));
 }
 
 struct ScoringCombo
 {
     U16 flags {};
-    std::array<Fast8, k_NumYaku> yaku {};
-    std::array<Fast8, k_NumYakuman> yakuman {};
+    std::array<U8f, k_NumYaku> yaku {};
+    std::array<U8f, k_NumYakuman> yakuman {};
     Doras *doras { nullptr };
-    Fast16 fu {};
+    U16f fu {};
     Dir round {};
 
-    CONSTEXPR12 Fast8 &operator[](Yaku y) MJ_EXCEPT_CRIT
-    {   MJ_ASSERT_CRIT(static_cast<Fast64>(y) <= k_NumYaku,
+    CONSTEXPR12 U8f &operator[](Yaku y) MJ_EXCEPT_CRIT
+    {   MJ_ASSERT_CRIT(static_cast<U64f>(y) <= k_NumYaku,
         "Cannot index multiple yaku at once.");
-        return yaku[static_cast<Fast64>(y)-1]; }
-    CONSTEXPR12 const Fast8 &operator[](Yaku y) const MJ_EXCEPT_CRIT
-    {   MJ_ASSERT_CRIT(static_cast<Fast64>(y) <= k_NumYaku,
+        return yaku[static_cast<U64f>(y)-1]; }
+    CONSTEXPR12 const U8f &operator[](Yaku y) const MJ_EXCEPT_CRIT
+    {   MJ_ASSERT_CRIT(static_cast<U64f>(y) <= k_NumYaku,
         "Cannot index multiple yaku at once.");
-        return yaku[static_cast<Fast64>(y)-1]; }
-    CONSTEXPR12 Fast8 &operator[](Yakuman y) noexcept
-    { return yakuman[static_cast<Fast8>(y)]; }
-    CONSTEXPR12 const Fast8 &operator[](Yakuman y) const noexcept
-    { return yakuman[static_cast<Fast8>(y)]; }
+        return yaku[static_cast<U64f>(y)-1]; }
+    CONSTEXPR12 U8f &operator[](Yakuman y) noexcept
+    { return yakuman[static_cast<U8f>(y)]; }
+    CONSTEXPR12 const U8f &operator[](Yakuman y) const noexcept
+    { return yakuman[static_cast<U8f>(y)]; }
 };
 
 /**
@@ -107,10 +107,10 @@ struct ScoringCombo
  * @param hand The hand to evaluate.
  * @param win The win (set of sequences and pairs) to evaluate
  * @param agari_pai The tile that caused the win.
- * @return Fast8 The number of fan for yaku (0 to 6)
+ * @return U8f The number of fan for yaku (0 to 6)
  */
 template<Yaku yaku>
-Fast8 eval(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai);
+U8f eval(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai);
 
 /**
  * Evaluate a particular yakuman
@@ -120,14 +120,14 @@ Fast8 eval(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai
  * @param hand The hand to evaluate.
  * @param win The win (set of sequences and pairs) to evaluate
  * @param agari_pai The tile that caused the win.
- * @return Fast8 The number of counts for the yakuman (0, 1, or 2)
+ * @return U8f The number of counts for the yakuman (0, 1, or 2)
  */
 template<Yakuman yakuman>
-Fast8 eval(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai);
+U8f eval(ScoringCombo &combo, const Hand &hand, const Win &win, Tile agari_pai);
 
-Fast32 basic_score(Fast16 fu, Fast8 fan);
+U32f basic_score(U16f fu, U8f fan);
 
-Fast32 score_hand(const Hand &hand, const Win &win, Tile agari_pai);
+U32f score_hand(const Hand &hand, const Win &win, Tile agari_pai);
 
 } // namespace scoring
 } // namespace mj

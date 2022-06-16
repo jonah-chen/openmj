@@ -15,19 +15,19 @@ namespace mj {
  * Convert computer-readable tile number to human-readable tile number.
  * 
  * @param c_num computer-readable tile number
- * @return constexpr Fast8 human-readable tile number
+ * @return constexpr U8f human-readable tile number
  * @warning Does not check for invalid tile number
  */
-constexpr Fast8 h_num(Fast8 c_num) { return c_num + 1; }
+constexpr U8f h_num(U8f c_num) { return c_num + 1; }
 
 /**
  * Convert human-readable tile number to computer-readable tile number.
  * 
  * @param h_num human-readable tile number 
- * @return constexpr Fast8 computer-readable tile number
+ * @return constexpr U8f computer-readable tile number
  * @warning Does not check for invalid tile number
  */
-constexpr Fast8 c_num(Fast8 h_num) { return h_num - 1; }
+constexpr U8f c_num(U8f h_num) { return h_num - 1; }
 
 enum class Suit : U16
 {
@@ -55,7 +55,7 @@ constexpr bool operator>(Suit lhs, Suit rhs) noexcept
     return static_cast<U16>(lhs) > static_cast<U16>(rhs);
 }
 
-enum Dir : Fast8
+enum Dir : U8f
 {
     k_East, k_South, k_West, k_North
 };
@@ -105,7 +105,7 @@ public:
 public:
     constexpr Tile() noexcept : id_(f_All16) {}
     constexpr explicit Tile(U16 id) : id_(id) {}
-    constexpr Tile(Suit suit, Fast8 num, Fast8 player=k_East, U16 flags=0)
+    constexpr Tile(Suit suit, U8f num, U8f player=k_East, U16 flags=0)
     noexcept : id_((U16)suit << tilelayout::k_SuitPos | 
                         num << tilelayout::k_NumPos | 
                         player << tilelayout::k_PlayerPos | flags) {}
@@ -120,12 +120,19 @@ public:
     constexpr Suit suit() const noexcept
     { return static_cast<Suit>((id_ >> tilelayout::k_SuitPos) & 7); }
 
-    constexpr Fast8 num() const noexcept
+    /** 
+     * @return constexpr U8f the tile's number (0-8 for non-honors)
+     */
+    constexpr U8f num() const noexcept
     { return (id_ >> tilelayout::k_NumPos) & 15; }
-    constexpr Fast8 num1() const noexcept
+    /** 
+     * @return constexpr U8f the tile's human-readable number (1-9 for 
+     * non-honors)
+     */
+    constexpr U8f num1() const noexcept
     { return num() + 1; }
 
-    constexpr Fast8 player() const noexcept
+    constexpr U8f player() const noexcept
     { return (id_ >> tilelayout::k_PlayerPos) & 3; }
 
     constexpr operator bool() const noexcept
@@ -134,16 +141,16 @@ public:
     { return id_; }
 
     /**
-     * @return constexpr Fast8 The tile content ignoring the flags. 
+     * @return constexpr U8f The tile content ignoring the flags. 
      */
-    constexpr Fast8 id7() const noexcept
+    constexpr U8f id7() const noexcept
     { return (id_ >> tilelayout::k_NumPos) & 127; }
 
     /** 
-     * @return constexpr Fast8 The tile in the order 0 to 33.
+     * @return constexpr U8f The tile in the order 0 to 33.
      */
-    constexpr Fast8 id34() const noexcept
-    { return k_Offsets[static_cast<Fast8>(suit())] + num(); }
+    constexpr U8f id34() const noexcept
+    { return k_Offsets[static_cast<U8f>(suit())] + num(); }
 
     /**
      * Equality ignoring flags
@@ -179,7 +186,7 @@ public:
     { return id_ >= rhs.id_; }
 
 public:
-    [[gnu::noinline]] std::string to_string() const
+    CONSTEXPR12 std::string to_string() const
     {
         constexpr std::array<char, 5> suits =
         { 'm', 'p', 's', 'w', 'd' };
@@ -266,7 +273,7 @@ private:
     U64 id_;
 
 public:
-    [[gnu::noinline]] std::string to_string() const
+    CONSTEXPR12 std::string to_string() const
     {
         return first().to_string() + second().to_string() +
             third().to_string() + fourth().to_string();
@@ -281,45 +288,22 @@ using NormalWin = std::pair<cMelds, int>;
 using Win = std::variant<bool, cPairs, NormalWin>;
 using Hand4Hot = std::array<int, k_UniqueTiles>;
 
-/**
- * Functions to deal with compactified types
- */
-constexpr bool _is_honor(int x) MJ_EXCEPT_WARN
-{   MJ_ASSERT(x < k_UniqueTiles, "_is_honor() called on invalid tile");
-    return x >= k_FirstHonorIdx; }
-constexpr bool _is_19(int x) MJ_EXCEPT_WARN
-{   MJ_ASSERT(x < k_UniqueTiles, "_is_19() called on invalid tile");
-    return x % 9 == c_num(1) || x % 9 == c_num(9) || _is_honor(x); }
-constexpr bool _is_17(int x) MJ_EXCEPT_WARN
-{   MJ_ASSERT(x < k_UniqueTiles, "_is_17() called on invalid tile");
-    MJ_ASSERT(!_is_honor(x), "_is_17() called on honor tile");
-    return x % 9 == c_num(1) || x % 9 == c_num(7); }
-
-constexpr bool _is_set(int x) noexcept { return x & 0x100; }
-constexpr bool _is_run(int x) noexcept { return !(x & 0x100); }
-constexpr int _set(int x) noexcept { return x | 0x100; }
-constexpr int _run(int x) noexcept { return x; }
-constexpr int _int(int x) noexcept { return x & 0xff; }
-constexpr int _2nd(int x) noexcept { return _int(x)+1; }
-constexpr int _3rd(int x) noexcept { return _int(x)+2; }
-
-
 using Melds = s_Vector<Meld, k_MaxNumMeld>;
 using WaitingTiles = s_Vector<Tile, 13>;
 using Wins = s_Vector<Win, 16>;
 using HandDense = s_Vector<Tile, k_MaxHandSize>;
 using Discards = s_Vector<Tile, k_MaxDiscards>;
 
-S8 shanten(const Hand4Hot &h4, Fast8 n_melds, int mode);
+S8 shanten(const Hand4Hot &h4, U8f n_melds, int mode);
 
 class Hand
 {
 public:
-    constexpr static Fast8 fp_Riichi = 62;
-    constexpr static Fast8 fp_Ippatsu = 61;
-    constexpr static Fast8 fp_Open = 60;
-    constexpr static Fast8 fp_Haitei = 59;
-    constexpr static Fast8 fp_FirstTurn = 58;
+    constexpr static U8f fp_Riichi = 62;
+    constexpr static U8f fp_Ippatsu = 61;
+    constexpr static U8f fp_Open = 60;
+    constexpr static U8f fp_Haitei = 59;
+    constexpr static U8f fp_FirstTurn = 58;
 
     constexpr static U64 f_SingleRiichi = 1ull << fp_Riichi;
     constexpr static U64 f_DoubleRiichi = 2ull << fp_Riichi;
@@ -340,30 +324,39 @@ public:
     void sort() const;
     Hand clean() const;
 
-    constexpr U64 check(U64 mask, Fast8 offset=0) const noexcept
+    /**
+     * Flag operations 
+     */
+    constexpr U64 check(U64 mask, U8f offset=0) const noexcept
     { return (flags_ & mask) >> offset; }
     constexpr void set(U64 mask) noexcept
     { flags_ |= mask; }
     constexpr void clear(U64 mask) noexcept
     { flags_ &= ~mask; }
 
-    CONSTEXPR12 HandDense &tiles() noexcept { return tiles_; }
-    CONSTEXPR12 const HandDense &tiles() const noexcept { return tiles_; }
-
-    CONSTEXPR12 Fast8 size() const noexcept
-    { return tiles_.size(); }
-
-    CONSTEXPR12 Tile &operator[](Fast8 idx) noexcept
+    /**
+     * Accessor functions 
+     */
+    CONSTEXPR12 Tile &operator[](U8f idx) noexcept
     { sorted_ = false; return tiles_[idx]; }
-    CONSTEXPR12 const Tile &operator[](Fast8 idx) const noexcept
+    CONSTEXPR12 const Tile &operator[](U8f idx) const noexcept
     { return tiles_[idx]; }
- 
+    CONSTEXPR12 const Meld &meld(U8f idx) const noexcept
+    { return melds_[idx]; }
+    CONSTEXPR12 Meld &meld(U8f idx) noexcept
+    { return melds_[idx]; }
+
     constexpr void mark_sorted() const noexcept { sorted_ = true; }
 
+    /**
+     * Modifier functions 
+     */
     CONSTEXPR12 void push_back(const Tile &t)
     {
         ++tiles4_[t.id34()];
+        ++tiles4m_[t.id34()];
         MJ_ASSERT(tiles4_[t.id34()] <= 4, "More than 4 same tiles is not allowed");
+        MJ_ASSERT(tiles4m_[t.id34()] <= 4, "More than 4 same tiles is not allowed");
         tiles_.push_back(t);
         sorted_ = false; 
     }
@@ -374,28 +367,124 @@ public:
         tiles_.emplace_back(args...);
         const auto &t = tiles_.back();
         ++tiles4_[t.id34()];
+        ++tiles4m_[t.id34()];
         MJ_ASSERT(tiles4_[t.id34()] <= 4, "More than 4 same tiles is not allowed");
+        MJ_ASSERT(tiles4m_[t.id34()] <= 4, "More than 4 same tiles is not allowed");
     }
 
     CONSTEXPR12 void pop_back() MJ_EXCEPT_CRIT
     { 
         const auto &t = tiles_.back();
         MJ_ASSERT_CRIT(tiles4_[t.id34()] > 0, "Something is wrong with 4hot tiles");
+        MJ_ASSERT_CRIT(tiles4m_[t.id34()] > 0, "Something is wrong with 4hot tiles");
         --tiles4_[t.id34()];
-        tiles_.pop_back(); 
-
+        --tiles4m_[t.id34()];
+        tiles_.pop_back();
     }
 
-    CONSTEXPR12 Fast8 melds() const noexcept
-    { return melds_.size(); }
-    CONSTEXPR12 const Meld &meld(Fast8 idx) const noexcept
-    { return melds_[idx]; }
-    CONSTEXPR12 Meld &meld(Fast8 idx) noexcept
-    { return melds_[idx]; }
+    CONSTEXPR12 bool pong(const Tile &t) MJ_EXCEPT_CRIT
+    {
+        MJ_ASSERT(t.player() != tiles_[0].player(), "Cannot pong own tile");
+        if (tiles4_[t.id34()] < 2)
+            return false;
+        tiles4_[t.id34()] -= 2;
+        tiles4m_[t.id34()]++;
+        auto it = std::find_if(tiles_.begin(), tiles_.end(), [t](const Tile &ht) { return ht.eq7(t); });
+        MJ_ASSERT_CRIT(it != tiles_.end(), "Something wrong with tiles4_");
+        melds_.emplace_back(t, *it, *(it+1));
+        tiles_.erase(it, it+2);
+        return true;
+    }
 
+    /**
+     * Declare a CHII and absorb an opponent's tile into hand.
+     * 
+     * @param t the tile to be absorbed.
+     * @param chii_at the position of the CHII. -1 for left i.e. [1]23, 
+     * 0 for middle i.e. 1[2]3, 1 for right i.e. 12[3].
+     * @return true if the chii is possible, false otherwise.
+     */
+    CONSTEXPR12 bool chii(const Tile &t, S8f chii_at) MJ_EXCEPT_CRIT
+    {
+        MJ_ASSERT(t.player() != tiles_[0].player(), "Cannot chii own tile");
+        U8f tgt1, tgt2;
+        switch (chii_at)
+        {
+        case -1:
+            if (t.num1() >= 8)
+                return false;
+            tgt1 = t.id34() + 1;
+            tgt2 = t.id34() + 2;
+            break;
+        case 0:
+            if (t.num1() == 1 || t.num1() == 9)
+                return false;
+            tgt1 = t.id34() - 1;
+            tgt2 = t.id34() + 1;
+            break;
+        case 1:
+            if (t.num1() <= 2)
+                return false;
+            tgt1 = t.id34() - 2;
+            tgt2 = t.id34() - 1;
+            break;
+        }
+        if (tiles4_[tgt1] < 1 || tiles4_[tgt2] < 1)
+            return false;
+        tiles4_[tgt1]--;
+        tiles4_[tgt2]--;
+        tiles4m_[t.id34()]++;
+
+        auto it1 = std::find_if(tiles_.begin(), tiles_.end(), [tgt1](const Tile &ht) { return ht.id34() == tgt1; });
+        MJ_ASSERT_CRIT(it1 != tiles_.end(), "Something wrong with tiles4_");
+        auto it2 = std::find_if(it1+1, tiles_.end(), [tgt2](const Tile &ht) { return ht.id34() == tgt2; });
+        MJ_ASSERT_CRIT(it2 != tiles_.end(), "Something wrong with tiles4_");
+
+        melds_.emplace_back(t, *it1, *it2);
+        tiles_.erase(it1);
+        tiles_.erase(it2);
+        return true;
+    }
+
+    CONSTEXPR12 void discard(const Tile &t) MJ_EXCEPT_CRIT
+    {
+        MJ_ASSERT_CRIT(tiles4_[t.id34()] > 0, "Something is wrong with 4hot tiles");
+        MJ_ASSERT_CRIT(tiles4m_[t.id34()] > 0, "Something is wrong with 4hot tiles");
+        --tiles4_[t.id34()];
+        --tiles4m_[t.id34()];
+        tiles_.erase(std::find(tiles_.begin(), tiles_.end(), t));
+    }
+    CONSTEXPR12 void discard(U8f idx) MJ_EXCEPT_CRIT
+    {
+        const auto &t = tiles_[idx];
+        MJ_ASSERT_CRIT(tiles4_[t.id34()] > 0, "Something is wrong with 4hot tiles");
+        MJ_ASSERT_CRIT(tiles4m_[t.id34()] > 0, "Something is wrong with 4hot tiles");
+        --tiles4_[t.id34()];
+        --tiles4m_[t.id34()];
+        tiles_.erase(tiles_.begin() + idx);
+    }
+
+
+    /**
+     * Size functions 
+     */
+    CONSTEXPR12 U8f size() const noexcept { return tiles_.size(); }
+    CONSTEXPR12 U8f n_melds() const noexcept { return melds_.size(); }
+
+    /**
+     * Container data functions
+     */
+    CONSTEXPR12 HandDense &tiles() noexcept { return tiles_; }
+    CONSTEXPR12 const HandDense &tiles() const noexcept { return tiles_; }
+    CONSTEXPR12 Melds melds() noexcept { return melds_; }
+    CONSTEXPR12 const Melds &melds() const noexcept { return melds_; }
     CONSTEXPR12 Hand4Hot &hand_4hot() noexcept { return tiles4_; }
     CONSTEXPR12 const Hand4Hot &hand_4hot() const noexcept { return tiles4_; }
+    CONSTEXPR12 Hand4Hot hand_4hot_melds() const noexcept { return tiles4m_; }
 
+    /**
+     * Iterator functions
+     */
     CONSTEXPR12 HandDense::iterator begin() noexcept
     { return tiles_.begin(); }
     CONSTEXPR12 HandDense::iterator end() noexcept
@@ -410,11 +499,12 @@ private:
 
     mutable HandDense tiles_{};
     Hand4Hot tiles4_;
+    Hand4Hot tiles4m_;
     mutable bool sorted_{};
     Melds melds_;
 
 public:
-    std::string to_string() const
+    CONSTEXPR12 std::string to_string() const
     {
         std::string s;
         for (const auto &t : tiles_)

@@ -17,7 +17,7 @@ public:
 
 private:
     std::array<float, k_UniqueTiles> weights_;
-    std::array<Fast8, k_UniqueTiles> remain_;
+    std::array<U8f, k_UniqueTiles> remain_;
     intptr_t tex_id_;
     Hand &hand_;
 

@@ -1,5 +1,6 @@
 
 #include "mahjong.hpp"
+#include "compact_helpers.hpp"
 #include "extern/shanten-number/calsht.hpp"
 #include <algorithm>
 #include <optional>
@@ -7,7 +8,7 @@
 namespace mj {
 namespace {
 using Pair_s = std::variant<int, cPairs>;
-using Runs4Hot = std::array<Fast8, k_FirstHonorIdx>;
+using Runs4Hot = std::array<U8f, k_FirstHonorIdx>;
 using Sets4Hot = std::array<bool, 34>;
 using Triples = std::pair<Runs4Hot, Sets4Hot>; 
 using cMeldsI = std::pair<cMelds, Triples>;
@@ -18,13 +19,13 @@ Pair_s pairs(const Hand4Hot &h4)
     cPairs pairs;
     for (Suit s = Suit::Man; s < Suit::Wind; ++s)
     {
-        const Fast8 s9 = static_cast<Fast8>(s)*9;
+        const U8f s9 = static_cast<U8f>(s)*9;
         // for 1s
         if (h4[s9]==2 && h4[s9+1]==0)
             return s9;
         else if (h4[s9]>=2)
             pairs.push_back(s9);
-        for (Fast8 i = 1; i < 8; ++i)
+        for (U8f i = 1; i < 8; ++i)
         {
             if (h4[s9+i]==2 && h4[s9+i-1]==0 && h4[s9+i+1]==0)
                 return s9+i;
@@ -36,7 +37,7 @@ Pair_s pairs(const Hand4Hot &h4)
         else if (h4[s9+8]>=2)
             pairs.push_back(s9+8);
     }
-    for (Fast8 t = k_FirstHonorIdx; t < k_UniqueTiles; ++t)
+    for (U8f t = k_FirstHonorIdx; t < k_UniqueTiles; ++t)
     {
         if (h4[t] == 2)
             return t;
@@ -51,7 +52,7 @@ Pair_s pairs(const Hand4Hot &h4)
 std::optional<cPairs> seven_pairs(const Hand4Hot &h4)
 {
     cPairs p;
-    for (Fast8 t = 0; t < k_UniqueTiles; ++t)
+    for (U8f t = 0; t < k_UniqueTiles; ++t)
     {
         if (h4[t] == 2)
             p.push_back(t);
@@ -65,24 +66,24 @@ Triples triples(const Hand4Hot &h4)
 {
     // test for sets
     Sets4Hot sets {};
-    for (Fast8 i = 0; i < k_UniqueTiles; ++i)
+    for (U8f i = 0; i < k_UniqueTiles; ++i)
         if (h4[i] >= 3)
             sets[i] = true;    
     // test for runs
     Runs4Hot runs {};
     for (Suit s = Suit::Man; s < Suit::Wind; ++s)
     {
-        const Fast8 s9 = static_cast<Fast8>(s)*9;
-        for (Fast8 n = 0; n < 7; ++n)
+        const U8f s9 = static_cast<U8f>(s)*9;
+        for (U8f n = 0; n < 7; ++n)
         {
-            Fast8 p = s9 + n;
+            U8f p = s9 + n;
             runs[p] = std::min({h4[p], h4[p+1], h4[p+2]});
         }
     }
     return {runs, sets};
 }
 
-std::variant<cMelds, cMeldsI> perms(Hand4Hot &h4, Fast8 N)
+std::variant<cMelds, cMeldsI> perms(Hand4Hot &h4, U8f N)
 {
     cMelds all_perms;
     while (all_perms.size() < N)
@@ -91,7 +92,7 @@ std::variant<cMelds, cMeldsI> perms(Hand4Hot &h4, Fast8 N)
         auto [runs, sets] = triples(h4);
         for (Suit s = Suit::Man; s < Suit::Wind; ++s)
         {
-            const Fast8 s9 = static_cast<Fast8>(s)*9;
+            const U8f s9 = static_cast<U8f>(s)*9;
             if (runs[s9] && h4[s9]!=3)  // 123 run. 
                                         // Only not perm when there's 3 1's
                 new_perms.push_back(_run(s9));
@@ -124,7 +125,7 @@ std::variant<cMelds, cMeldsI> perms(Hand4Hot &h4, Fast8 N)
         }
         // sets of honors only have to be searched once
         if (all_perms.empty())
-            for (Fast8 t = k_FirstHonorIdx; t < k_UniqueTiles; ++t)
+            for (U8f t = k_FirstHonorIdx; t < k_UniqueTiles; ++t)
                 if (sets[t])
                     new_perms.push_back(_set(t));
         
@@ -145,7 +146,7 @@ std::variant<cMelds, cMeldsI> perms(Hand4Hot &h4, Fast8 N)
     return all_perms;
 }
 
-void normal_win(Hand4Hot h4, int pair, Fast8 n_melds, Wins &wins)
+void normal_win(Hand4Hot h4, int pair, U8f n_melds, Wins &wins)
 {
     h4[pair]-=2;
     // check if it is a win at all by adding a dummy honor pair
@@ -162,7 +163,7 @@ void normal_win(Hand4Hot h4, int pair, Fast8 n_melds, Wins &wins)
             else return;
         }
     }
-    Fast8 N = k_MaxNumMeld - n_melds;
+    U8f N = k_MaxNumMeld - n_melds;
     auto p = perms(h4, N);
     auto *ptr = std::get_if<cMelds>(&p);
     if (ptr)
@@ -228,8 +229,8 @@ void normal_win(Hand4Hot h4, int pair, Fast8 n_melds, Wins &wins)
     }
 }
 
-void tenpai_win_impl(Fast8 offset, WaitingTiles &res, Hand4Hot &h4, 
-                     Fast8 n_melds, Suit suit, Fast8 num, bool kokushi_possible)
+void tenpai_win_impl(U8f offset, WaitingTiles &res, Hand4Hot &h4, 
+                     U8f n_melds, Suit suit, U8f num, bool kokushi_possible)
 {
     using namespace ext::tomohxx;
     if (++h4[offset] <= 4 && -1==shanten(h4, n_melds, k_ModeNormal | k_ModeChiitoi))
@@ -241,7 +242,7 @@ void tenpai_win_impl(Fast8 offset, WaitingTiles &res, Hand4Hot &h4,
 
 } // anon namespace
 
-S8 shanten(const Hand4Hot &h4, Fast8 n_melds, int mode)
+S8 shanten(const Hand4Hot &h4, U8f n_melds, int mode)
 {
     static ext::tomohxx::Calsht sht("../assets/tables");
     auto [num, _] = sht(h4, k_MaxNumMeld - n_melds, mode);
@@ -251,7 +252,7 @@ S8 shanten(const Hand4Hot &h4, Fast8 n_melds, int mode)
 Hand::Hand(const char *str) : tiles4_()
 {
     const char *suits = "mpswd";
-    Fast8 cur_suit = 0;
+    U8f cur_suit = 0;
     for (; *str && size() < k_MaxHandSize; ++str)
     {
         if (*str < '1' || *str > '9')
@@ -287,7 +288,7 @@ Hand Hand::clean() const
 Wins Hand::agari() const
 {
     Wins wins;
-    if (melds() == 0)
+    if (n_melds() == 0)
     {
         if (mj::shanten(hand_4hot(), 0, k_ModeKokushi) == -1)
         {
@@ -300,28 +301,28 @@ Wins Hand::agari() const
     Pair_s p = pairs(hand_4hot());
     int *pair_ptr = std::get_if<int>(&p);
     if (pair_ptr)
-        normal_win(hand_4hot(), *pair_ptr, melds(), wins);
+        normal_win(hand_4hot(), *pair_ptr, n_melds(), wins);
     else for (const auto &pair : std::get<cPairs>(p))
-        normal_win(hand_4hot(), pair, melds(), wins);
+        normal_win(hand_4hot(), pair, n_melds(), wins);
     return wins;
 }
 
 WaitingTiles Hand::tenpai() const
 {
-    if (size() + 3u*melds() < k_MaxHandSize - 1u) return {};
+    if (size() + 3u*n_melds() < k_MaxHandSize - 1u) return {};
     if (!is_tenpai()) return {};
     WaitingTiles waiting;
     Hand4Hot h4 (hand_4hot());
-    bool kokushi_possible = melds();
-    // Fast8 chitoi_possible = melds() ? 0 : 2;
+    bool kokushi_possible = n_melds();
+    // U8f chitoi_possible = n_melds() ? 0 : 2;
     // check normal tile waits first
     for (Suit s = Suit::Man; s < Suit::Wind; ++s)
     {
-        Fast8 s9 = static_cast<Fast8>(s)*9;
+        U8f s9 = static_cast<U8f>(s)*9;
 
         // deal with n=0
         if (h4[s9] || h4[s9+1])
-            tenpai_win_impl(s9, waiting, h4, melds(), s, 0, kokushi_possible);
+            tenpai_win_impl(s9, waiting, h4, n_melds(), s, 0, kokushi_possible);
 
         for (int n = 1; n < 8; ++n)
         {
@@ -330,29 +331,29 @@ WaitingTiles Hand::tenpai() const
                 using namespace ext::tomohxx;
                 if (h4[s9+n]++)
                     kokushi_possible = false;
-                if (h4[s9+n] <= 4 && -1==mj::shanten(h4, melds(), k_ModeNormal | k_ModeChiitoi))
+                if (h4[s9+n] <= 4 && -1==mj::shanten(h4, n_melds(), k_ModeNormal | k_ModeChiitoi))
                     waiting.emplace_back(s, n);
                 h4[s9+n]--;
             }
         }
         if (h4[s9+7] || h4[s9+8])
-            tenpai_win_impl(s9+8, waiting, h4, melds(), s, 8, kokushi_possible);
+            tenpai_win_impl(s9+8, waiting, h4, n_melds(), s, 8, kokushi_possible);
     }
     // check wind waits
-    constexpr Fast8 k_WindOffset = Tile::k_Offsets[static_cast<Fast8>(Suit::Wind)];
-    constexpr Fast8 k_DragonOffset = Tile::k_Offsets[static_cast<Fast8>(Suit::Dragon)];
+    constexpr U8f k_WindOffset = Tile::k_Offsets[static_cast<U8f>(Suit::Wind)];
+    constexpr U8f k_DragonOffset = Tile::k_Offsets[static_cast<U8f>(Suit::Dragon)];
     for (int n = 0; n < k_NumWinds; ++n)
     {
-        Fast8 offset = k_WindOffset+n;
+        U8f offset = k_WindOffset+n;
         if (h4[offset])
-            tenpai_win_impl(offset, waiting, h4, melds(), Suit::Wind, n, kokushi_possible);
+            tenpai_win_impl(offset, waiting, h4, n_melds(), Suit::Wind, n, kokushi_possible);
     }
     // check dragon waits
     for (int n = 0; n < k_NumDragons; ++n)
     {
-        Fast8 offset = k_DragonOffset+n;
+        U8f offset = k_DragonOffset+n;
         if (h4[offset])
-            tenpai_win_impl(offset, waiting, h4, melds(), Suit::Dragon, n, kokushi_possible);
+            tenpai_win_impl(offset, waiting, h4, n_melds(), Suit::Dragon, n, kokushi_possible);
     }
 
     return waiting;
@@ -360,7 +361,7 @@ WaitingTiles Hand::tenpai() const
 
 S8 Hand::shanten() const
 { 
-    return mj::shanten(hand_4hot(), melds(), k_ModeAll); 
+    return mj::shanten(hand_4hot(), n_melds(), k_ModeAll); 
 };
 
 } // namespace mj
