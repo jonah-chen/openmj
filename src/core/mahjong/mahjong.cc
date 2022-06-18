@@ -14,7 +14,7 @@ using Triples = std::pair<Runs4Hot, Sets4Hot>;
 using cMeldsI = std::pair<cMelds, Triples>;
 using TempTrip = s_Vector<Meld, 4>;
 
-Pair_s pairs(const Hand4Hot &h4) 
+CONSTEXPR12 Pair_s pairs(const Hand4Hot &h4) 
 {
     cPairs pairs;
     for (Suit s = Suit::Man; s < Suit::Wind; ++s)
@@ -57,12 +57,12 @@ std::optional<cPairs> seven_pairs(const Hand4Hot &h4)
         if (h4[t] == 2)
             p.push_back(t);
         else if (h4[t])
-            return {};
+            return std::nullopt;
     }
     return p;
 }
 
-Triples triples(const Hand4Hot &h4)
+CONSTEXPR12 Triples triples(const Hand4Hot &h4)
 {
     // test for sets
     Sets4Hot sets {};
