@@ -1,5 +1,5 @@
 
-#include "mahjong.hpp"
+#include "mahjong_hand.hpp"
 #include "compact_helpers.hpp"
 #include "extern/shanten-number/calsht.hpp"
 #include <algorithm>
@@ -249,7 +249,7 @@ S8 shanten(const Hand4Hot &h4, U8f n_melds, int mode)
     return num - 1;
 }
 
-Hand::Hand(const char *str) : tiles4_()
+Hand::Hand(const char *str) : tiles4_(), tiles4m_()
 {
     const char *suits = "mpswd";
     U8f cur_suit = 0;
@@ -264,25 +264,6 @@ Hand::Hand(const char *str) : tiles4_()
         else
             emplace_back(Suit(cur_suit), *str - '1');
     }
-}
-
-void Hand::sort() const
-{
-    if (sorted_)
-        return;
-    std::sort(tiles_.begin(), tiles_.end());
-    sorted_ = true;
-}
-
-Hand Hand::clean() const
-{
-    Hand output;
-    for (const auto &tile : tiles_)
-        if (tile)
-            output.push_back(tile);
-    if (sorted_)
-        output.mark_sorted();
-    return output;
 }
 
 Wins Hand::agari() const

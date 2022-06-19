@@ -1,0 +1,350 @@
+
+#pragma once
+
+#include <variant>
+#include <vector>
+
+#include "mahjong_base.hpp"
+#include "core/utils/stack_allocator.hpp"
+
+
+namespace mj {
+/**
+ * Compactified types
+ */
+using cPairs = s_Vector<int, 7>;
+using cMelds = s_Vector<int, 4>;
+using NormalWin = std::pair<cMelds, int>;
+using Win = std::variant<bool, cPairs, NormalWin>;
+using Hand4Hot = std::array<int, k_UniqueTiles>;
+
+using Melds = s_Vector<Meld, k_MaxNumMeld>;
+using WaitingTiles = s_Vector<Tile, 13>;
+using Wins = s_Vector<Win, 16>;
+using HandDense = s_Vector<Tile, k_MaxHandSize>;
+using Discards = s_Vector<Tile, k_MaxDiscards>;
+
+/**
+ * Calculate shanten count of a hand by using the algorithm described in 
+ * https://github.com/tomohxx/shanten-number. This algorithm also works for 
+ * hands with any number >1 tiles. 
+ * 
+ * @param h4 The 4hot representation of the hand. This should only include the
+ * closed part of the hand.
+ * @param n_melds The number of open melds in the hand.
+ * @param mode The mode of win (k_ModeNormal, k_ModeChiitoi, k_ModeKokushi)
+ * @return S8 The shanten number of the hand, 0 for tenpai, -1 for winning. 
+ */
+S8 shanten(const Hand4Hot &h4, U8f n_melds, int mode);
+
+class Hand
+{
+public:
+    Hand() : tiles4_(), tiles4m_() {}
+    Hand(const char *);
+
+    /**
+     * @return If the hand is open or not.
+     */
+    CONSTEXPR12 bool open() const { return n_open_melds(); }
+
+    /**
+     * @return If the hand is closed or not.
+     */
+    CONSTEXPR12 bool closed() const { return !open(); }
+
+    /** 
+     * @return S8 the shanten count of the hand. 0 for tenpai, and -1 for an 
+     * already winning hand.
+     */
+    S8 shanten() const;
+    inline bool is_tenpai() const { return shanten() == 0; }
+    inline bool is_agari() const { return shanten() == -1; }
+
+    /**
+     * Calculate the various ways a this hand can form winning combinations
+     * (4 melds + pair, 7 pairs, or kokushi). For normal wins, (4 melds + pair),
+     * only the closed parts of the win will be included, as the open part will
+     * always be the same and can be accessed via the melds() method.
+     * 
+     * @return Wins 
+     */
+    Wins agari() const;
+
+    /**
+     * Find the tiles a player is waiting when the player is in tenpai.
+     * 
+     * @return WaitingTiles vector of tiles the player is waiting for. Will be
+     * empty if the player is not in tenpai.
+     */
+    WaitingTiles tenpai() const;
+
+    CONSTEXPR12 void sort() const
+    {
+        if (sorted_)
+            return;
+        std::sort(tiles_.begin(), tiles_.end());
+        sorted_ = true;
+    }
+
+    CONSTEXPR12 void sort_after_draw() const
+    {
+        if (sorted_)
+            return;
+        Tile t = tiles_.back();
+        tiles_.pop_back();
+        auto it = std::lower_bound(tiles_.begin(), tiles_.end(), t);
+        tiles_.insert(it, t);
+        sorted_ = true;
+    }
+
+    CONSTEXPR12 U8f player() const { return (*this)[0].player(); }
+
+    /**
+     * Flag operations 
+     */
+    constexpr U64 check(U64 mask, U8f offset=0) const noexcept
+    { return (flags_ & mask) >> offset; }
+    constexpr void set(U64 mask) noexcept
+    { flags_ |= mask; }
+    constexpr void clear(U64 mask) noexcept
+    { flags_ &= ~mask; }
+
+    /**
+     * Accessor functions 
+     */
+    CONSTEXPR12 Tile &operator[](U8f idx) noexcept
+    { sorted_ = false; return tiles_[idx]; }
+    CONSTEXPR12 const Tile &operator[](U8f idx) const noexcept
+    { return tiles_[idx]; }
+    CONSTEXPR12 const Meld &meld(U8f idx) const noexcept
+    { return melds_[idx]; }
+    CONSTEXPR12 Meld &meld(U8f idx) noexcept
+    { return melds_[idx]; }
+
+    constexpr void mark_sorted() const noexcept { sorted_ = true; }
+
+    /**
+     * Modifier functions 
+     */
+    CONSTEXPR12 void push_back(const Tile &t)
+    {
+        ++tiles4_[t.id34()];
+        ++tiles4m_[t.id34()];
+        MJ_ASSERT(tiles4_[t.id34()] <= 4, "More than 4 same tiles is not allowed");
+        MJ_ASSERT(tiles4m_[t.id34()] <= 4, "More than 4 same tiles is not allowed");
+        tiles_.push_back(t);
+        sorted_ = false; 
+    }
+
+    template<typename... Args>
+    CONSTEXPR12 void emplace_back(Args&&... args)
+    {
+        tiles_.emplace_back(args...);
+        const auto &t = tiles_.back();
+        ++tiles4_[t.id34()];
+        ++tiles4m_[t.id34()];
+        sorted_ = false;
+        MJ_ASSERT(tiles4_[t.id34()] <= 4, "More than 4 same tiles is not allowed");
+        MJ_ASSERT(tiles4m_[t.id34()] <= 4, "More than 4 same tiles is not allowed");
+    }
+
+    CONSTEXPR12 void pop_back() MJ_EXCEPT_CRIT
+    { 
+        const auto &t = tiles_.back();
+        MJ_ASSERT_CRIT(tiles4_[t.id34()] > 0, "Something is wrong with 4hot tiles");
+        MJ_ASSERT_CRIT(tiles4m_[t.id34()] > 0, "Something is wrong with 4hot tiles");
+        --tiles4_[t.id34()];
+        --tiles4m_[t.id34()];
+        tiles_.pop_back();
+    }
+
+    CONSTEXPR12 bool pong(const Tile &t) MJ_EXCEPT_CRIT
+    {
+        MJ_ASSERT(sorted_, "Hand is not sorted when calling pong");
+        MJ_ASSERT(t.player() != player(), "Cannot pong own tile");
+        if (tiles4_[t.id34()] < 2)
+            return false;
+        tiles4_[t.id34()] -= 2;
+        tiles4m_[t.id34()]++;
+        auto it = std::find_if(tiles_.begin(), tiles_.end(), [t](const Tile &ht) { return ht.eq7(t); });
+        MJ_ASSERT_CRIT(it != tiles_.end(), "Something wrong with tiles4_");
+        melds_.emplace_back(t, *it, *(it+1));
+        tiles_.erase(it, it+2);
+        return true;
+    }
+
+    /**
+     * Declare a CHII and absorb an opponent's tile into hand.
+     * 
+     * @param t the tile to be absorbed.
+     * @param chii_at the position of the CHII. -1 for left i.e. [1]23, 
+     * 0 for middle i.e. 1[2]3, 1 for right i.e. 12[3].
+     * @return true if the chii is possible, false otherwise.
+     */
+    CONSTEXPR12 bool chii(const Tile &t, S8f chii_at) MJ_EXCEPT_CRIT
+    {
+        MJ_ASSERT(sorted_, "Hand is not sorted when calling chii");
+        MJ_ASSERT(t.player() != player(), "Cannot chii own tile");
+        U8f tgt1, tgt2;
+        switch (chii_at)
+        {
+        case -1:
+            if (t.num1() >= 8)
+                return false;
+            tgt1 = t.id34() + 1;
+            tgt2 = t.id34() + 2;
+            break;
+        case 0:
+            if (t.num1() == 1 || t.num1() == 9)
+                return false;
+            tgt1 = t.id34() - 1;
+            tgt2 = t.id34() + 1;
+            break;
+        case 1:
+            if (t.num1() <= 2)
+                return false;
+            tgt1 = t.id34() - 2;
+            tgt2 = t.id34() - 1;
+            break;
+        }
+        if (tiles4_[tgt1] < 1 || tiles4_[tgt2] < 1)
+            return false;
+        tiles4_[tgt1]--;
+        tiles4_[tgt2]--;
+        tiles4m_[t.id34()]++;
+
+        auto it1 = std::find_if(tiles_.begin(), tiles_.end(), [tgt1](const Tile &ht) { return ht.id34() == tgt1; });
+        MJ_ASSERT_CRIT(it1 != tiles_.end(), "Something wrong with tiles4_");
+        auto it2 = std::find_if(it1+1, tiles_.end(), [tgt2](const Tile &ht) { return ht.id34() == tgt2; });
+        MJ_ASSERT_CRIT(it2 != tiles_.end(), "Something wrong with tiles4_");
+
+        melds_.emplace_back(t, *it1, *it2);
+        tiles_.erase(it1);
+        tiles_.erase(it2);
+        return true;
+    }
+
+    CONSTEXPR12 bool closed_kong(U8f t34) MJ_EXCEPT_CRIT
+    {
+        MJ_ASSERT(sorted_, "Hand is not sorted when calling closed_kong");
+        if (tiles4_[t34] != 4)
+            return false;
+        tiles4_[t34] = 0;
+        auto it = std::find_if(tiles_.begin(), tiles_.end(), 
+            [t34](const Tile &ht) { return ht.id34() == t34; });
+        MJ_ASSERT_CRIT(it != tiles_.end(), "Something wrong with tiles4_");
+        melds_.emplace_back(*it, *(it+1), *(it+2), *(it+3));
+        tiles_.erase(it, it+4);
+        n_closed_kongs_++;
+        return true;
+    }
+
+    CONSTEXPR12 bool self_kong(const Tile &t) MJ_EXCEPT_WARN
+    {
+        MJ_ASSERT(t.player() == player(), "Cannot self-kong other's tile");
+        auto it = std::find_if(melds_.begin(), melds_.end(), 
+            [t](const Meld &m) {
+                return m.is_set() && m.first().eq7(t);
+        });
+        if (it == melds_.end())
+            return false;
+        it->add_fourth(t);
+        tiles4_[t.id34()]--;
+        return true;
+    }
+
+    CONSTEXPR12 bool open_kong(const Tile &t) MJ_EXCEPT_CRIT
+    {
+        MJ_ASSERT(sorted_, "Hand is not sorted when calling open_kong");
+        MJ_ASSERT(t.player() != tiles_[0].player(), "Cannot open kong own tile");
+        if (tiles4_[t.id34()] != 3)
+            return false;
+        tiles4_[t.id34()] = 0;
+        tiles4m_[t.id34()] = 4;
+        auto it = std::find_if(tiles_.begin(), tiles_.end(), [t](const Tile &ht) { return ht.eq7(t); });
+        MJ_ASSERT_CRIT(it != tiles_.end(), "Something wrong with tiles4_");
+        melds_.emplace_back(t, *it, *(it+1), *(it+2));
+        tiles_.erase(it, it+3);
+        return true;
+    }
+
+    CONSTEXPR12 void discard(const Tile &t) MJ_EXCEPT_CRIT
+    {
+        MJ_ASSERT_CRIT(tiles4_[t.id34()] > 0, "Something is wrong with 4hot tiles");
+        MJ_ASSERT_CRIT(tiles4m_[t.id34()] > 0, "Something is wrong with 4hot tiles");
+        --tiles4_[t.id34()];
+        --tiles4m_[t.id34()];
+        tiles_.erase(std::find(tiles_.begin(), tiles_.end(), t));
+    }
+
+    CONSTEXPR12 void discard(U8f idx) MJ_EXCEPT_CRIT
+    {
+        const auto &t = tiles_[idx];
+        MJ_ASSERT_CRIT(tiles4_[t.id34()] > 0, "Something is wrong with 4hot tiles");
+        MJ_ASSERT_CRIT(tiles4m_[t.id34()] > 0, "Something is wrong with 4hot tiles");
+        --tiles4_[t.id34()];
+        --tiles4m_[t.id34()];
+        tiles_.erase(tiles_.begin() + idx);
+    }
+
+    /**
+     * Size functions 
+     */
+    CONSTEXPR12 U8f size() const noexcept { return tiles_.size(); }
+    CONSTEXPR12 U8f n_melds() const noexcept { return melds_.size(); }
+    CONSTEXPR12 U8f n_open_melds() const noexcept { return melds_.size() - n_closed_kongs_; }
+
+    /**
+     * Container data functions
+     */
+    CONSTEXPR12 HandDense &tiles() noexcept { return tiles_; }
+    CONSTEXPR12 const HandDense &tiles() const noexcept { return tiles_; }
+    CONSTEXPR12 Melds melds() noexcept { return melds_; }
+    CONSTEXPR12 const Melds &melds() const noexcept { return melds_; }
+    
+    CONSTEXPR12 Hand4Hot &hand_4hot() noexcept { return tiles4_; }
+    CONSTEXPR12 const Hand4Hot &hand_4hot() const noexcept { return tiles4_; }
+    CONSTEXPR12 int &hand_4hot(U8f idx) noexcept { return tiles4_[idx]; }
+    CONSTEXPR12 const int &hand_4hot(U8f idx) const noexcept { return tiles4_[idx]; }
+
+    CONSTEXPR12 Hand4Hot &hand_4hot_melds() noexcept { return tiles4m_; }
+    CONSTEXPR12 const Hand4Hot &hand_4hot_melds() const noexcept { return tiles4m_; }
+    CONSTEXPR12 int &hand_4hot_melds(U8f idx) noexcept { return tiles4m_[idx]; }
+    CONSTEXPR12 const int &hand_4hot_melds(U8f idx) const noexcept { return tiles4m_[idx]; }
+
+    /**
+     * Iterator functions
+     */
+    CONSTEXPR12 HandDense::iterator begin() noexcept
+    { return tiles_.begin(); }
+    CONSTEXPR12 HandDense::iterator end() noexcept
+    { return tiles_.end(); }
+    CONSTEXPR12 HandDense::const_iterator begin() const noexcept
+    { return tiles_.begin(); }
+    CONSTEXPR12 HandDense::const_iterator end() const noexcept
+    { return tiles_.end(); }
+
+private:
+    U64 flags_{};
+    mutable HandDense tiles_{};
+    Hand4Hot tiles4_;
+    Hand4Hot tiles4m_;
+    mutable bool sorted_{};
+    Melds melds_;
+    U8f n_closed_kongs_{};
+
+public:
+    CONSTEXPR12 std::string to_string() const
+    {
+        std::string s;
+        for (const auto &t : tiles_)
+            s += t.to_string();
+        s += "|";
+        for (const auto &m : melds_)
+            s += m.to_string();
+        return s;
+    }
+};
+
+} // namespace mj

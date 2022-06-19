@@ -3,7 +3,7 @@ project(OpenMJ)
 
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_FLAGS_DEBUG "-O0 -Wall -g -fno-rtti -DMJ_LOGGING=2")
+set(CMAKE_CXX_FLAGS_DEBUG "-O0 -Wall -g -fno-rtti -DMJ_LOGGING=2 -w")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -Wall -fno-rtti -flto=auto -DNDEBUG -DMJ_LOGGING=0")
 
 option(BUILD_BENCH "Build Benchmarks" ON)
@@ -35,7 +35,7 @@ include_directories(${GLEW_INCLUDE_DIRS})
 
 message(STATUS "Building Libraries")
 
-add_library(Mahjong STATIC ${src_dir}/core/mahjong/mahjong.cc
+add_library(Mahjong STATIC ${src_dir}/core/mahjong/mahjong_hand.cc
                         ${src_dir}/core/mahjong/scoring.cc)
 
 add_library(tomohxx_Shanten STATIC ${extern_dir}/shanten-number/calsht.cpp)
