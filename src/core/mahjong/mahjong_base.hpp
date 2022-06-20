@@ -51,11 +51,6 @@ constexpr bool operator>(Suit lhs, Suit rhs) noexcept
     return static_cast<U16>(lhs) > static_cast<U16>(rhs);
 }
 
-enum Dir : U8f
-{
-    k_East, k_South, k_West, k_North
-};
-
 /**
  * Increment direction in the same way turns pass in mahjong, including 
  * wrapping around

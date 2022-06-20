@@ -115,6 +115,16 @@ constexpr U64 f_ClosedHandMask  = ~(f_ChantaO |
                                     f_JunchanO |
                                     f_ChinitsuO);
 
+constexpr U64 f_HandIndependent =   f_Riichi |
+                                    f_Ippatsu |
+                                    f_Haitei |
+                                    f_Houtei |
+                                    f_Rinshan |
+                                    f_Chankan |
+                                    f_Tenhou |
+                                    f_Chihou |
+                                    f_Renhou;
+
 constexpr U64 f_Yakuhai         =   f_East | f_South | f_West | f_North | 
                                     f_Hatsu | f_Chun | f_Haku;
 
@@ -169,7 +179,7 @@ constexpr std::array<U64, 6> k_YakuVal
 
 using Doras = s_Vector<Tile, 10>;
 
-inline constexpr std::size_t bit_count(uint64_t v) noexcept
+constexpr std::size_t bit_count(uint64_t v) noexcept
 {
     if (std::is_constant_evaluated()) 
     {
@@ -184,7 +194,7 @@ inline constexpr std::size_t bit_count(uint64_t v) noexcept
     return std::bitset<64>(v).count();
 }
 
-inline constexpr U16f basic_score(U64 yakus, U8f doras=0)
+constexpr U16f basic_score(U64 yakus, U8f doras=0)
 {
     // check for yakuman
     if (yakus & f_DoubleYakuman)
@@ -207,6 +217,16 @@ inline constexpr U16f basic_score(U64 yakus, U8f doras=0)
     return fu << (2 + fan);
 }
 
+constexpr void filter_redundant_yaku(U64 &yakus)
+{
+    if (yakus & f_Chinitsu)
+        yakus &= ~f_Honitsu;
+    if (yakus & f_Junchan)
+        yakus &= ~f_Chanta;
+    if (yakus & f_Ryanpeikou)
+        yakus &= ~f_Ipeikou;
+}
+
 /**
  * Evaluate a particular yaku. Implemented for all single 
  * 
@@ -218,15 +238,86 @@ inline constexpr U16f basic_score(U64 yakus, U8f doras=0)
  * @return U8f The number of fan for yaku (0 to 6)
  */
 template<U64 yaku>
-inline constexpr U64 eval(const Hand &hand, const Win &win, Tile agari_pai);
+constexpr U64 eval(const Hand &hand, const Win &win, Tile agari_pai);
 
-inline constexpr std::pair<U32f, U64> score_hand(const Hand &hand, const Win &win, Tile agari_pai)
+template<U64 yaku>
+constexpr U64 eval_all(const Hand &hand, const Win &win, Tile agari_pai)
 {
-    
-    return {0, 0};
+    U64 ret = 0;
+    for (U64 f = 1ull; f != 0; f <<= 1)
+        if (f & yaku)
+            ret |= eval<yaku>(hand, win, agari_pai);
+    return ret;
 }
 
-inline constexpr U32f score_hand(const Hand &hand, Tile agari_pai)
+constexpr std::pair<U32f, U64> score_hand(const Hand &hand, const Win &win, Tile agari_pai, U8f doras=0)
+{
+    U64 yakus = eval_all<f_YakumanMask>(hand, win, agari_pai);
+    if (hand.flags & yakus)
+    {
+        return {basic_score(hand.flags & yakus), hand.flags & yakus};
+    }
+    yakus |= eval_all<f_HandIndependent>(hand, win, agari_pai);
+    
+    { // evaluate chiitoi
+        auto chitoi = eval<f_Chitoitsu>(hand, win, agari_pai);
+        if (chitoi)
+        {
+            yakus |= f_Chitoitsu;
+            yakus |= eval<f_Chinitsu | f_Honitsu>(hand, win, agari_pai);
+            if (!(yakus & f_Chinitsu) && eval<f_Honroutou>(hand, win, agari_pai))
+                yakus |= f_Honroutou;
+            else 
+                yakus |= eval<f_Tanyao>(hand, win, agari_pai);
+            return {basic_score(hand.flags & yakus, doras), hand.flags & yakus};
+        }
+    }
+
+    yakus |= eval<f_Pinfu>(hand, win, agari_pai);
+
+    auto yakuhai = eval_all<f_Yakuhai>(hand, win, agari_pai);
+    yakus |= yakuhai;
+    if (!yakuhai)
+    {
+        yakus |= eval<f_Tanyao>(hand, win, agari_pai);
+        yakus |= eval<f_Ryanpeikou>(hand, win, agari_pai);
+    }
+    else
+    {
+        yakus |= eval<f_Shousangen>(hand, win, agari_pai);
+    }
+    auto itsu = eval<f_Chinitsu | f_Honitsu>(hand, win, agari_pai);
+    yakus |= itsu;
+    if (!itsu)
+    {
+        yakus |= eval<f_SanshokuSeq>(hand, win, agari_pai);
+        yakus |= eval<f_SanshokuSet>(hand, win, agari_pai);
+    }
+    auto honrotou = eval<f_Honroutou>(hand, win, agari_pai);
+    if (!honrotou)
+    {
+        auto y19 = eval<f_Junchan | f_Chanta>(hand, win, agari_pai);
+        if (y19)
+            yakus |= y19;
+        else
+            yakus |= eval<f_Ittsu>(hand, win, agari_pai);
+    }
+
+    yakus |= eval<f_Ipeikou>(hand, win, agari_pai);
+    yakus |= eval<f_MenTsumo>(hand, win, agari_pai);
+    if (!(yakus & f_Pinfu))
+    { 
+        yakus |= eval<f_Sanankou>(hand, win, agari_pai);
+        yakus |= eval<f_Sankantsu>(hand, win, agari_pai);
+        yakus |= eval<f_Toitoi>(hand, win, agari_pai);
+    }
+    filter_redundant_yaku(yakus);
+    yakus &= hand.flags;
+    if (yakus & f_YakuMask) return {basic_score(yakus, doras), yakus};
+    else return {0, yakus};
+}
+
+inline U32f score_hand(const Hand &hand, Tile agari_pai)
 {
     auto wins = hand.agari();
     U32f best_score = 0;

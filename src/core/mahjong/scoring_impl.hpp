@@ -14,18 +14,59 @@
 namespace mj {
 namespace scoring {
 
-template<U64 yaku>
-concept HandIndependent = static_cast<bool>(yaku & 
-    (f_Riichi | f_Ippatsu | f_Haitei | f_Houtei | f_Rinshan | f_Chankan | f_Tenhou | f_Chihou | f_Renhou));
-
-template<U64 yaku>
-requires HandIndependent<yaku>
-inline constexpr U64 eval
+template<>
+constexpr U64 eval
+<f_Riichi1>
 (const Hand &hand, const Win &win, Tile agari_pai)
-{ return yaku; }
+{ return f_Riichi1; }
+template<>
+constexpr U64 eval
+<f_Riichi2>
+(const Hand &hand, const Win &win, Tile agari_pai)
+{ return f_Riichi2; }
+template<>
+constexpr U64 eval
+<f_Ippatsu>
+(const Hand &hand, const Win &win, Tile agari_pai)
+{ return f_Ippatsu; }
+template<>
+constexpr U64 eval
+<f_Haitei>
+(const Hand &hand, const Win &win, Tile agari_pai)
+{ return f_Haitei; }
+template<>
+constexpr U64 eval
+<f_Houtei>
+(const Hand &hand, const Win &win, Tile agari_pai)
+{ return f_Houtei; }
+template<>
+constexpr U64 eval
+<f_Rinshan>
+(const Hand &hand, const Win &win, Tile agari_pai)
+{ return f_Rinshan; }
+template<>
+constexpr U64 eval
+<f_Chankan>
+(const Hand &hand, const Win &win, Tile agari_pai)
+{ return f_Chankan; }
+template<>
+constexpr U64 eval
+<f_Tenhou>
+(const Hand &hand, const Win &win, Tile agari_pai)
+{ return f_Tenhou; }
+template<>
+constexpr U64 eval
+<f_Chihou>
+(const Hand &hand, const Win &win, Tile agari_pai)
+{ return f_Chihou; }
+template<>
+constexpr U64 eval
+<f_Renhou>
+(const Hand &hand, const Win &win, Tile agari_pai)
+{ return f_Renhou; }
 
 template<>
-inline constexpr U64 eval
+constexpr U64 eval
 <f_MenTsumo>
 (const Hand &hand, const Win &win, Tile agari_pai)
 {
@@ -35,7 +76,7 @@ inline constexpr U64 eval
 }
 
 template<>
-inline constexpr U64 eval
+constexpr U64 eval
 <f_Pinfu>
 (const Hand &hand, const Win &win, Tile agari_pai)
 {
@@ -95,7 +136,7 @@ inline constexpr U64 eval
 }
 
 template<>
-inline constexpr U64 eval
+constexpr U64 eval
 <f_Ipeikou>
 (const Hand &hand, const Win &win, Tile agari_pai)
 {
@@ -117,7 +158,7 @@ inline constexpr U64 eval
 }
 
 template<>
-inline constexpr U64 eval
+constexpr U64 eval
 <f_Tanyao>
 (const Hand &hand, const Win &win, Tile agari_pai)
 {
@@ -128,7 +169,7 @@ inline constexpr U64 eval
 }
 
 template<>
-inline constexpr U64 eval
+constexpr U64 eval
 <f_Hatsu>
 (const Hand &hand, const Win &win, Tile agari_pai)
 {
@@ -136,7 +177,7 @@ inline constexpr U64 eval
 }
 
 template<>
-inline constexpr U64 eval
+constexpr U64 eval
 <f_Chun>
 (const Hand &hand, const Win &win, Tile agari_pai)
 {
@@ -144,7 +185,7 @@ inline constexpr U64 eval
 }
 
 template<>
-inline constexpr U64 eval
+constexpr U64 eval
 <f_Haku>
 (const Hand &hand, const Win &win, Tile agari_pai)
 {
@@ -152,7 +193,7 @@ inline constexpr U64 eval
 }
 
 template<>
-inline constexpr U64 eval
+constexpr U64 eval
 <f_East>
 (const Hand &hand, const Win &win, Tile agari_pai)
 {
@@ -160,7 +201,7 @@ inline constexpr U64 eval
 }
 
 template<>
-inline constexpr U64 eval
+constexpr U64 eval
 <f_South>
 (const Hand &hand, const Win &win, Tile agari_pai)
 {
@@ -168,7 +209,7 @@ inline constexpr U64 eval
 }
 
 template<>
-inline constexpr U64 eval
+constexpr U64 eval
 <f_West>
 (const Hand &hand, const Win &win, Tile agari_pai)
 {
@@ -176,7 +217,7 @@ inline constexpr U64 eval
 }
 
 template<>
-inline constexpr U64 eval
+constexpr U64 eval
 <f_North>
 (const Hand &hand, const Win &win, Tile agari_pai)
 {
@@ -184,7 +225,7 @@ inline constexpr U64 eval
 }
 
 template<>
-inline constexpr U64 eval
+constexpr U64 eval
 <f_Chanta>
 (const Hand &hand, const Win &win, Tile agari_pai)
 {
@@ -209,7 +250,7 @@ inline constexpr U64 eval
 }
 
 template<>
-inline constexpr U64 eval
+constexpr U64 eval
 <f_SanshokuSeq>
 (const Hand &hand, const Win &win, Tile agari_pai)
 {
@@ -232,7 +273,7 @@ inline constexpr U64 eval
 }
 
 template<>
-inline constexpr U64 eval
+constexpr U64 eval
 <f_SanshokuSet>
 (const Hand &hand, const Win &win, Tile agari_pai)
 {
@@ -254,7 +295,7 @@ inline constexpr U64 eval
 }
 
 template<>
-inline constexpr U64 eval
+constexpr U64 eval
 <f_Ittsu>
 (const Hand &hand, const Win &win, Tile agari_pai)
 {
@@ -305,7 +346,7 @@ inline constexpr U64 eval
 }
 
 template<>
-inline constexpr U64 eval
+constexpr U64 eval
 <f_Sanankou>
 (const Hand &hand, const Win &win, Tile agari_pai)
 {
@@ -320,7 +361,7 @@ inline constexpr U64 eval
 }
 
 template<>
-inline constexpr U64 eval
+constexpr U64 eval
 <f_Sankantsu>
 (const Hand &hand, const Win &win, Tile agari_pai)
 {
@@ -333,14 +374,14 @@ inline constexpr U64 eval
 }
 
 template<>
-inline constexpr U64 eval<f_Chitoitsu>(const Hand &hand, const Win &win, Tile agari_pai)
+constexpr U64 eval<f_Chitoitsu>(const Hand &hand, const Win &win, Tile agari_pai)
 {
     auto win_ptr = std::get_if<cPairs>(&win);
     return win_ptr ? f_Chitoitsu : 0;
 }
 
 template<>
-inline constexpr U64 eval
+constexpr U64 eval
 <f_Honroutou>
 (const Hand &hand, const Win &win, Tile agari_pai)
 {
@@ -351,7 +392,7 @@ inline constexpr U64 eval
 }
 
 template<>
-inline constexpr U64 eval<f_Shousangen>(const Hand &hand, const Win &win, Tile agari_pai)
+constexpr U64 eval<f_Shousangen>(const Hand &hand, const Win &win, Tile agari_pai)
 {
     auto win_ptr = std::get_if<NormalWin>(&win);
     if (win_ptr == nullptr)
@@ -369,7 +410,7 @@ inline constexpr U64 eval<f_Shousangen>(const Hand &hand, const Win &win, Tile a
 }
 
 template<>
-inline constexpr U64 eval
+constexpr U64 eval
 <f_Honitsu>
 (const Hand &hand, const Win &win, Tile agari_pai)
 {
@@ -391,7 +432,7 @@ inline constexpr U64 eval
 }
 
 template<>
-inline constexpr U64 eval
+constexpr U64 eval
 <f_Junchan>
 (const Hand &hand, const Win &win, Tile agari_pai)
 {
@@ -418,7 +459,7 @@ inline constexpr U64 eval
 }
 
 template<> 
-inline constexpr U64 eval
+constexpr U64 eval
 <f_Ryanpeikou>
 (const Hand &hand, const Win &win, Tile agari_pai)
 {
@@ -435,7 +476,7 @@ inline constexpr U64 eval
 }
 
 template<>
-inline constexpr U64 eval
+constexpr U64 eval
 <f_Chinitsu>
 (const Hand &hand, const Win &win, Tile agari_pai)
 {
@@ -448,7 +489,7 @@ inline constexpr U64 eval
 }
 
 template<>
-inline constexpr U64 eval
+constexpr U64 eval
 <f_ChuurenPoutou>
 (const Hand &hand, const Win &win, Tile agari_pai)
 {
@@ -477,7 +518,7 @@ inline constexpr U64 eval
 }
 
 template<>
-inline constexpr U64 eval
+constexpr U64 eval
 <f_SuuAnkou>
 (const Hand &hand, const Win &win, Tile agari_pai)
 {
@@ -495,7 +536,7 @@ inline constexpr U64 eval
 }
 
 template<>
-inline constexpr U64 eval
+constexpr U64 eval
 <f_SuuKantsu>
 (const Hand &hand, const Win &win, Tile agari_pai)
 {
@@ -508,7 +549,7 @@ inline constexpr U64 eval
 }
 
 template<>
-inline constexpr U64 eval
+constexpr U64 eval
 <f_Daisangen>
 (const Hand &hand, const Win &win, Tile agari_pai)
 {
@@ -520,7 +561,7 @@ inline constexpr U64 eval
 }
 
 template<>
-inline constexpr U64 eval
+constexpr U64 eval
 <f_Shosushi>
 (const Hand &hand, const Win &win, Tile agari_pai)
 {
@@ -536,7 +577,7 @@ inline constexpr U64 eval
 }
 
 template<>
-inline constexpr U64 eval
+constexpr U64 eval
 <f_Daisushi>
 (const Hand &hand, const Win &win, Tile agari_pai)
 {
@@ -549,7 +590,7 @@ inline constexpr U64 eval
 }
 
 template<>
-inline constexpr U64 eval
+constexpr U64 eval
 <f_Kokushi>
 (const Hand &hand, const Win &win, Tile agari_pai)
 {
@@ -562,7 +603,7 @@ inline constexpr U64 eval
 }
 
 template<>
-inline constexpr U64 eval
+constexpr U64 eval
 <f_Ryuisou>
 (const Hand &hand, const Win &win, Tile agari_pai)
 {
@@ -573,7 +614,7 @@ inline constexpr U64 eval
 }
 
 template<>
-inline constexpr U64 eval
+constexpr U64 eval
 <f_Tsuuiisou>
 (const Hand &hand, const Win &win, Tile agari_pai)
 {
@@ -584,7 +625,7 @@ inline constexpr U64 eval
 }
 
 template<>
-inline constexpr U64 eval
+constexpr U64 eval
 <f_Chinroutou>
 (const Hand &hand, const Win &win, Tile agari_pai)
 {
@@ -598,7 +639,7 @@ inline constexpr U64 eval
  * Hybrid Scoring for optimized performance
  ******************************************************************************/
 template<>
-inline constexpr U64 eval
+constexpr U64 eval
 <f_Chinitsu | f_Honitsu>
 (const Hand &hand, const Win &win, Tile agari_pai)
 {
@@ -613,7 +654,7 @@ inline constexpr U64 eval
 }
 
 template<>
-inline constexpr U64 eval
+constexpr U64 eval
 <f_Junchan | f_Chanta>
 (const Hand &hand, const Win &win, Tile agari_pai)
 {
@@ -646,17 +687,6 @@ inline constexpr U64 eval
             ret &= ~f_Junchan;
     }
     return ret;
-}
-
-/*******************************************************************************
- * Helper Functions
- ******************************************************************************/
-template<>
-inline constexpr U64 eval
-<f_YakumanMask>
-(const Hand &hand, const Win &win, Tile agari_pai)
-{
-    return f_YakumanMask;
 }
 
 } // namespace scoring

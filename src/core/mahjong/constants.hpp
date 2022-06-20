@@ -44,6 +44,11 @@ constexpr U16 f_All16 = (U16)-1;
 constexpr U32 f_All32 = (U32)-1;
 constexpr U64 f_All64 = (U64)-1;
 
+enum Dir : U8f
+{
+    k_East, k_South, k_West, k_North
+};
+
 constexpr U8f k_FirstHonorIdx = 27;
 constexpr U8f k_East34 = k_FirstHonorIdx + k_East;
 constexpr U8f k_South34 = k_FirstHonorIdx + k_South;
