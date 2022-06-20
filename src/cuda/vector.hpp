@@ -20,8 +20,8 @@ public:
     using reverse_iterator = std::reverse_iterator<iterator>;
     using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
-    CUDACOMPAT vector() noexcept {}
-    CUDACOMPAT vector(std::size_t n, const_reference v) MJ_EXCEPT_CRIT
+    CUDACOMPAT constexpr vector() noexcept {}
+    CUDACOMPAT constexpr vector(std::size_t n, const_reference v) MJ_EXCEPT_CRIT
     {
         for (std::size_t i = 0; i < n; ++i)
             push_back(v);
