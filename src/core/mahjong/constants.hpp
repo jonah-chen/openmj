@@ -34,14 +34,21 @@ constexpr U16 f_All16 = (U16)-1;
 constexpr U32 f_All32 = (U32)-1;
 constexpr U64 f_All64 = (U64)-1;
 
+constexpr U8f k_FirstHonorIdx = 27;
+constexpr U8f k_East34 = k_FirstHonorIdx + k_East;
+constexpr U8f k_South34 = k_FirstHonorIdx + k_South;
+constexpr U8f k_West34 = k_FirstHonorIdx + k_West;
+constexpr U8f k_North34 = k_FirstHonorIdx + k_North;
 constexpr U8f k_NumWinds = 4;
 constexpr U8f k_NumPlayers = 4;
 
 constexpr U8f k_Green = 0;
 constexpr U8f k_Red = 1;
 constexpr U8f k_White = 2;
+constexpr U8f k_Green34 = k_FirstHonorIdx + k_NumWinds + k_Green;
+constexpr U8f k_Red34 = k_FirstHonorIdx + k_NumWinds + k_Red;
+constexpr U8f k_White34 = k_FirstHonorIdx + k_NumWinds + k_White;
 constexpr U8f k_NumDragons = 3;
-constexpr U8f k_FirstHonorIdx = 27;
 
 constexpr U16f k_UniqueTiles = 34;
 constexpr U16f k_DeckSize = 136;

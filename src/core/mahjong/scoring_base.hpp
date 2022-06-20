@@ -69,11 +69,13 @@ enum YakuFlags : U64
     f_Daisushi = 1ull << 53,
     f_Kokushi = 1ull << 54,
     f_Ryuisou = 1ull << 55,
-    f_Chinroutou = 1ull << 56,
-    f_Tenhou = 1ull << 57,
-    f_Chihou = 1ull << 58,
-    f_DoubleYakuman = 1ull << 59,
-    f_Renhou = 1ull << 60
+    f_Tsuuiisou = 1ull << 56,
+    f_Chinroutou = 1ull << 57,
+    f_Tenhou = 1ull << 58,
+    f_Chihou = 1ull << 59,
+    f_DoubleYakuman = 1ull << 60,
+
+    f_Renhou = 1ull << 61
 };
 
 
@@ -157,6 +159,7 @@ constexpr U64 f_YakumanMask     =   f_ChuurenPoutou |
                                     f_Daisushi |
                                     f_Kokushi |
                                     f_Ryuisou |
+                                    f_Tsuuiisou |
                                     f_Chinroutou |
                                     f_Tenhou |
                                     f_Chihou;
@@ -217,7 +220,24 @@ inline constexpr U16f basic_score(U64 yakus, U8f doras=0)
 template<U64 yaku>
 inline constexpr U64 eval(const Hand &hand, const Win &win, Tile agari_pai);
 
-U32f score_hand(const Hand &hand, const Win &win, Tile agari_pai);
+inline constexpr std::pair<U32f, U64> score_hand(const Hand &hand, const Win &win, Tile agari_pai)
+{
+    
+    return {0, 0};
+}
+
+inline constexpr U32f score_hand(const Hand &hand, Tile agari_pai)
+{
+    auto wins = hand.agari();
+    U32f best_score = 0;
+    for (const auto &win : wins)
+    {
+        auto [score, yakus] = score_hand(hand, win, agari_pai);
+        if (score > best_score)
+            best_score = score;
+    }
+    return best_score;
+}
 
 } // namespace scoring
 } // namespace mj

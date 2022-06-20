@@ -20,13 +20,14 @@ concept HandIndependent = static_cast<bool>(yaku &
 
 template<U64 yaku>
 requires HandIndependent<yaku>
-inline constexpr U64 eval(const Hand &hand, const Win &win, Tile agari_pai)
-{
-    return yaku;
-}
+inline constexpr U64 eval
+(const Hand &hand, const Win &win, Tile agari_pai)
+{ return yaku; }
 
 template<>
-inline constexpr U64 eval<f_MenTsumo>(const Hand &hand, const Win &win, Tile agari_pai)
+inline constexpr U64 eval
+<f_MenTsumo>
+(const Hand &hand, const Win &win, Tile agari_pai)
 {
     if (hand.player()==agari_pai.player() && hand.closed())
         return f_MenTsumo;
@@ -34,7 +35,9 @@ inline constexpr U64 eval<f_MenTsumo>(const Hand &hand, const Win &win, Tile aga
 }
 
 template<>
-inline constexpr U64 eval<f_Pinfu>(const Hand &hand, const Win &win, Tile agari_pai)
+inline constexpr U64 eval
+<f_Pinfu>
+(const Hand &hand, const Win &win, Tile agari_pai)
 {
     auto win_ptr = std::get_if<NormalWin>(&win);
     if (win_ptr == nullptr)
@@ -92,7 +95,9 @@ inline constexpr U64 eval<f_Pinfu>(const Hand &hand, const Win &win, Tile agari_
 }
 
 template<>
-inline constexpr U64 eval<f_Ipeikou>(const Hand &hand, const Win &win, Tile agari_pai)
+inline constexpr U64 eval
+<f_Ipeikou>
+(const Hand &hand, const Win &win, Tile agari_pai)
 {
     auto win_ptr = std::get_if<NormalWin>(&win);
     if (win_ptr == nullptr)
@@ -112,7 +117,9 @@ inline constexpr U64 eval<f_Ipeikou>(const Hand &hand, const Win &win, Tile agar
 }
 
 template<>
-inline constexpr U64 eval<f_Tanyao>(const Hand &hand, const Win &win, Tile agari_pai)
+inline constexpr U64 eval
+<f_Tanyao>
+(const Hand &hand, const Win &win, Tile agari_pai)
 {
     for (int i : {0,8,9,17,18,26,27,28,29,30,31,32,33})
         if (hand.hand_4hot_melds(i) != 0)
@@ -121,56 +128,65 @@ inline constexpr U64 eval<f_Tanyao>(const Hand &hand, const Win &win, Tile agari
 }
 
 template<>
-inline constexpr U64 eval<f_Hatsu>(const Hand &hand, const Win &win, Tile agari_pai)
+inline constexpr U64 eval
+<f_Hatsu>
+(const Hand &hand, const Win &win, Tile agari_pai)
 {
-    constexpr U8f k_Hatsu34 = k_FirstHonorIdx + k_NumWinds + k_Green;
-    return hand.hand_4hot_melds(k_Hatsu34) >= 3;
+    return hand.hand_4hot_melds(k_Green34) >= 3;
 }
 
 template<>
-inline constexpr U64 eval<f_Chun>(const Hand &hand, const Win &win, Tile agari_pai)
+inline constexpr U64 eval
+<f_Chun>
+(const Hand &hand, const Win &win, Tile agari_pai)
 {
-    constexpr U8f k_Chun34 = k_FirstHonorIdx + k_NumWinds + k_Red;
-    return hand.hand_4hot_melds(k_Chun34) >= 3;
+    return hand.hand_4hot_melds(k_Red34) >= 3;
 }
 
 template<>
-inline constexpr U64 eval<f_Haku>(const Hand &hand, const Win &win, Tile agari_pai)
+inline constexpr U64 eval
+<f_Haku>
+(const Hand &hand, const Win &win, Tile agari_pai)
 {
-    constexpr U8f k_Haku34 = k_FirstHonorIdx + k_NumWinds + k_White;
-    return hand.hand_4hot_melds(k_Haku34) >= 3;
+    return hand.hand_4hot_melds(k_White34) >= 3;
 }
 
 template<>
-inline constexpr U64 eval<f_East>(const Hand &hand, const Win &win, Tile agari_pai)
+inline constexpr U64 eval
+<f_East>
+(const Hand &hand, const Win &win, Tile agari_pai)
 {
-    constexpr U8f k_East34 = k_FirstHonorIdx + k_East;
     return hand.hand_4hot_melds(k_East34) >= 3;
 }
 
 template<>
-inline constexpr U64 eval<f_South>(const Hand &hand, const Win &win, Tile agari_pai)
+inline constexpr U64 eval
+<f_South>
+(const Hand &hand, const Win &win, Tile agari_pai)
 {
-    constexpr U8f k_South34 = k_FirstHonorIdx + k_South;
     return hand.hand_4hot_melds(k_South34) >= 3;
 }
 
 template<>
-inline constexpr U64 eval<f_West>(const Hand &hand, const Win &win, Tile agari_pai)
+inline constexpr U64 eval
+<f_West>
+(const Hand &hand, const Win &win, Tile agari_pai)
 {
-    constexpr U8f k_West34 = k_FirstHonorIdx + k_West;
     return hand.hand_4hot_melds(k_West34) >= 3;
 }
 
 template<>
-inline constexpr U64 eval<f_North>(const Hand &hand, const Win &win, Tile agari_pai)
+inline constexpr U64 eval
+<f_North>
+(const Hand &hand, const Win &win, Tile agari_pai)
 {
-    constexpr U8f k_North34 = k_FirstHonorIdx + k_North;
     return hand.hand_4hot_melds(k_North34) >= 3;
 }
 
 template<>
-inline constexpr U64 eval<f_Chanta>(const Hand &hand, const Win &win, Tile agari_pai)
+inline constexpr U64 eval
+<f_Chanta>
+(const Hand &hand, const Win &win, Tile agari_pai)
 {
     // parse win
     auto win_ptr = std::get_if<NormalWin>(&win);
@@ -193,7 +209,9 @@ inline constexpr U64 eval<f_Chanta>(const Hand &hand, const Win &win, Tile agari
 }
 
 template<>
-inline constexpr U64 eval<f_SanshokuSeq>(const Hand &hand, const Win &win, Tile agari_pai)
+inline constexpr U64 eval
+<f_SanshokuSeq>
+(const Hand &hand, const Win &win, Tile agari_pai)
 {
     // parse win
     auto win_ptr = std::get_if<NormalWin>(&win);
@@ -214,7 +232,9 @@ inline constexpr U64 eval<f_SanshokuSeq>(const Hand &hand, const Win &win, Tile 
 }
 
 template<>
-inline constexpr U64 eval<f_SanshokuSet>(const Hand &hand, const Win &win, Tile agari_pai)
+inline constexpr U64 eval
+<f_SanshokuSet>
+(const Hand &hand, const Win &win, Tile agari_pai)
 {
     auto win_ptr = std::get_if<NormalWin>(&win);
     U8f set[9] {{}};
@@ -234,7 +254,9 @@ inline constexpr U64 eval<f_SanshokuSet>(const Hand &hand, const Win &win, Tile 
 }
 
 template<>
-inline constexpr U64 eval<f_Ittsu>(const Hand &hand, const Win &win, Tile agari_pai)
+inline constexpr U64 eval
+<f_Ittsu>
+(const Hand &hand, const Win &win, Tile agari_pai)
 {
     auto win_ptr = std::get_if<NormalWin>(&win);
     if (win_ptr == nullptr)
@@ -283,12 +305,14 @@ inline constexpr U64 eval<f_Ittsu>(const Hand &hand, const Win &win, Tile agari_
 }
 
 template<>
-inline constexpr U64 eval<f_Sanankou>(const Hand &hand, const Win &win, Tile agari_pai)
+inline constexpr U64 eval
+<f_Sanankou>
+(const Hand &hand, const Win &win, Tile agari_pai)
 {
     auto win_ptr = std::get_if<NormalWin>(&win);
     if (win_ptr == nullptr)
         return 0;
-    U8f ankou = 0;
+    U8f ankou = hand.n_closed_kongs();
     for (const auto &meld : win_ptr->first)
         if (_is_set(meld) && !(_int(meld)==agari_pai.id34() && agari_pai.player()!=hand.player() && hand.hand_4hot(_int(meld))==3))
             ankou++;
@@ -296,10 +320,343 @@ inline constexpr U64 eval<f_Sanankou>(const Hand &hand, const Win &win, Tile aga
 }
 
 template<>
-inline constexpr U64 eval<f_Sankantsu>(const Hand &hand, const Win &win, Tile agari_pai)
+inline constexpr U64 eval
+<f_Sankantsu>
+(const Hand &hand, const Win &win, Tile agari_pai)
 {
     auto win_ptr = std::get_if<NormalWin>(&win);
+    if (win_ptr == nullptr)
+        return 0;
+    U8f kantsu = std::count_if(hand.melds().begin(), hand.melds().end(), 
+        [] (const Meld &meld)->bool { return meld.fourth(); });
+    return kantsu == 3 ? f_Sankantsu : 0;
+}
+
+template<>
+inline constexpr U64 eval<f_Chitoitsu>(const Hand &hand, const Win &win, Tile agari_pai)
+{
+    auto win_ptr = std::get_if<cPairs>(&win);
+    return win_ptr ? f_Chitoitsu : 0;
+}
+
+template<>
+inline constexpr U64 eval
+<f_Honroutou>
+(const Hand &hand, const Win &win, Tile agari_pai)
+{
+    for (auto i : {1,2,3,4,5,6,7,10,11,12,13,14,15,16,19,20,21,22,23,24,25})
+        if (hand.hand_4hot_melds(i))
+            return 0;
+    return f_Honroutou;
+}
+
+template<>
+inline constexpr U64 eval<f_Shousangen>(const Hand &hand, const Win &win, Tile agari_pai)
+{
+    auto win_ptr = std::get_if<NormalWin>(&win);
+    if (win_ptr == nullptr)
+        return 0;
+    if (win_ptr->second < k_FirstHonorIdx + k_NumWinds)
+        return 0;
+    U8f gen = 1;
+    for (const auto &meld : win_ptr->first)
+        if (_int(meld) >= k_FirstHonorIdx + k_NumWinds && ++gen==3)
+            return f_Shousangen;
+    for (const auto &meld : hand.melds())
+        if (meld.first().suit()==Suit::Dragon && ++gen==3)
+                return f_Shousangen;
     return 0;
+}
+
+template<>
+inline constexpr U64 eval
+<f_Honitsu>
+(const Hand &hand, const Win &win, Tile agari_pai)
+{
+    U8f tsu = 0;
+    for (Suit s = Suit::Man; s < Suit::Wind; ++s)
+    {
+        U8f s9 = 9*static_cast<U8f>(s);
+        for (U8f n = s9; n < s9+8; ++n)
+        {
+            if (hand.hand_4hot_melds(n))
+            {
+                if (++tsu != 1)
+                    return 0;
+                break;
+            }
+        }
+    }
+    return f_Honitsu;
+}
+
+template<>
+inline constexpr U64 eval
+<f_Junchan>
+(const Hand &hand, const Win &win, Tile agari_pai)
+{
+    auto win_ptr = std::get_if<NormalWin>(&win);
+    if (win_ptr == nullptr)
+        return 0;
+    if (!_is_19(win_ptr->second) || _is_honor(win_ptr->second))
+        return 0;
+    for (const auto &meld : win_ptr->first)
+    {
+        if (_is_set(meld))
+        {
+            if (!_is_19(_int(meld)) || _is_honor(_int(meld)))
+                return 0;
+        }
+        else if (!_is_17(_int(meld)))
+            return 0;
+    }
+    for (const auto &meld : hand.melds())
+        if (!((meld.first().is_19() && !meld.first().is_honor()) || 
+                (meld.third().is_19() && !meld.third().is_honor())))
+            return 0;
+    return f_Junchan;
+}
+
+template<> 
+inline constexpr U64 eval
+<f_Ryanpeikou>
+(const Hand &hand, const Win &win, Tile agari_pai)
+{
+    auto win_ptr = std::get_if<NormalWin>(&win);
+    if (win_ptr == nullptr || win_ptr->first.size()!=4)
+        return 0;
+    for (const auto &meld : win_ptr->first)
+        if (_is_set(meld))
+            return 0;
+    return  (win_ptr->first[0]==win_ptr->first[1] && win_ptr->first[2]==win_ptr->first[3]) ||
+            (win_ptr->first[0]==win_ptr->first[2] && win_ptr->first[1]==win_ptr->first[3]) ||
+            (win_ptr->first[0]==win_ptr->first[3] && win_ptr->first[1]==win_ptr->first[2]) 
+            ? f_Ryanpeikou : 0;
+}
+
+template<>
+inline constexpr U64 eval
+<f_Chinitsu>
+(const Hand &hand, const Win &win, Tile agari_pai)
+{
+    if (!(eval<f_Honitsu>(hand, win, agari_pai) & f_Honitsu))
+        return 0;
+    for (int i = k_FirstHonorIdx; i < k_UniqueTiles; ++i)
+        if (hand.hand_4hot_melds(i))
+            return 0;
+    return f_Chinitsu;
+}
+
+template<>
+inline constexpr U64 eval
+<f_ChuurenPoutou>
+(const Hand &hand, const Win &win, Tile agari_pai)
+{
+    constexpr U8f counts[9] = {3,1,1,1,1,1,1,1,3};
+    if (hand.open())
+        return 0;
+    for (Suit s = Suit::Man; s < Suit::Wind; ++s)
+    {
+        U8f s9 = 9*static_cast<U8f>(s);
+        if (hand.hand_4hot(s9))
+        {
+            if (hand.hand_4hot(s9) < counts[0])
+                return 0;
+        }
+        else continue;
+
+        for (U8f n = 1; n < 9; ++n)
+            if (hand.hand_4hot(s9+n) <= counts[n])
+                return 0;
+
+        if (hand.hand_4hot(agari_pai.id34()) > counts[agari_pai.num()])
+            return f_DoubleYakuman | f_ChuurenPoutou;
+        return f_ChuurenPoutou;
+    }
+    return 0;
+}
+
+template<>
+inline constexpr U64 eval
+<f_SuuAnkou>
+(const Hand &hand, const Win &win, Tile agari_pai)
+{
+    if (hand.open())
+        return 0;
+    auto win_ptr = std::get_if<NormalWin>(&win);
+    for (const auto &meld : win_ptr->first)
+        if (_is_run(meld))
+            return 0;
+    if (agari_pai.id34() == win_ptr->second)
+        return f_DoubleYakuman | f_SuuAnkou;
+    else if (agari_pai.player() == hand.player())
+        return f_SuuAnkou;
+    return 0;
+}
+
+template<>
+inline constexpr U64 eval
+<f_SuuKantsu>
+(const Hand &hand, const Win &win, Tile agari_pai)
+{
+    if (hand.n_melds() != 4)
+        return 0;
+    for (const auto &meld : hand.melds())
+        if (!meld.fourth())
+            return 0;
+    return f_SuuKantsu;
+}
+
+template<>
+inline constexpr U64 eval
+<f_Daisangen>
+(const Hand &hand, const Win &win, Tile agari_pai)
+{
+    if (hand.hand_4hot_melds(k_Green34)>=3 && 
+        hand.hand_4hot_melds(k_White34)>=3 && 
+        hand.hand_4hot_melds(k_Red34)>=3)
+        return f_Daisangen;
+    return 0;
+}
+
+template<>
+inline constexpr U64 eval
+<f_Shosushi>
+(const Hand &hand, const Win &win, Tile agari_pai)
+{
+    auto win_ptr = std::get_if<NormalWin>(&win);
+    if (win_ptr == nullptr || win_ptr->second < k_FirstHonorIdx ||
+        win_ptr->second >= k_FirstHonorIdx + k_NumWinds)
+        return 0;   
+    U8f shi = 1;
+    for (auto i : {k_East34, k_South34, k_West34, k_North34})
+        if (hand.hand_4hot_melds(i)>=3)
+            shi++;
+    return shi == 4 ? f_Shosushi : 0;
+}
+
+template<>
+inline constexpr U64 eval
+<f_Daisushi>
+(const Hand &hand, const Win &win, Tile agari_pai)
+{
+    if (hand.hand_4hot_melds(k_East34)>=3 && 
+        hand.hand_4hot_melds(k_South34)>=3 && 
+        hand.hand_4hot_melds(k_West34)>=3 &&
+        hand.hand_4hot_melds(k_North34)>=3)
+        return f_DoubleYakuman | f_Daisushi;
+    return 0;
+}
+
+template<>
+inline constexpr U64 eval
+<f_Kokushi>
+(const Hand &hand, const Win &win, Tile agari_pai)
+{
+    auto win_ptr = std::get_if<bool>(&win);
+    if (win_ptr == nullptr || !*win_ptr)
+        return 0;
+    if (hand.hand_4hot(agari_pai.id34()))
+        return f_DoubleYakuman | f_Kokushi;
+    return f_Kokushi;
+}
+
+template<>
+inline constexpr U64 eval
+<f_Ryuisou>
+(const Hand &hand, const Win &win, Tile agari_pai)
+{
+    for (auto i : {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,22,24,26,27,28,29,30,32,33})
+        if (hand.hand_4hot_melds(i))
+            return 0;
+    return f_Ryuisou;
+}
+
+template<>
+inline constexpr U64 eval
+<f_Tsuuiisou>
+(const Hand &hand, const Win &win, Tile agari_pai)
+{
+    for (auto i = 0; i < k_FirstHonorIdx; ++i)
+        if (hand.hand_4hot_melds(i))
+            return 0;
+    return f_Tsuuiisou;
+}
+
+template<>
+inline constexpr U64 eval
+<f_Chinroutou>
+(const Hand &hand, const Win &win, Tile agari_pai)
+{
+    for (auto i = k_FirstHonorIdx; i < k_UniqueTiles; ++i)
+        if (hand.hand_4hot_melds(i))
+            return 0;
+    return (eval<f_Honroutou>(hand, win, agari_pai) & f_Honroutou) ? f_Chinroutou : 0;
+}
+
+/*******************************************************************************
+ * Hybrid Scoring for optimized performance
+ ******************************************************************************/
+template<>
+inline constexpr U64 eval
+<f_Chinitsu | f_Honitsu>
+(const Hand &hand, const Win &win, Tile agari_pai)
+{
+    if (!(eval<f_Honitsu>(hand, win, agari_pai) & f_Honitsu))
+        return 0;
+
+    for (int i = k_FirstHonorIdx; i < k_UniqueTiles; ++i)
+        if (hand.hand_4hot_melds(i))
+            return f_Honitsu;
+    
+    return f_Honitsu | f_Chinitsu;
+}
+
+template<>
+inline constexpr U64 eval
+<f_Junchan | f_Chanta>
+(const Hand &hand, const Win &win, Tile agari_pai)
+{
+    auto win_ptr = std::get_if<NormalWin>(&win);
+    if (win_ptr == nullptr)
+        return 0;
+    
+    U64 ret = f_Chanta | f_Junchan;
+    if (!_is_19(win_ptr->second))
+        return 0;
+    if (_is_honor(win_ptr->second))
+        ret &= ~f_Junchan;
+    for (const auto &meld : win_ptr->first)
+    {
+        if (_is_set(meld))
+        {
+            if (!_is_19(_int(meld)))
+                return 0;
+            if (_is_honor(_int(meld)))
+                ret &= ~f_Junchan;
+        }
+        else if (!_is_17(_int(meld)))
+            return 0;
+    }
+    for (const auto &meld : hand.melds())
+    {
+        if (!meld.first().is_19() || !meld.third().is_19())
+            return 0;
+        if (meld.first().is_honor())
+            ret &= ~f_Junchan;
+    }
+    return ret;
+}
+
+/*******************************************************************************
+ * Helper Functions
+ ******************************************************************************/
+template<>
+inline constexpr U64 eval
+<f_YakumanMask>
+(const Hand &hand, const Win &win, Tile agari_pai)
+{
+    return f_YakumanMask;
 }
 
 } // namespace scoring

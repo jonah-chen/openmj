@@ -294,7 +294,7 @@ public:
     CONSTEXPR12 U8f size() const noexcept { return tiles_.size(); }
     CONSTEXPR12 U8f n_melds() const noexcept { return melds_.size(); }
     CONSTEXPR12 U8f n_open_melds() const noexcept { return melds_.size() - n_closed_kongs_; }
-
+    constexpr U8f n_closed_kongs() const noexcept { return n_closed_kongs_; }
     /**
      * Container data functions
      */
