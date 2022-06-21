@@ -264,6 +264,7 @@ Hand::Hand(const char *str, Dir dir) : tiles4_(), tiles4m_()
         else
             emplace_back(Suit(cur_suit), *str - '1', dir);
     }
+    sorted_ = true;
 }
 
 Wins Hand::agari() const

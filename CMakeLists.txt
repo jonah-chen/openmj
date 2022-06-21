@@ -46,8 +46,7 @@ include_directories(${GLEW_INCLUDE_DIRS})
 
 message(STATUS "Building Libraries")
 
-add_library(Mahjong STATIC ${src_dir}/core/mahjong/mahjong_hand.cc
-                        ${src_dir}/core/mahjong/scoring.cc)
+add_library(Mahjong STATIC ${src_dir}/core/mahjong/mahjong_hand.cc)
 
 add_library(tomohxx_Shanten STATIC ${extern_dir}/shanten-number/calsht.cpp)
 
@@ -100,7 +99,8 @@ if (BUILD_TESTS)
     makeTest(core/mahjong tile)
     makeTest(core/mahjong meld)
     makeTest(core/mahjong hand)
-    makeTest(core/mahjong scoring)
+    makeTest(core/mahjong scoring_closed)
+    makeTest(core/mahjong scoring_open)
     makeTest(cuda vector)
 
     if (CMAKE_CUDA_COMPILER)

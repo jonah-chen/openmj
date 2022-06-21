@@ -103,12 +103,13 @@ public:
                         num << tilelayout::k_NumPos | 
                         player << tilelayout::k_PlayerPos | flags) {}
 
-    constexpr explicit Tile(const char *str) 
-    MJ_EXCEPT_CRIT : Tile(n2suit[str[1]-100], str[0]-'1') 
+    constexpr explicit Tile(const char *str, Dir player=k_East, U16 flags=0) 
+    MJ_EXCEPT_CRIT : Tile(n2suit[str[1]-100], str[0]-'1', player, flags)
     { MJ_ASSERT_CRIT(suit()!=Suit::End, "Invalid suit"); }
     
     constexpr void set(U16 flag) { id_ |= flag; }
-    constexpr void set_dir(Dir dir) { id_ |= (U16)dir << tilelayout::k_PlayerPos; }
+    constexpr Tile &set_dir(Dir dir) 
+    { id_ |= (U16)dir << tilelayout::k_PlayerPos; return *this; }
     constexpr bool check(U16 flag) const { return id_ & flag; }
 
 private:
@@ -130,8 +131,8 @@ public:
     constexpr U8f num1() const noexcept
     { return num() + 1; }
 
-    constexpr U8f player() const noexcept
-    { return (id_ >> tilelayout::k_PlayerPos) & 3; }
+    constexpr Dir player() const noexcept
+    { return static_cast<Dir>((id_ >> tilelayout::k_PlayerPos) & 3); }
 
     constexpr operator bool() const noexcept
     { return id_ != f_All16; }

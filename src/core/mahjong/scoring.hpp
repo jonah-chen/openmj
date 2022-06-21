@@ -159,6 +159,7 @@ constexpr U64 f_Yaku1Fan        =   f_Riichi |
 
 constexpr U64 f_Yaku2Fan        =   f_ChantaC |
                                     f_SanshokuSeqC |
+                                    f_SanshokuSet |
                                     f_IttsuC |
                                     f_Toitoi |
                                     f_Sanankou |
@@ -170,7 +171,8 @@ constexpr U64 f_Yaku2Fan        =   f_ChantaC |
                                     f_JunchanO;
 
 constexpr U64 f_Yaku3Fan        =   f_HonitsuC |
-                                    f_JunchanC;
+                                    f_JunchanC |
+                                    f_Ryanpeikou;
 
 constexpr U64 f_Yaku5Fan        =   f_ChinitsuO;
 constexpr U64 f_Yaku6Fan        =   f_ChinitsuC;
@@ -415,7 +417,7 @@ constexpr U64 sanshokuSet(const Hand &hand, const Win &win)
             continue;
         set[_int(meld)%9] |= 1 << static_cast<U8f>(_int(meld)/9);
     }
-    return std::find(set, set+9, 9) != set+9 ? f_SanshokuSet : 0;
+    return std::find(set, set+9, 7) != set+9 ? f_SanshokuSet : 0;
 }
 
 constexpr U64 ittsu(const Hand &hand, const Win &win)
@@ -502,7 +504,7 @@ constexpr U64 sankantsu(const Hand &hand)
 
 constexpr U64 chitoitsu(const Win &win)
 {
-    return std::get_if<cPairs>(&win) ? f_Chitoitsu : 0;
+    return std::get_if<cPairs>(&win) ? (25 | f_Chitoitsu) : 0;
 }
 
 constexpr U64 honroutou(const Hand &hand)
@@ -621,6 +623,8 @@ constexpr U64 suuAnkou(const Hand &hand, const Win &win, Tile agari_pai)
     if (hand.open())
         return 0;
     auto win_ptr = std::get_if<NormalWin>(&win);
+    if (win_ptr == nullptr)
+        return 0;
     for (const auto &meld : win_ptr->first)
         if (_is_run(meld))
             return 0;
@@ -678,7 +682,7 @@ constexpr U64 kokushi(const Hand &hand, const Win &win, Tile agari_pai)
     auto win_ptr = std::get_if<bool>(&win);
     if (win_ptr == nullptr || !*win_ptr)
         return 0;
-    if (hand.hand_4hot(agari_pai.id34()))
+    if (hand.hand_4hot(agari_pai.id34()) > 1)
         return f_DoubleYakuman | f_Kokushi;
     return f_Kokushi;
 }
@@ -853,17 +857,19 @@ constexpr std::pair<U32f, U64> score_hand(const Hand &hand, const Win &win, Tile
         return {_impl::basic_score(hand.flags & yakus), hand.flags & yakus};
     }
     yakus |= eval<f_HandIndependent>(hand, win, agari_pai);
-    
+    yakus |= eval<f_MenTsumo>(hand, win, agari_pai);
+
     { // evaluate chiitoi
         auto chitoi = eval<f_Chitoitsu>(hand, win, agari_pai);
         if (chitoi)
         {
-            yakus |= f_Chitoitsu;
+            yakus |= 25 | f_Chitoitsu;
             yakus |= eval<f_Chinitsu | f_Honitsu>(hand, win, agari_pai);
             if (!(yakus & f_Chinitsu) && eval<f_Honroutou>(hand, win, agari_pai))
                 yakus |= f_Honroutou;
             else 
                 yakus |= eval<f_Tanyao>(hand, win, agari_pai);
+            _impl::filter_redundant_yaku(yakus);
             return {_impl::basic_score(hand.flags & yakus, doras), hand.flags & yakus};
         }
     }
@@ -893,6 +899,7 @@ constexpr std::pair<U32f, U64> score_hand(const Hand &hand, const Win &win, Tile
     }
     {
         auto honrotou = eval<f_Honroutou>(hand, win, agari_pai);
+        yakus |= honrotou;
         if (!honrotou)
         {
             auto y19 = eval<f_Junchan | f_Chanta>(hand, win, agari_pai);
@@ -904,7 +911,6 @@ constexpr std::pair<U32f, U64> score_hand(const Hand &hand, const Win &win, Tile
     }
 
     yakus |= eval<f_Ipeikou>(hand, win, agari_pai);
-    yakus |= eval<f_MenTsumo>(hand, win, agari_pai);
     if (!(yakus & f_Pinfu))
     { 
         yakus |= eval<f_Sanankou>(hand, win, agari_pai);

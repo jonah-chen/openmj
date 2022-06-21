@@ -99,7 +99,7 @@ public:
         sorted_ = true;
     }
 
-    constexpr U8f player() const { return (*this)[0].player(); }
+    constexpr Dir player() const { return (*this)[0].player(); }
 
     /**
      * Flag operations 
@@ -141,7 +141,7 @@ public:
     template<typename... Args>
     constexpr void emplace_back(Args&&... args)
     {
-        tiles_.emplace_back(args...);
+        tiles_.emplace_back(std::forward<Args>(args)...);
         const auto &t = tiles_.back();
         ++tiles4_[t.id34()];
         ++tiles4m_[t.id34()];

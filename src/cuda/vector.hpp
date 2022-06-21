@@ -103,7 +103,7 @@ public:
     }
     CUDACOMPAT constexpr iterator erase(iterator first, iterator last) MJ_EXCEPT_CRIT
     {
-        MJ_CUDA_ASSERT(first >= begin() && first < end() && last >= begin() && last < end());
+        MJ_CUDA_ASSERT(first >= begin() && first < end() && last >= begin() && last <= end());
         auto n = last - first;
         for (auto i = first; i < end() - n; ++i)
             *i = *(i + n);
