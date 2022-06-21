@@ -104,7 +104,7 @@ public:
                         player << tilelayout::k_PlayerPos | flags) {}
 
     constexpr explicit Tile(const char *str) 
-    MJ_EXCEPT_CRIT : Tile(n2suit[str[1]-100], str[0]-'0') 
+    MJ_EXCEPT_CRIT : Tile(n2suit[str[1]-100], str[0]-'1') 
     { MJ_ASSERT_CRIT(suit()!=Suit::End, "Invalid suit"); }
     
     constexpr void set(U16 flag) { id_ |= flag; }
@@ -219,11 +219,12 @@ class Meld
     constexpr static U64 Mask7 = mask7 | mask7 << 16 | mask7 << 32 | mask7 << 48;
 public:
     constexpr Meld() noexcept : id_(f_All64) {}
-    constexpr Meld(Tile called, Tile t1, Tile t2 = {}, Tile t3 = {})
+    constexpr Meld(Tile called, Tile t1, Tile t2 = {}, Tile t3 = {}, bool closed_kong=false)
         : id_((static_cast<U64>(called.id())<< 48) |
               (static_cast<U64>(t1.id()) << 32) |
               (static_cast<U64>(t2.id()) << 16) |
-               static_cast<U64>(t3.id())) {}
+               static_cast<U64>(t3.id()) | 
+               static_cast<U64>(closed_kong)) {}
 
     /** 
      * @return constexpr Tile The first tile in the meld.
@@ -253,6 +254,9 @@ public:
         MJ_ASSERT(!fourth(), "add_fourth() called on meld with fourth tile already");
         id_ |= t.id();
     }
+
+    constexpr void set_closed_kong() noexcept { id_ |= 1; }
+    constexpr bool closed_kong() const noexcept { return id_ & 1; }
 
     constexpr operator bool() const noexcept
     { return id_ != f_All64; }

@@ -295,7 +295,11 @@ constexpr U64 pinfu(const Hand &hand, const Win &win, Tile agari_pai)
         {
             U8f triple_pts = 2;
             if (meld.fourth())
+            {
                 triple_pts <<= 2;
+                if (meld.closed_kong())
+                    triple_pts <<= 1;
+            }
             if (meld.first().is_19())
                 triple_pts <<= 1;
             fu += triple_pts;
@@ -602,7 +606,7 @@ constexpr U64 chuurenPoutou(const Hand &hand, Tile agari_pai)
         else continue;
 
         for (U8f n = 1; n < 9; ++n)
-            if (hand.hand_4hot(s9+n) <= counts[n])
+            if (hand.hand_4hot(s9+n) < counts[n])
                 return 0;
 
         if (hand.hand_4hot(agari_pai.id34()) > counts[agari_pai.num()])
@@ -806,9 +810,9 @@ constexpr U64 eval(const Hand &hand, const Win &win, Tile agari_pai)
         ret |= (_impl::sanshokuSeq(hand, win) & yaku);
     if constexpr (yaku & f_SanshokuSet)
         ret |= (_impl::sanshokuSet(hand, win) & yaku);
-    if constexpr (yaku & f_SuuAnkou)
+    if constexpr (yaku & f_Sanankou)
         ret |= _impl::sanankou(hand, win, agari_pai);
-    if constexpr (yaku & f_SuuKantsu)
+    if constexpr (yaku & f_Sankantsu)
         ret |= _impl::sankantsu(hand);
     if constexpr (yaku & f_Ittsu)
         ret |= (_impl::ittsu(hand, win) & yaku);

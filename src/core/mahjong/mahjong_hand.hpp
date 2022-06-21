@@ -235,7 +235,7 @@ public:
         auto it = std::find_if(tiles_.begin(), tiles_.end(), 
             [t34](const Tile &ht) { return ht.id34() == t34; });
         MJ_ASSERT_CRIT(it != tiles_.end(), "Something wrong with tiles4_");
-        melds_.emplace_back(*it, *(it+1), *(it+2), *(it+3));
+        melds_.emplace_back(*it, *(it+1), *(it+2), *(it+3), true);
         tiles_.erase(it, it+4);
         n_closed_kongs_++;
         return true;

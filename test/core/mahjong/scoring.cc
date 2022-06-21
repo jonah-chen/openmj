@@ -2,7 +2,7 @@
 #include "test/test.hpp"
 #include "core/mahjong/mahjong.hpp"
 
-void t_Hand(const char *hand, mj::Tile agari_pai, mj::U32f score, mj::U64 yakus, mj::U64 flags=mj::scoring::f_NormalPlay & mj::scoring::f_ClosedHandMask)
+void t_ClosedHand(const char *hand, mj::Tile agari_pai, mj::U32f score, mj::U64 yakus, mj::U64 flags=mj::scoring::f_NormalPlay & mj::scoring::f_ClosedHandMask)
 {
     mj::Hand h(hand);
     h.flags = flags;
@@ -16,10 +16,18 @@ void t_Hand(const char *hand, mj::Tile agari_pai, mj::U32f score, mj::U64 yakus,
 
 int main()
 {
-    t_Hand("m123456789s33d222", mj::Tile("2d"), mj::scoring::k_Mangan,
-        40 | mj::scoring::f_IttsuC | mj::scoring::f_MenTsumo | mj::scoring::f_Chun,
-        mj::scoring::f_NormalPlay & mj::scoring::f_ClosedHandMask);
-    t_Hand("m123456789s333d22", mj::Tile("2d"), 960, 
+    t_ClosedHand("m123456789s33d222", mj::Tile("2d"), mj::scoring::k_Mangan,
+        40 | mj::scoring::f_IttsuC | mj::scoring::f_MenTsumo | mj::scoring::f_Chun);
+    t_ClosedHand("m123456789s333d22", mj::Tile("2d"), 960, 
         30 | mj::scoring::f_IttsuC | mj::scoring::f_MenTsumo);
+    t_ClosedHand("p11123456789999", mj::Tile("9p"), mj::scoring::k_Yakuman*2,
+        mj::scoring::f_ChuurenPoutou | mj::scoring::f_DoubleYakuman);
+    t_ClosedHand("p11123456789999", mj::Tile("8p"), mj::scoring::k_Yakuman,
+        mj::scoring::f_ChuurenPoutou);
+    t_ClosedHand("w111222333444d22", mj::Tile("2d"), mj::scoring::k_Yakuman*2,
+        mj::scoring::f_Daisushi | mj::scoring::f_Tsuuiisou | mj::scoring::f_SuuAnkou | mj::scoring::f_DoubleYakuman);
+    t_ClosedHand("m123p234s34566789", mj::Tile("9s"), 320,
+        20 | mj::scoring::f_Pinfu | mj::scoring::f_MenTsumo);
+    
     return g_FailureCount;
 }
