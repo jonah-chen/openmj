@@ -27,7 +27,7 @@ constexpr U8f c_num(U8f h_num) { return h_num - 1; }
 
 enum class Suit : U16
 {
-    Man, Pin, Sou, Wind, Dragon
+    Man, Pin, Sou, Wind, Dragon, End
 };
 
 constexpr Suit &operator++(Suit &suit) MJ_EXCEPT_WARN
@@ -95,11 +95,18 @@ public:
     constexpr static U16 f_Rinshan      = 0x0020;
 public:
     constexpr Tile() noexcept : id_(f_All16) {}
-    constexpr explicit Tile(U16 id) : id_(id) {}
-    constexpr Tile(Suit suit, U8f num, U8f player=k_East, U16 flags=0)
+    
+    constexpr explicit Tile(U16 id) noexcept : id_(id) {}
+
+    constexpr Tile(Suit suit, U8f num, Dir player=k_East, U16 flags=0)
     noexcept : id_((U16)suit << tilelayout::k_SuitPos | 
                         num << tilelayout::k_NumPos | 
                         player << tilelayout::k_PlayerPos | flags) {}
+
+    constexpr explicit Tile(const char *str) 
+    MJ_EXCEPT_CRIT : Tile(n2suit[str[1]-100], str[0]-'0') 
+    { MJ_ASSERT_CRIT(suit()!=Suit::End, "Invalid suit"); }
+    
     constexpr void set(U16 flag) { id_ |= flag; }
     constexpr void set_dir(Dir dir) { id_ |= (U16)dir << tilelayout::k_PlayerPos; }
     constexpr bool check(U16 flag) const { return id_ & flag; }
@@ -179,12 +186,18 @@ public:
 public:
     CONSTEXPR12 std::string to_string() const
     {
-        constexpr std::array<char, 5> suits =
-        { 'm', 'p', 's', 'w', 'd' };
         if (*this)
             return std::to_string(num1()) + suits[static_cast<int>(suit())];
         return "??";
     }
+private:
+    constexpr static std::array<char, 5> suits =
+    { 'm', 'p', 's', 'w', 'd' };
+    constexpr static std::array<Suit, 20> n2suit = 
+    {Suit::Dragon, Suit::End, Suit::End, Suit::End, Suit::End,
+        Suit::End, Suit::End, Suit::End, Suit::End, Suit::Man,
+        Suit::End, Suit::End, Suit::Pin, Suit::End, Suit::End,
+        Suit::Sou, Suit::End, Suit::End, Suit::End, Suit::Wind };
 };
 
 constexpr Tile convert34(int n)

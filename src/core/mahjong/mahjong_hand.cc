@@ -249,9 +249,9 @@ S8 shanten(const Hand4Hot &h4, U8f n_melds, int mode)
     return num - 1;
 }
 
-Hand::Hand(const char *str) : tiles4_(), tiles4m_()
+Hand::Hand(const char *str, Dir dir) : tiles4_(), tiles4m_()
 {
-    const char *suits = "mpswd";
+    constexpr const char *suits = "mpswd";
     U8f cur_suit = 0;
     for (; *str && size() < k_MaxHandSize; ++str)
     {
@@ -262,7 +262,7 @@ Hand::Hand(const char *str) : tiles4_(), tiles4m_()
                     return;
         }
         else
-            emplace_back(Suit(cur_suit), *str - '1');
+            emplace_back(Suit(cur_suit), *str - '1', dir);
     }
 }
 

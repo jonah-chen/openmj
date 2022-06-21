@@ -56,7 +56,7 @@ void assert_crit(const T& t, const std::string& msg="Critical Error", int ec=255
     }
 }
 
-#if __cplusplus > 202002L
+#if __cplusplus >= 202002L
 /**
  * Weak equality between floating point values.
  * 

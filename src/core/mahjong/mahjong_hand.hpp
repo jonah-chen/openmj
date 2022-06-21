@@ -42,7 +42,7 @@ class Hand
 public:
     U64 flags {f_All64};
     Hand() : tiles4_(), tiles4m_() {}
-    Hand(const char *);
+    Hand(const char *, Dir=k_East);
 
     /**
      * @return If the hand is open or not.
