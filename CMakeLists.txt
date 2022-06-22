@@ -4,7 +4,6 @@ include(CheckLanguage)
 
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_CXX_FLAGS_DEBUG "-O0 -Wall -g -fno-rtti -DMJ_LOGGING=2")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -Wall -fno-rtti -flto=auto -DNDEBUG -DMJ_LOGGING=0")
 
