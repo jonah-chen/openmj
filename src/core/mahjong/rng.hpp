@@ -1,12 +1,12 @@
 
 #include "game.hpp"
-#include "core/utils/stack_allocator.hpp"
+#include "cuda/vector.hpp"
 #include <random>
 
 namespace mj {
 namespace random {
-using WallContainer = s_Vector<Tile, k_UniqueTiles*4>;
-using WallContainer34 = s_Vector<int, k_UniqueTiles*4>;
+using WallContainer = vector<Tile, k_UniqueTiles*4>;
+using WallContainer34 = vector<int, k_UniqueTiles*4>;
 
 CONSTEXPR12 void fill_wall(WallContainer &w) noexcept
 {

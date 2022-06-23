@@ -193,7 +193,7 @@ constexpr U64 f_YakumanMask     =   f_ChuurenPoutou |
 constexpr std::array<U64, 6> k_YakuVal 
 { f_Yaku1Fan, f_Yaku2Fan, f_Yaku3Fan, 0, f_Yaku5Fan, f_Yaku6Fan };
 
-using Doras = s_Vector<Tile, 10>;
+using Doras = vector<Tile, 10>;
 
 namespace _impl {
 constexpr std::size_t bit_count(uint64_t v) noexcept
@@ -327,7 +327,7 @@ constexpr U64 ipeikou(const Win &win)
     if (win_ptr == nullptr)
         return 0;
     auto &[melds, pair] = *win_ptr;
-    s_Vector<int, 4> dups;
+    vector<int, 4> dups;
     for (const auto &meld : melds)
     {
         if (_is_run(meld))

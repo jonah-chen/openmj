@@ -12,9 +12,9 @@ using Runs4Hot = std::array<U8f, k_FirstHonorIdx>;
 using Sets4Hot = std::array<bool, 34>;
 using Triples = std::pair<Runs4Hot, Sets4Hot>; 
 using cMeldsI = std::pair<cMelds, Triples>;
-using TempTrip = s_Vector<Meld, 4>;
+using TempTrip = vector<Meld, 4>;
 
-CONSTEXPR12 Pair_s pairs(const Hand4Hot &h4) 
+CONSTEXPR12 Pair_s pairs(const Hand4Hot &h4)
 {
     cPairs pairs;
     for (Suit s = Suit::Man; s < Suit::Wind; ++s)
@@ -264,6 +264,7 @@ Hand::Hand(const char *str, Dir dir) : tiles4_(), tiles4m_()
         else
             emplace_back(Suit(cur_suit), *str - '1', dir);
     }
+    MJ_ASSERT(*str=='\0', "too many tiles in hand. use BigHand instead");
     sorted_ = true;
 }
 

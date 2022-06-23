@@ -5,24 +5,24 @@
 #include <vector>
 
 #include "mahjong_base.hpp"
-#include "core/utils/stack_allocator.hpp"
+#include "cuda/vector.hpp"
 
 
 namespace mj {
 /**
  * Compactified types
  */
-using cPairs = s_Vector<int, 7>;
-using cMelds = s_Vector<int, 4>;
+using cPairs = vector<int, 7>;
+using cMelds = vector<int, 4>;
 using NormalWin = std::pair<cMelds, int>;
 using Win = std::variant<bool, cPairs, NormalWin>;
 using Hand4Hot = std::array<int, k_UniqueTiles>;
 
-using Melds = s_Vector<Meld, k_MaxNumMeld>;
-using WaitingTiles = s_Vector<Tile, 13>;
-using Wins = s_Vector<Win, 16>;
-using HandDense = s_Vector<Tile, k_MaxHandSize>;
-using Discards = s_Vector<Tile, k_MaxDiscards>;
+using Melds = vector<Meld, k_MaxNumMeld>;
+using WaitingTiles = vector<Tile, 13>;
+using Wins = vector<Win, 16>;
+using HandDense = vector<Tile, k_MaxHandSize>;
+using Discards = vector<Tile, k_MaxDiscards>;
 
 /**
  * Calculate shanten count of a hand by using the algorithm described in 
@@ -36,6 +36,7 @@ using Discards = s_Vector<Tile, k_MaxDiscards>;
  * @return S8 The shanten number of the hand, 0 for tenpai, -1 for winning. 
  */
 S8 shanten(const Hand4Hot &h4, U8f n_melds, int mode);
+
 
 class Hand
 {
