@@ -77,6 +77,11 @@ constexpr int k_ModeChiitoi = 2;
 constexpr int k_ModeKokushi = 4;
 constexpr int k_ModeAll = k_ModeNormal | k_ModeChiitoi | k_ModeKokushi;
 
+constexpr S8f k_ChiiBelow = -1;
+constexpr S8f k_ChiiMiddle = 0;
+constexpr S8f k_ChiiAbove = 1;
+
+
 constexpr U16f k_BaseFu = 20;
 
 /**

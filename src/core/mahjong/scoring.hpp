@@ -196,7 +196,6 @@ constexpr std::array<U64, 6> k_YakuVal
 using Doras = s_Vector<Tile, 10>;
 
 namespace _impl {
-
 constexpr std::size_t bit_count(uint64_t v) noexcept
 {
     if (std::is_constant_evaluated()) 
@@ -248,8 +247,6 @@ constexpr void filter_redundant_yaku(U64 &yakus)
 /**
  * Evaluate a particular yaku. Implemented for all single 
  * 
- * @tparam yaku The yaku to evaluate
- * @param combo The scoring combo reference to aggregate the result
  * @param hand The hand to evaluate.
  * @param win The win (set of sequences and pairs) to evaluate
  * @param agari_pai The tile that caused the win.
@@ -751,7 +748,7 @@ constexpr U64 junchan_chanta(const Hand &hand, const Win &win)
     }
     for (const auto &meld : hand.melds())
     {
-        if (!meld.first().is_19() || !meld.third().is_19())
+        if (!(meld.first().is_19() || meld.third().is_19()))
             return 0;
         if (meld.first().is_honor())
             ret &= ~f_Junchan;

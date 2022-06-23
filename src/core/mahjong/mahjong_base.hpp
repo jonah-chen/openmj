@@ -51,30 +51,9 @@ constexpr bool operator>(Suit lhs, Suit rhs) noexcept
     return static_cast<U16>(lhs) > static_cast<U16>(rhs);
 }
 
-/**
- * Increment direction in the same way turns pass in mahjong, including 
- * wrapping around
- * 
- * @param dir Direction to increment
- * @return constexpr Dir& Incremented direction
- */
-constexpr Dir &operator++(Dir &dir) noexcept
+constexpr Dir next(Dir dir, S8f iters=1) noexcept
 {
-    dir = static_cast<Dir>((dir + 1) & 3);
-    return dir;
-}
-/**
- * Increment direction in the same way turns pass in mahjong, including 
- * wrapping around
- * 
- * @param dir Direction to increment
- * @return constexpr Dir Incremented direction
- */
-constexpr Dir operator++(Dir &dir, int) noexcept
-{
-    Dir tmp = dir;
-    ++dir;
-    return tmp;
+    return static_cast<Dir>((dir + iters) & 3);
 }
 
 /**

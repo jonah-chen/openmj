@@ -33,7 +33,11 @@ TEST t_Closed()
     assert(!h6.is_tenpai(), "h6 is not in tenpai");
     assert(h6.shanten() == 1, "h6 should have shanten 1, but got " + std::to_string(h6.shanten()));
     assert(h7.shanten() == 2, "h7 should have shanten 2, but got " + std::to_string(h7.shanten()));
+}
 
+TEST t_Pong()
+{
+    
 }
 
 

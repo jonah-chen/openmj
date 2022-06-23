@@ -12,10 +12,10 @@ struct _openHand
         assert(h.pong(t), "Pong not possible");
         return this;
     }
-    _openHand &CHII(mj::Tile t, mj::S8f chii_at)
+    _openHand *CHII(mj::Tile t, mj::S8f chii_at)
     {
         assert(h.chii(t, chii_at), "Failed to chii " + std::to_string(t) + " at " + std::to_string(chii_at));
-        return *this;
+        return this;
     }
     _openHand *DISCARD(mj::Tile t)
     {
@@ -85,6 +85,44 @@ int main()
         ->KONG(mj::Tile("6m", mj::k_West))
         ->SCORE(mj::Tile("3s", mj::k_South), 960, 
             60 | mj::scoring::f_Sankantsu);
-    
+    OPEN_HAND(m111333666w1113)
+        ->KONG(mj::Tile("1m", mj::k_South))
+        ->KONG(mj::Tile("3m", mj::k_North))
+        ->KONG(mj::Tile("6m", mj::k_West))
+        ->KONG(mj::Tile("1w").id34())
+        ->SCORE(mj::Tile("3w", mj::k_South), mj::scoring::k_Yakuman,
+            mj::scoring::f_SuuKantsu);
+    OPEN_HAND(m111999p111999s1)
+        ->KONG(mj::Tile("1p", mj::k_South))
+        ->KONG(mj::Tile("1m", mj::k_South))
+        ->KONG(mj::Tile("9m", mj::k_South))
+        ->KONG(mj::Tile("9p", mj::k_South))
+        ->SCORE(mj::Tile("1s", mj::k_South), mj::scoring::k_Yakuman,
+            mj::scoring::f_SuuKantsu | mj::scoring::f_Chinroutou);
+    OPEN_HAND(m13p13s13d1112)
+        ->CHII(mj::Tile("2p", mj::k_North), mj::k_ChiiMiddle)
+        ->CHII(mj::Tile("2s", mj::k_North), mj::k_ChiiMiddle)
+        ->CHII(mj::Tile("2m", mj::k_North), mj::k_ChiiMiddle)
+        ->SCORE(mj::Tile("2d", mj::k_South), 960,
+            30 | mj::scoring::f_ChantaO | mj::scoring::f_SanshokuSeqO | mj::scoring::f_Hatsu);
+    OPEN_HAND(p12233557889)
+        ->CHII(mj::Tile("1p", mj::k_North), mj::k_ChiiBelow)
+        ->PONG(mj::Tile("5p", mj::k_North))
+        ->SCORE(mj::Tile("8p"), mj::scoring::k_Mangan,
+            30 | mj::scoring::f_ChinitsuO);
+    OPEN_HAND(p3355s23568)
+        ->PONG(mj::Tile("3p", mj::k_South))
+        ->CHII(mj::Tile("4s", mj::k_North), mj::k_ChiiAbove)
+        ->PONG(mj::Tile("5p", mj::k_South))
+        ->CHII(mj::Tile("4s", mj::k_North), mj::k_ChiiBelow)
+        ->SCORE(mj::Tile("8s", mj::k_South), 240,
+            30 | mj::scoring::f_Tanyao);
+    OPEN_HAND(p3355s23568)
+        ->PONG(mj::Tile("3p", mj::k_South))
+        ->CHII(mj::Tile("4s", mj::k_North), mj::k_ChiiAbove)
+        ->PONG(mj::Tile("5p", mj::k_South))
+        ->CHII(mj::Tile("4s", mj::k_North), mj::k_ChiiBelow)
+        ->SCORE(mj::Tile("8s", mj::k_South),0,0,mj::scoring::f_NoOpenTanyaoMask & mj::scoring::f_OpenHandMask & mj::scoring::f_NormalPlay);
+
     return g_FailureCount;
 }

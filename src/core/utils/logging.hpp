@@ -40,7 +40,7 @@ public:
     #include <cassert>
     #define MJ_CUDA_ASSERT(x) assert(x)
     #else
-    #define MJ_CUDA_ASSERT(x) MJ_ASSERT_CRIT(x, "CUDA Assertion Failed")
+    #define MJ_CUDA_ASSERT(x) MJ_ASSERT_CRIT(x, "CUDA Assertion Failed on CPU")
     #endif
 #else
 #define MJ_ASSERT_CRIT(x, ...)

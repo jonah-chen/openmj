@@ -187,22 +187,24 @@ public:
     {
         MJ_ASSERT(sorted_, "Hand is not sorted when calling chii");
         MJ_ASSERT(t.player() != player(), "Cannot chii own tile");
+        if (next(t.player()) != player())
+            return false;
         U8f tgt1, tgt2;
         switch (chii_at)
         {
-        case -1:
+        case k_ChiiBelow:
             if (t.num1() >= 8)
                 return false;
             tgt1 = t.id34() + 1;
             tgt2 = t.id34() + 2;
             break;
-        case 0:
+        case k_ChiiMiddle:
             if (t.num1() == 1 || t.num1() == 9)
                 return false;
             tgt1 = t.id34() - 1;
             tgt2 = t.id34() + 1;
             break;
-        case 1:
+        case k_ChiiAbove:
             if (t.num1() <= 2)
                 return false;
             tgt1 = t.id34() - 2;
@@ -217,12 +219,14 @@ public:
 
         auto it1 = std::find_if(tiles_.begin(), tiles_.end(), [tgt1](const Tile &ht) { return ht.id34() == tgt1; });
         MJ_ASSERT_CRIT(it1 != tiles_.end(), "Something wrong with tiles4_");
-        auto it2 = std::find_if(it1+1, tiles_.end(), [tgt2](const Tile &ht) { return ht.id34() == tgt2; });
+        auto &&t1 = std::move(*it1);
+        auto it2 = std::find_if(
+            tiles_.erase(it1), tiles_.end(), [tgt2](const Tile &ht) { return ht.id34() == tgt2; });
         MJ_ASSERT_CRIT(it2 != tiles_.end(), "Something wrong with tiles4_");
-
-        melds_.emplace_back(t, *it1, *it2);
-        tiles_.erase(it1);
+        auto &&t2 = std::move(*it2);
         tiles_.erase(it2);
+        
+        melds_.emplace_back(t, t1, t2);
         return true;
     }
 
