@@ -45,7 +45,7 @@ include_directories(${GLEW_INCLUDE_DIRS})
 
 message(STATUS "Building Libraries")
 
-add_library(Mahjong STATIC ${src_dir}/core/mahjong/mahjong_hand.cc)
+add_library(Mahjong STATIC ${src_dir}/core/mahjong/hand.cc)
 
 add_library(tomohxx_Shanten STATIC ${extern_dir}/shanten-number/calsht.cpp)
 

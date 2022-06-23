@@ -1,6 +1,6 @@
 
 #pragma once
-#include "mahjong_hand.hpp"
+#include "hand.hpp"
 #include "compact_helpers.hpp"
 #include "core/utils/logging.hpp"
 #include <bitset>

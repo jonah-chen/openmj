@@ -1,7 +1,6 @@
 
 #pragma once
 
-#include "mahjong_base.hpp"
-#include "mahjong_hand.hpp"
+#include "base.hpp"
+#include "hand.hpp"
 #include "scoring.hpp"
-

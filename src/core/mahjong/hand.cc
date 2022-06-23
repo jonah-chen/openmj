@@ -1,5 +1,5 @@
 
-#include "mahjong_hand.hpp"
+#include "hand.hpp"
 #include "compact_helpers.hpp"
 #include "extern/shanten-number/calsht.hpp"
 #include <algorithm>
@@ -249,11 +249,13 @@ S8 shanten(const Hand4Hot &h4, U8f n_melds, int mode)
     return num - 1;
 }
 
-Hand::Hand(const char *str, Dir dir) : tiles4_(), tiles4m_()
+namespace _hand_impl {
+template<U8f N>
+Hand<N>::Hand(const char *str, Dir dir) : tiles4_(), tiles4m_()
 {
     constexpr const char *suits = "mpswd";
     U8f cur_suit = 0;
-    for (; *str && size() < k_MaxHandSize; ++str)
+    for (; *str; ++str)
     {
         if (*str < '1' || *str > '9')
         {
@@ -262,13 +264,17 @@ Hand::Hand(const char *str, Dir dir) : tiles4_(), tiles4m_()
                     return;
         }
         else
+        {
+            MJ_ASSERT(size() < N, "too many tiles in hand. use a bigger varient"
+                                  " of hand like BigHand instead");
             emplace_back(Suit(cur_suit), *str - '1', dir);
+        }
     }
-    MJ_ASSERT(*str=='\0', "too many tiles in hand. use BigHand instead");
     sorted_ = true;
 }
 
-Wins Hand::agari() const
+template<U8f N>
+Wins Hand<N>::agari() const
 {
     Wins wins;
     if (n_melds() == 0)
@@ -290,7 +296,8 @@ Wins Hand::agari() const
     return wins;
 }
 
-WaitingTiles Hand::tenpai() const
+template<U8f N>
+WaitingTiles Hand<N>::tenpai() const
 {
     if (size() + 3u*n_melds() < k_MaxHandSize - 1u) return {};
     if (!is_tenpai()) return {};
@@ -342,9 +349,14 @@ WaitingTiles Hand::tenpai() const
     return waiting;
 }
 
-S8 Hand::shanten() const
+template<U8f N>
+S8 Hand<N>::shanten() const
 { 
     return mj::shanten(hand_4hot(), n_melds(), k_ModeAll); 
 };
 
+template class Hand<k_MaxHandSize>;
+template class Hand<k_DeckSize>;
+
+} // namespace _impl
 } // namespace mj

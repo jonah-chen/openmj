@@ -4,7 +4,7 @@
 #include <variant>
 #include <vector>
 
-#include "mahjong_base.hpp"
+#include "base.hpp"
 #include "cuda/vector.hpp"
 
 
@@ -38,9 +38,12 @@ using Discards = vector<Tile, k_MaxDiscards>;
 S8 shanten(const Hand4Hot &h4, U8f n_melds, int mode);
 
 
+namespace _hand_impl {
+template<U8f N>
 class Hand
 {
 public:
+    using HandDense = vector<Tile, N>;
     U64 flags {f_All64};
     Hand() : tiles4_(), tiles4m_() {}
     Hand(const char *, Dir=k_East);
@@ -190,7 +193,7 @@ public:
         MJ_ASSERT(t.player() != player(), "Cannot chii own tile");
         if (next(t.player()) != player())
             return false;
-        U8f tgt1, tgt2;
+        U8f tgt1 {}, tgt2 {};
         switch (chii_at)
         {
         case k_ChiiBelow:
@@ -351,5 +354,10 @@ public:
         return s;
     }
 };
+
+} // namespace _impl
+
+using Hand = _hand_impl::Hand<k_MaxHandSize>;
+using BigHand = _hand_impl::Hand<k_DeckSize>;
 
 } // namespace mj
