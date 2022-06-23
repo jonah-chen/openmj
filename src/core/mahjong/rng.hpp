@@ -8,14 +8,14 @@ namespace random {
 using WallContainer = vector<Tile, k_UniqueTiles*4>;
 using WallContainer34 = vector<int, k_UniqueTiles*4>;
 
-CONSTEXPR12 void fill_wall(WallContainer &w) noexcept
+constexpr void fill_wall(WallContainer &w) noexcept
 {
     for (U8f i = 0; i < k_UniqueTiles; ++i)
         for (U8f j = 0; j < 4; ++j)
             w.push_back(convert34(i));
 }
 
-CONSTEXPR12 void fill_wall(WallContainer34 &w) noexcept
+constexpr void fill_wall(WallContainer34 &w) noexcept
 {
     for (U8f i = 0; i < k_UniqueTiles; ++i)
         for (U8f j = 0; j < 4; ++j)
