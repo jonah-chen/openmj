@@ -1,12 +1,7 @@
 
 #pragma once
-
-#include <variant>
-#include <vector>
-
 #include "base.hpp"
-#include "cuda/vector.hpp"
-
+#include "core/adt/vector.hpp"
 
 namespace mj {
 /**

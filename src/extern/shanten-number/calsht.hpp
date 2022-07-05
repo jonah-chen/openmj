@@ -2,11 +2,6 @@
 #define CALSHT_HPP
 
 #include "core/mahjong/mahjong.hpp"
-
-#include <cstdint>
-#include <filesystem>
-#include <tuple>
-#include <vector>
 #include "constant.hpp"
 
 namespace mj {

@@ -2,8 +2,6 @@
 #include "hand.hpp"
 #include "compact_helpers.hpp"
 #include "extern/shanten-number/calsht.hpp"
-#include <algorithm>
-#include <optional>
 
 namespace mj {
 namespace {

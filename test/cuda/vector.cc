@@ -1,6 +1,6 @@
 
 #include "test/test.hpp"
-#include "cuda/vector.hpp"
+#include "core/adt/vector.hpp"
 
 int main()
 {

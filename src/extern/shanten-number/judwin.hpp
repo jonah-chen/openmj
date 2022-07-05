@@ -1,8 +1,7 @@
 #ifndef JUDWIN_HPP
 #define JUDWIN_HPP
 
-#include <initializer_list>
-#include <numeric>
+#include "pch/cpu.hpp"
 
 bool iswh0(const int*);
 bool iswh2(int*);

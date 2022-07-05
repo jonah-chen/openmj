@@ -46,7 +46,7 @@ void TileSelector::on_gui_render()
             k_BackgroundColor,
             ImVec4(1,1,1, (1.0f + remain_[i]) / 5)
         )){
-            if (remain_[i] > 0)
+            if (remain_[i] > 0 && hand_.size() < k_MaxHandSize)
             {
                 remain_[i]--;
                 hand_.push_back(convert34(i));

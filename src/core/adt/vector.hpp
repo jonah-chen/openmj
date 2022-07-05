@@ -1,7 +1,6 @@
 
 #pragma once
-#include "core/mahjong/constants.hpp"
-#include "core/utils/logging.hpp"
+#include "common.hpp"
 
 namespace mj {
 template<typename T, std::size_t N>
@@ -21,9 +20,18 @@ public:
     using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
     CUDACOMPAT constexpr vector() noexcept {}
-    CUDACOMPAT constexpr vector(std::size_t n, const_reference v) MJ_EXCEPT_CRIT
+    CUDACOMPAT explicit constexpr vector(InitMode mode) noexcept 
     {
-        for (std::size_t i = 0; i < n; ++i)
+        if (mode == InitMode::default_fill)
+        {
+            size_ = N;
+            for (size_type i = 0; i < N; ++i)
+                data_[i] = T();
+        }
+    }
+    CUDACOMPAT constexpr vector(size_type n, const_reference v) MJ_EXCEPT_CRIT
+    {
+        for (size_type i = 0; i < n; ++i)
             push_back(v);
     }
     CUDACOMPAT constexpr T *data() noexcept { return data_; }
@@ -160,7 +168,7 @@ public:
     }
 private:
     T data_[N];
-    std::size_t size_ = 0;
+    std::size_t size_ { 0 };
 };
 
 } // namespace mj

@@ -10,7 +10,7 @@
 int main(int, char**)
 {
     mj::draw::App app;
-    mj::Hand h1("s1112345678999");
+    mj::Hand h1("s111234");
     mj::draw::Texture tex("../assets/textures/tiles.png");
     mj::draw::Config cfg = mj::draw::Config::d_GameConfig();
     cfg.tex_id = tex.id();

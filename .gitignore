@@ -34,6 +34,7 @@
 /logs/
 /.idea/
 /build/
+/build-release/
 /CMakeFiles/
 /cmake-build-debug/
 /cmake_install.cmake
