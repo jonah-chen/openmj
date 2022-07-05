@@ -4,12 +4,13 @@
 #include <cstdio>
 #include <cstdlib>
 #include <stdexcept>
+#include "core/mahjong/constants.hpp"
 
 class AssertionError : public std::exception
 {
 public:
     AssertionError() = default;
-    constexpr const char *what() const noexcept override
+    CONSTEXPR12 const char *what() const noexcept override
     {
         return "Assertion failed. Terminate Called.";
     }
@@ -35,11 +36,18 @@ public:
 #define MJ_THROW(COND, CLASS, MSG) \
     if (COND) throw CLASS(MSG)
 #define MJ_EXCEPT_CRIT
+    #ifdef __NVCC__
+    #include <cassert>
+    #define MJ_CUDA_ASSERT(x) assert(x)
+    #else
+    #define MJ_CUDA_ASSERT(x) MJ_ASSERT_CRIT(x, "CUDA Assertion Failed on CPU")
+    #endif
 #else
 #define MJ_ASSERT_CRIT(x, ...)
 #define MJ_CRIT(...)
 #define MJ_THROW(COND, CLASS, MSG)
 #define MJ_EXCEPT_CRIT noexcept
+#define MJ_CUDA_ASSERT(x)
 #endif
 
 #if MJ_LOGGING > 1

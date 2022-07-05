@@ -7,7 +7,7 @@ TEST t_Closed()
     mj::Hand h1("m123345567p333sw22d");
     mj::Hand h2("m123345567p333w22");
     mj::Hand h3("s33344455566677");
-    mj::Hand h4("m12334567p333w22d123");
+    mj::BigHand h4("m12334567p333w22d123");
     mj::Hand h5("w1112223344d222");
     mj::Hand h6("m1112223334689");
     mj::Hand h7("m111222333p147w1");
@@ -33,7 +33,11 @@ TEST t_Closed()
     assert(!h6.is_tenpai(), "h6 is not in tenpai");
     assert(h6.shanten() == 1, "h6 should have shanten 1, but got " + std::to_string(h6.shanten()));
     assert(h7.shanten() == 2, "h7 should have shanten 2, but got " + std::to_string(h7.shanten()));
+}
 
+TEST t_Pong()
+{
+    
 }
 
 

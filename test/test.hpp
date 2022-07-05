@@ -7,7 +7,14 @@ using TEST = void;
 #include <iostream>
 #include <string>
 #include <cstdlib>
+
+#if __cplusplus > 202002L
 #include <concepts>
+#endif
+
+#ifdef assert
+#undef assert
+#endif
 
 static int g_FailureCount = 0;
 
@@ -49,6 +56,7 @@ void assert_crit(const T& t, const std::string& msg="Critical Error", int ec=255
     }
 }
 
+#if __cplusplus >= 202002L
 /**
  * Weak equality between floating point values.
  * 
@@ -98,3 +106,5 @@ void assert_crit_neq(T a, T b, const std::string &msg="", double eps=1e-6)
 {
     assert_crit(!eq(a, b, eps), msg + "|Expected " + std::to_string(a) + " to not equal " + std::to_string(b));
 }
+
+#endif

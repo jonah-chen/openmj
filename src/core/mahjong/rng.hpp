@@ -1,24 +1,24 @@
 
 #include "game.hpp"
-#include "core/utils/stack_allocator.hpp"
+#include "cuda/vector.hpp"
 #include <random>
 
 namespace mj {
 namespace random {
-using WallContainer = s_Vector<Tile, k_UniqueTiles*4>;
-using WallContainer34 = s_Vector<int, k_UniqueTiles*4>;
+using WallContainer = vector<Tile, k_UniqueTiles*4>;
+using WallContainer34 = vector<int, k_UniqueTiles*4>;
 
-CONSTEXPR12 void fill_wall(WallContainer &w) noexcept
+constexpr void fill_wall(WallContainer &w) noexcept
 {
-    for (Fast8 i = 0; i < k_UniqueTiles; ++i)
-        for (Fast8 j = 0; j < 4; ++j)
+    for (U8f i = 0; i < k_UniqueTiles; ++i)
+        for (U8f j = 0; j < 4; ++j)
             w.push_back(convert34(i));
 }
 
-CONSTEXPR12 void fill_wall(WallContainer34 &w) noexcept
+constexpr void fill_wall(WallContainer34 &w) noexcept
 {
-    for (Fast8 i = 0; i < k_UniqueTiles; ++i)
-        for (Fast8 j = 0; j < 4; ++j)
+    for (U8f i = 0; i < k_UniqueTiles; ++i)
+        for (U8f j = 0; j < 4; ++j)
             w.push_back(i);
 }
 
@@ -54,7 +54,7 @@ public:
 protected:
     RngType &rng_;
     WallContainer wall_;
-    Fast16 live_tiles_;
+    U16f live_tiles_;
 };
 
 class StdDeck : public RngDeck<std::mt19937_64>
@@ -81,13 +81,13 @@ public:
         wall_.pop_back();
         return tile;
     }
-    void draw_n(Fast8 n, Hand4Hot &h) MJ_EXCEPT_WARN
+    void draw_n(U8f n, Hand4Hot &h) MJ_EXCEPT_WARN
     {
         MJ_ASSERT(n <= wall_.size(), "Rng34: not enough tiles");
-        for (Fast8 i = 0; i < n; ++i)
+        for (U8f i = 0; i < n; ++i)
             h[(*this)()]++;
     }
-    Hand4Hot draw_n(Fast8 n) MJ_EXCEPT_WARN
+    Hand4Hot draw_n(U8f n) MJ_EXCEPT_WARN
     {
         Hand4Hot h {};
         draw_n(n, h);
