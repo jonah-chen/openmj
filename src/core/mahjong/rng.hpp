@@ -1,12 +1,11 @@
 
 #include "game.hpp"
-#include "cuda/vector.hpp"
-#include <random>
+#include "core/adt/vector.hpp"
 
 namespace mj {
 namespace random {
-using WallContainer = vector<Tile, k_UniqueTiles*4>;
-using WallContainer34 = vector<int, k_UniqueTiles*4>;
+using WallContainer = vector<Tile, k_DeckSize>;
+using WallContainer34 = vector<int, k_DeckSize>;
 
 constexpr void fill_wall(WallContainer &w) noexcept
 {

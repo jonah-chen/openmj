@@ -1,6 +1,6 @@
 
 #pragma once
-
+#include "pch/cpu.hpp"
 #if __GNUC__ >= 12
 #define CONSTEXPR12 constexpr
 #else
@@ -17,7 +17,6 @@
 #define CUDAKERNEL
 #endif
 
-#include <cstdint>
 
 namespace mj {
 using U8f = uint_fast8_t;

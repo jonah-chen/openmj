@@ -2,6 +2,11 @@ cmake_minimum_required(VERSION 3.23.2 FATAL_ERROR)
 project(OpenMJ)
 include(CheckLanguage)
 
+set(src_dir ${CMAKE_CURRENT_LIST_DIR}/src)
+set(test_dir ${CMAKE_CURRENT_LIST_DIR}/test)
+set(extern_dir ${CMAKE_CURRENT_LIST_DIR}/src/extern)
+set(example_dir ${CMAKE_CURRENT_LIST_DIR}/example)
+
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_FLAGS_DEBUG "-O0 -Wall -g -fno-rtti -DMJ_LOGGING=2 -w")
@@ -16,7 +21,11 @@ if (CMAKE_CUDA_COMPILER)
     message(STATUS "CUDA found, will compile CUDA modules")
     set(CMAKE_CUDA_STANDARD 17)
     set(CMAKE_CUDA_FLAGS_DEBUG "${CMAKE_CUDA_FLAGS_DEBUG} -G -Wall -Wextra")
-    # add_executable(c.out test.cu)
+    add_library(mj_pch OBJECT ${src_dir}/pch/gpu.cu)
+    target_precompile_headers(mj_pch PUBLIC ${src_dir}/pch/gpu.hpp)
+else()
+    add_library(mj_pch OBJECT ${src_dir}/pch/cpu.cc)
+    target_precompile_headers(mj_pch PUBLIC ${src_dir}/pch/cpu.hpp)
 endif()
 
 find_package(OpenGL REQUIRED)
@@ -32,11 +41,8 @@ endif()
 
 # find_package(OpenMP REQUIRED)
 
+# use precompiled headers
 
-set(src_dir ${CMAKE_CURRENT_LIST_DIR}/src)
-set(test_dir ${CMAKE_CURRENT_LIST_DIR}/test)
-set(extern_dir ${CMAKE_CURRENT_LIST_DIR}/src/extern)
-set(example_dir ${CMAKE_CURRENT_LIST_DIR}/example)
 
 include_directories(${CMAKE_CURRENT_LIST_DIR})
 include_directories(${src_dir})
@@ -46,8 +52,10 @@ include_directories(${GLEW_INCLUDE_DIRS})
 message(STATUS "Building Libraries")
 
 add_library(Mahjong STATIC ${src_dir}/core/mahjong/hand.cc)
+target_precompile_headers(Mahjong REUSE_FROM mj_pch)
 
 add_library(tomohxx_Shanten STATIC ${extern_dir}/shanten-number/calsht.cpp)
+target_precompile_headers(tomohxx_Shanten REUSE_FROM mj_pch)
 
 add_library(imgui_GLFW STATIC ${extern_dir}/imgui/imgui_impl_glfw.cpp
                           ${extern_dir}/imgui/imgui_impl_opengl3.cpp
@@ -55,6 +63,7 @@ add_library(imgui_GLFW STATIC ${extern_dir}/imgui/imgui_impl_glfw.cpp
                           ${extern_dir}/imgui/imgui_tables.cpp
                           ${extern_dir}/imgui/imgui_draw.cpp
                           ${extern_dir}/imgui/imgui_widgets.cpp)
+target_precompile_headers(imgui_GLFW REUSE_FROM mj_pch)
 target_link_libraries(imgui_GLFW PUBLIC ${glfw3_LIBRARIES} ${CMAKE_DL_LIBS})
 
 add_library(Engine STATIC ${src_dir}/core/engine/gui.cc ${extern_dir}/imgui/imgui_demo.cpp
@@ -63,18 +72,23 @@ add_library(Engine STATIC ${src_dir}/core/engine/gui.cc ${extern_dir}/imgui/imgu
                         ${src_dir}/core/engine/app.cc
                         ${src_dir}/core/engine/texture.cc
                         ${src_dir}/core/engine/hand.cc)
+target_precompile_headers(Engine REUSE_FROM mj_pch)
 target_link_libraries(Engine PUBLIC glfw imgui_GLFW GLEW OpenGL)
+
 
 set(libs Mahjong tomohxx_Shanten)
 
 
 message(STATUS "Building Examples")
 add_executable(gui_example ${example_dir}/gui.cc ${src_dir}/sims/selector.cc)
+target_precompile_headers(gui_example REUSE_FROM mj_pch)
 target_link_libraries(gui_example PUBLIC ${libs} Engine)
+
 
 
 if (BUILD_BENCH)
     add_executable(Benchmark ${test_dir}/bench.cc)
+    target_precompile_headers(Benchmark REUSE_FROM mj_pch)
     target_link_libraries(Benchmark ${libs} ${bench_libs})
 endif()
 
@@ -83,12 +97,14 @@ if (BUILD_TESTS)
 
     function(makeTest test_rp test_name)
     add_executable(${test_name} ${test_dir}/${test_rp}/${test_name}.cc)
+    target_precompile_headers(${test_name} REUSE_FROM mj_pch)
     target_link_libraries(${test_name} ${libs})
     add_test(${test_name} ${test_name})
     endfunction()
 
     function(makeTestCU test_rp test_name)
     add_executable(CU${test_name} ${test_dir}/${test_rp}/${test_name}.cu)
+    target_precompile_headers(CU${test_name} REUSE_FROM mj_pch)
     target_link_libraries(CU${test_name} ${libs})
     add_test(CU${test_name} CU${test_name})
     endfunction()
