@@ -63,9 +63,9 @@ void TileSelector::on_gui_render()
     ImGui::End();
 }
 
-std::array<float, k_UniqueTiles> TileSelector::prob() const
+TileWeights TileSelector::prob() const
 {
-    std::array<float, k_UniqueTiles> ret;
+    TileWeights ret;
     // sum
     float sum = std::inner_product(weights_.begin(), weights_.end(), remain_.begin(), 0.f);
     for (U8f i = 0; i < k_UniqueTiles; ++i)
@@ -73,9 +73,9 @@ std::array<float, k_UniqueTiles> TileSelector::prob() const
     return ret;
 }
 
-std::array<float, k_UniqueTiles> TileSelector::cum() const
+TileWeights TileSelector::cum() const
 {
-    std::array<float, k_UniqueTiles> ret;
+    TileWeights ret;
     auto probability = prob();
     std::partial_sum(probability.begin(), probability.end(), ret.begin());
     return ret;

@@ -12,11 +12,11 @@ public:
     TileSelector(intptr_t tex_id, Hand &hand);
 
     void on_gui_render() override;
-    std::array<float, k_UniqueTiles> prob() const;
-    std::array<float, k_UniqueTiles> cum() const;
+    TileWeights prob() const;
+    TileWeights cum() const;
 
 private:
-    std::array<float, k_UniqueTiles> weights_;
+    TileWeights weights_;
     std::array<U8f, k_UniqueTiles> remain_;
     intptr_t tex_id_;
     Hand &hand_;
