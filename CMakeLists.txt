@@ -116,6 +116,7 @@ if (BUILD_TESTS)
     makeTest(core/mahjong hand)
     makeTest(core/mahjong scoring_closed)
     makeTest(core/mahjong scoring_open)
+    makeTest(core/mahjong rng)
     makeTest(cuda vector)
 
     if (CMAKE_CUDA_COMPILER)

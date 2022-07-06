@@ -272,4 +272,6 @@ public:
     }
 };
 
+typedef std::array<float, k_UniqueTiles> TileWeights;
+
 } // namespace mahjong
