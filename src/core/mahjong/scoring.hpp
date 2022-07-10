@@ -108,7 +108,7 @@ constexpr U64 f_HandIndependent = f_Riichi | f_Ippatsu | f_Haitei | f_Houtei |
 
 constexpr U64 f_NormalPlay =
     ~(f_Riichi | f_Ippatsu | f_Haitei | f_Houtei | f_Rinshan | f_Chankan |
-      f_Tenhou | f_Chihou | f_Renhou);
+      f_Tenhou | f_Chihou | f_Renhou | f_East | f_South | f_West | f_North);
 
 constexpr U64 f_Yakuhai =
     f_East | f_South | f_West | f_North | f_Hatsu | f_Chun | f_Haku;
@@ -154,7 +154,19 @@ constexpr std::size_t bit_count(uint64_t v) noexcept
     return std::bitset<64>(v).count();
 }
 
-constexpr U16f basic_score(U64 yakus, U8f doras = 0)
+constexpr void filter_redundant_yaku(U64 &yakus)
+{
+    if (yakus & f_Chinitsu)
+        yakus &= ~f_Honitsu;
+    if (yakus & f_Junchan)
+        yakus &= ~f_Chanta;
+    if (yakus & f_Ryanpeikou)
+        yakus &= ~f_Ipeikou;
+}
+} // namespace _impl
+
+namespace points {
+constexpr U32f basic_score(U64 yakus, U8f doras = 0)
 {
     // check for yakuman
     if (yakus & f_DoubleYakuman)
@@ -164,7 +176,7 @@ constexpr U16f basic_score(U64 yakus, U8f doras = 0)
     U8f fu = yakus & f_FuMask;
     U8f fan = doras;
     for (U8f i = 0; i < k_YakuVal.size(); ++i)
-        fan += (i + 1) * bit_count(yakus & k_YakuVal[i]);
+        fan += (i + 1) * _impl::bit_count(yakus & k_YakuVal[i]);
     if (fan >= 11)
         return k_Sanbaiman;
     if (fan >= 8)
@@ -177,16 +189,47 @@ constexpr U16f basic_score(U64 yakus, U8f doras = 0)
     return fu << (2 + fan);
 }
 
-constexpr void filter_redundant_yaku(U64 &yakus)
+constexpr U32f player_loss(U16f basic_score)
 {
-    if (yakus & f_Chinitsu)
-        yakus &= ~f_Honitsu;
-    if (yakus & f_Junchan)
-        yakus &= ~f_Chanta;
-    if (yakus & f_Ryanpeikou)
-        yakus &= ~f_Ipeikou;
+    return 100 * ((99 + basic_score) / 100);
 }
 
+constexpr U32f dealer_loss(U16f basic_score)
+{
+    return 100 * ((99 + 2*basic_score) / 100);
+}
+
+constexpr U32f player_ron(U16f basic_score)
+{
+    return 100 * ((99 + 4*basic_score) / 100);
+}
+
+constexpr U32f dealer_ron(U16f basic_score)
+{
+    return 100 * ((99 + 6*basic_score) / 100);
+}
+
+constexpr U32f player_tsumo(U16f basic_score)
+{
+    return 2*player_loss(basic_score) + dealer_loss(basic_score);
+}
+
+constexpr U32f dealer_tsumo(U16f basic_score)
+{
+    return 3*dealer_loss(basic_score);
+}
+
+constexpr U32f win(U16f basic_score, bool dealer, bool tsumo)
+{
+    if (tsumo)
+        return dealer ? dealer_tsumo(basic_score) : player_tsumo(basic_score);
+    else
+        return dealer ? dealer_ron(basic_score) : player_ron(basic_score);
+}
+
+} // namespace points
+
+namespace _impl {
 /**
  * Evaluate a particular yaku. Implemented for all single
  *
@@ -724,7 +767,7 @@ constexpr U64 eval(const Hand &hand, const Win &win, Tile agari_pai)
     if constexpr (yaku & f_East)
         ret |= (_impl::yakuhai(hand, k_East34, f_East) & yaku);
     if constexpr (yaku & f_South)
-        ret |= (_impl::yakuhai(hand, k_South34, f_West) & yaku);
+        ret |= (_impl::yakuhai(hand, k_South34, f_South) & yaku);
     if constexpr (yaku & f_West)
         ret |= (_impl::yakuhai(hand, k_West34, f_West) & yaku);
     if constexpr (yaku & f_North)
@@ -808,7 +851,7 @@ constexpr std::pair<U32f, U64> score_hand(const Hand &hand, const Win &win,
     U64 yakus = eval<f_YakumanMask>(hand, win, agari_pai);
     if (hand.flags & yakus)
     {
-        return {_impl::basic_score(hand.flags & yakus), hand.flags & yakus};
+        return {points::basic_score(hand.flags & yakus), hand.flags & yakus};
     }
     yakus |= eval<f_HandIndependent>(hand, win, agari_pai);
     yakus |= eval<f_MenTsumo>(hand, win, agari_pai);
@@ -825,7 +868,7 @@ constexpr std::pair<U32f, U64> score_hand(const Hand &hand, const Win &win,
             else
                 yakus |= eval<f_Tanyao>(hand, win, agari_pai);
             _impl::filter_redundant_yaku(yakus);
-            return {_impl::basic_score(hand.flags & yakus, doras),
+            return {points::basic_score(hand.flags & yakus, doras),
                     hand.flags & yakus};
         }
     }
@@ -876,19 +919,19 @@ constexpr std::pair<U32f, U64> score_hand(const Hand &hand, const Win &win,
     _impl::filter_redundant_yaku(yakus);
     yakus &= hand.flags;
     if (yakus & f_YakuMask)
-        return {_impl::basic_score(yakus, doras), yakus};
+        return {points::basic_score(yakus, doras), yakus};
     else
         return {0, yakus};
 }
 
-inline std::pair<U32f, U64> score_hand(const Hand &hand, Tile agari_pai)
+inline std::pair<U32f, U64> score_hand(const Hand &hand, Tile agari_pai, U8f doras = 0)
 {
     auto wins = hand.agari();
     U32f best_score = 0;
     U64 best_yaku = 0;
     for (const auto &win : wins)
     {
-        auto [score, yakus] = score_hand(hand, win, agari_pai);
+        auto [score, yakus] = score_hand(hand, win, agari_pai, doras);
         if (score > best_score)
         {
             best_score = score;

@@ -1,7 +1,6 @@
 
 #pragma once
-#include "pch/pch.hpp"
-
+#include "core/mahjong/constants.hpp"
 namespace mj {
 template <typename KeyType, typename CounterType = U32f> class count_map
 {

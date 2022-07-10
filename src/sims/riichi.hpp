@@ -26,12 +26,13 @@ struct RiichiState
     using output_type =
         std::tuple<count_type, score_type, detail_type, yakus_type>;
 
-    Dir prevailing_wind;
     Hand hand;
-    Hand4Hot dead_tiles;
+    Dir prevailing_wind {k_East};
+    Hand4Hot dead_tiles {};
+    Hand4Hot my_discards {};
     // TileWeights discard_prob;
     // TileWeights hold_prob;
-    bool furiten;
+    bool furiten {true};
 };
 
 // TODO: as of now, this assumes opponents tsumogiri
@@ -50,16 +51,15 @@ RiichiState::output_type iterative_riichi(RngType &rng, RiichiState state,
 
     // count tiles in full_wall
     if (tiles_left == -1)
-    {
         tiles_left = std::accumulate(full_wall.begin(), full_wall.end(), 0) -
                      k_DeadWallSize;
-    }
     auto draws = tiles_left / 4;
 
     RiichiState::count_type counts{};
     RiichiState::score_type scores{};
     RiichiState::detail_type detail{};
     RiichiState::yakus_type yakus{};
+    Dir m_player = state.hand.player();
 
     for (auto _ : range(iters))
     {
@@ -68,7 +68,7 @@ RiichiState::output_type iterative_riichi(RngType &rng, RiichiState state,
 
         for (auto i : range(draws))
         {
-            Dir player = state.hand.player();
+            Dir player = m_player;
             for (auto j : range(k_NumPlayers))
             {
                 // make a copy of hand
@@ -85,6 +85,8 @@ RiichiState::output_type iterative_riichi(RngType &rng, RiichiState state,
                 {
                     // there is a win
                     auto [score, yaku] = scoring::score_hand(hand, tile);
+                    score = scoring::points::win(score, m_player==k_East, m_player==player);
+
 
                     // add to the cumulative counts
                     counts[i]++;
