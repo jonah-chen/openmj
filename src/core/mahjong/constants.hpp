@@ -1,22 +1,6 @@
 
 #pragma once
-#include "pch/cpu.hpp"
-#if __GNUC__ >= 12
-#define CONSTEXPR12 constexpr
-#else
-#define CONSTEXPR12 inline
-#endif
-
-#ifdef __NVCC__
-#define CUDACOMPAT __host__ __device__
-#define CUDAGPU __device__
-#define CUDAKERNEL __global__ void
-#else
-#define CUDACOMPAT
-#define CUDAGPU
-#define CUDAKERNEL
-#endif
-
+#include "pch/pch.hpp"
 
 namespace mj {
 using U8f = uint_fast8_t;
@@ -45,7 +29,10 @@ constexpr U64 f_All64 = (U64)-1;
 
 enum Dir : U8f
 {
-    k_East, k_South, k_West, k_North
+    k_East,
+    k_South,
+    k_West,
+    k_North
 };
 
 constexpr U8f k_FirstHonorIdx = 27;
@@ -80,18 +67,19 @@ constexpr S8f k_ChiiBelow = -1;
 constexpr S8f k_ChiiMiddle = 0;
 constexpr S8f k_ChiiAbove = 1;
 
-
 constexpr U16f k_BaseFu = 20;
 
 /**
  * fedcba9876543210
  * sssnnnnppfffffff
  */
-namespace tilelayout
-{
-    constexpr U8f k_PlayerPos = 7;
-    constexpr U8f k_NumPos = 9;
-    constexpr U8f k_SuitPos = 13;
+namespace tilelayout {
+constexpr U8f k_PlayerPos = 7;
+constexpr U8f k_NumPos = 9;
+constexpr U8f k_SuitPos = 13;
 } // namespace tilelayout
+
+constexpr const char *k_DefaultFont = "../assets/fonts/DroidSans.ttf";
+constexpr float k_DefaultFontSize = 24.0f;
 
 } // namespace mj

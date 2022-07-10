@@ -20,13 +20,14 @@ namespace draw {
 class Gui : public Layer
 {
 public:
-    Gui(const char *ini="imgui.ini") : ini_ { ini } {}
+    Gui(const char *ini = "imgui.ini") : ini_{ini} {}
 
     void on_attach() override;
     void on_detach() override;
 
     void begin();
     void end();
+
 private:
     const char *ini_;
 };
@@ -46,12 +47,16 @@ public:
 class Viewport : public Layer
 {
 public:
-    Viewport(const char *name) : name_ { name } {}
+    Viewport(const char *name) : name_{name} {}
     void on_gui_render() override;
     void on_detach() override;
-    CONSTEXPR12 void push_element(ViewportElement *elem) { elements_.push_back(elem); }
+    CONSTEXPR12 void push_element(ViewportElement *elem)
+    {
+        elements_.push_back(elem);
+    }
+
 private:
-    std::vector<ViewportElement*> elements_;
+    std::vector<ViewportElement *> elements_;
     const char *name_;
 };
 

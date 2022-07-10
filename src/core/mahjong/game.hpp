@@ -3,7 +3,8 @@
 #include "mahjong.hpp"
 
 namespace mj {
-class TileSrc {
+class TileSrc
+{
 public:
     virtual ~TileSrc() = default;
 
@@ -13,12 +14,10 @@ public:
     virtual Tile operator()(Dir dir) = 0;
 
     /**
-     * @return Tile draw a tile without changing the number of live tiles remaining.
+     * @return Tile draw a tile without changing the number of live tiles
+     * remaining.
      */
     virtual Tile dora() = 0;
 };
-
-
-
 
 } // namespace mj

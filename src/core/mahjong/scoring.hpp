@@ -1,8 +1,8 @@
 
 #pragma once
-#include "hand.hpp"
 #include "compact_helpers.hpp"
 #include "core/utils/logging.hpp"
+#include "hand.hpp"
 
 namespace mj {
 namespace scoring {
@@ -15,189 +15,136 @@ constexpr U16f k_Baiman = 4000;
 constexpr U16f k_Sanbaiman = 6000;
 constexpr U16f k_Yakuman = 8000;
 
-
 constexpr U64 k_YakuBegin = 1ull << 8;
 
 constexpr U64 f_FuMask = 0xff;
 constexpr U64 f_YakuMask = ~f_FuMask;
 
-enum YakuFlags : U64 
+enum YakuFlags : U64
 {
-    f_Riichi1       = k_YakuBegin,
-    f_Riichi2       = k_YakuBegin << 1,
-    f_Ippatsu       = k_YakuBegin << 2,
-    f_MenTsumo      = k_YakuBegin << 3,
-    f_Pinfu         = k_YakuBegin << 4,
-    f_Ipeikou       = k_YakuBegin << 5,
-    f_Haitei        = k_YakuBegin << 6,
-    f_Houtei        = k_YakuBegin << 7,
-    f_Rinshan       = k_YakuBegin << 8,
-    f_Chankan       = k_YakuBegin << 9,
-    f_Tanyao        = k_YakuBegin << 10,
-    f_Hatsu         = k_YakuBegin << 11,
-    f_Chun          = k_YakuBegin << 12,
-    f_Haku          = k_YakuBegin << 13,
-    f_EastP         = k_YakuBegin << 14,
-    f_EastS         = k_YakuBegin << 15,
-    f_SouthP        = k_YakuBegin << 16,
-    f_SouthS        = k_YakuBegin << 17,
-    f_WestS         = k_YakuBegin << 18,
-    f_NorthS        = k_YakuBegin << 19,
-    f_ChantaO       = k_YakuBegin << 20,
-    f_ChantaC       = k_YakuBegin << 21,
-    f_SanshokuSeqO  = k_YakuBegin << 22,
-    f_SanshokuSeqC  = k_YakuBegin << 23,
-    f_SanshokuSet   = k_YakuBegin << 24,
-    f_IttsuO        = k_YakuBegin << 25,
-    f_IttsuC        = k_YakuBegin << 26,
-    f_Toitoi        = k_YakuBegin << 27,
-    f_Sanankou      = k_YakuBegin << 28,
-    f_Sankantsu     = k_YakuBegin << 29,
-    f_Chitoitsu     = k_YakuBegin << 30,
-    f_Honroutou     = k_YakuBegin << 31,
-    f_Shousangen    = k_YakuBegin << 32,
-    f_HonitsuO      = k_YakuBegin << 33,
-    f_HonitsuC      = k_YakuBegin << 34,
-    f_JunchanO      = k_YakuBegin << 35,
-    f_JunchanC      = k_YakuBegin << 36,
-    f_Ryanpeikou    = k_YakuBegin << 37,
-    f_ChinitsuO     = k_YakuBegin << 38,
-    f_ChinitsuC     = k_YakuBegin << 39,
+    f_Riichi1 = k_YakuBegin,
+    f_Riichi2 = k_YakuBegin << 1,
+    f_Ippatsu = k_YakuBegin << 2,
+    f_MenTsumo = k_YakuBegin << 3,
+    f_Pinfu = k_YakuBegin << 4,
+    f_Ipeikou = k_YakuBegin << 5,
+    f_Haitei = k_YakuBegin << 6,
+    f_Houtei = k_YakuBegin << 7,
+    f_Rinshan = k_YakuBegin << 8,
+    f_Chankan = k_YakuBegin << 9,
+    f_Tanyao = k_YakuBegin << 10,
+    f_Hatsu = k_YakuBegin << 11,
+    f_Chun = k_YakuBegin << 12,
+    f_Haku = k_YakuBegin << 13,
+    f_EastP = k_YakuBegin << 14,
+    f_EastS = k_YakuBegin << 15,
+    f_SouthP = k_YakuBegin << 16,
+    f_SouthS = k_YakuBegin << 17,
+    f_WestS = k_YakuBegin << 18,
+    f_NorthS = k_YakuBegin << 19,
+    f_ChantaO = k_YakuBegin << 20,
+    f_ChantaC = k_YakuBegin << 21,
+    f_SanshokuSeqO = k_YakuBegin << 22,
+    f_SanshokuSeqC = k_YakuBegin << 23,
+    f_SanshokuSet = k_YakuBegin << 24,
+    f_IttsuO = k_YakuBegin << 25,
+    f_IttsuC = k_YakuBegin << 26,
+    f_Toitoi = k_YakuBegin << 27,
+    f_Sanankou = k_YakuBegin << 28,
+    f_Sankantsu = k_YakuBegin << 29,
+    f_Chitoitsu = k_YakuBegin << 30,
+    f_Honroutou = k_YakuBegin << 31,
+    f_Shousangen = k_YakuBegin << 32,
+    f_HonitsuO = k_YakuBegin << 33,
+    f_HonitsuC = k_YakuBegin << 34,
+    f_JunchanO = k_YakuBegin << 35,
+    f_JunchanC = k_YakuBegin << 36,
+    f_Ryanpeikou = k_YakuBegin << 37,
+    f_ChinitsuO = k_YakuBegin << 38,
+    f_ChinitsuC = k_YakuBegin << 39,
 
     f_ChuurenPoutou = k_YakuBegin << 40,
-    f_SuuAnkou      = k_YakuBegin << 41,
-    f_SuuKantsu     = k_YakuBegin << 42,
-    f_Daisangen     = k_YakuBegin << 43,
-    f_Shosushi      = k_YakuBegin << 44,
-    f_Daisushi      = k_YakuBegin << 45,
-    f_Kokushi       = k_YakuBegin << 46,
-    f_Ryuisou       = k_YakuBegin << 47,
-    f_Tsuuiisou     = k_YakuBegin << 48,
-    f_Chinroutou    = k_YakuBegin << 49,
-    f_Tenhou        = k_YakuBegin << 50,
-    f_Chihou        = k_YakuBegin << 51,
+    f_SuuAnkou = k_YakuBegin << 41,
+    f_SuuKantsu = k_YakuBegin << 42,
+    f_Daisangen = k_YakuBegin << 43,
+    f_Shosushi = k_YakuBegin << 44,
+    f_Daisushi = k_YakuBegin << 45,
+    f_Kokushi = k_YakuBegin << 46,
+    f_Ryuisou = k_YakuBegin << 47,
+    f_Tsuuiisou = k_YakuBegin << 48,
+    f_Chinroutou = k_YakuBegin << 49,
+    f_Tenhou = k_YakuBegin << 50,
+    f_Chihou = k_YakuBegin << 51,
     f_DoubleYakuman = k_YakuBegin << 52,
 
-    f_Renhou        = k_YakuBegin << 53,
-    k_YakuEnd       = k_YakuBegin << 54
+    f_Renhou = k_YakuBegin << 53,
+    k_YakuEnd = k_YakuBegin << 54
 };
 
-constexpr U64 f_Riichi          = f_Riichi1 | f_Riichi2;
-constexpr U64 f_East            = f_EastP | f_EastS;
-constexpr U64 f_South           = f_SouthP | f_SouthS;
-constexpr U64 f_West            = f_WestS;
-constexpr U64 f_North           = f_NorthS;
-constexpr U64 f_Chanta          = f_ChantaO | f_ChantaC;
-constexpr U64 f_SanshokuSeq     = f_SanshokuSeqO | f_SanshokuSeqC;
-constexpr U64 f_Ittsu           = f_IttsuO | f_IttsuC;
-constexpr U64 f_Honitsu         = f_HonitsuO | f_HonitsuC;
-constexpr U64 f_Junchan         = f_JunchanO | f_JunchanC;
-constexpr U64 f_Chinitsu        = f_ChinitsuO | f_ChinitsuC;
+constexpr U64 f_Riichi = f_Riichi1 | f_Riichi2;
+constexpr U64 f_East = f_EastP | f_EastS;
+constexpr U64 f_South = f_SouthP | f_SouthS;
+constexpr U64 f_West = f_WestS;
+constexpr U64 f_North = f_NorthS;
+constexpr U64 f_Chanta = f_ChantaO | f_ChantaC;
+constexpr U64 f_SanshokuSeq = f_SanshokuSeqO | f_SanshokuSeqC;
+constexpr U64 f_Ittsu = f_IttsuO | f_IttsuC;
+constexpr U64 f_Honitsu = f_HonitsuO | f_HonitsuC;
+constexpr U64 f_Junchan = f_JunchanO | f_JunchanC;
+constexpr U64 f_Chinitsu = f_ChinitsuO | f_ChinitsuC;
 
-constexpr U64 f_OpenHandMask    = ~(f_Riichi | 
-                                    f_Ippatsu | 
-                                    f_MenTsumo | 
-                                    f_Pinfu | 
-                                    f_Ipeikou |
-                                    f_ChantaC |
-                                    f_SanshokuSeqC |
-                                    f_IttsuC |
-                                    f_HonitsuC |
-                                    f_JunchanC |
-                                    f_ChinitsuC);
+constexpr U64 f_OpenHandMask =
+    ~(f_Riichi | f_Ippatsu | f_MenTsumo | f_Pinfu | f_Ipeikou | f_ChantaC |
+      f_SanshokuSeqC | f_IttsuC | f_HonitsuC | f_JunchanC | f_ChinitsuC);
 
-constexpr U64 f_NoOpenTanyaoMask=  ~f_Tanyao & f_OpenHandMask;
+constexpr U64 f_NoOpenTanyaoMask = ~f_Tanyao & f_OpenHandMask;
 
-constexpr U64 f_ClosedHandMask  = ~(f_ChantaO |
-                                    f_SanshokuSeqO |
-                                    f_IttsuO |
-                                    f_HonitsuO |
-                                    f_JunchanO |
-                                    f_ChinitsuO);
+constexpr U64 f_ClosedHandMask = ~(f_ChantaO | f_SanshokuSeqO | f_IttsuO |
+                                   f_HonitsuO | f_JunchanO | f_ChinitsuO);
 
-constexpr U64 f_HandIndependent =   f_Riichi |
-                                    f_Ippatsu |
-                                    f_Haitei |
-                                    f_Houtei |
-                                    f_Rinshan |
-                                    f_Chankan |
-                                    f_Tenhou |
-                                    f_Chihou |
-                                    f_Renhou;
+constexpr U64 f_HandIndependent = f_Riichi | f_Ippatsu | f_Haitei | f_Houtei |
+                                  f_Rinshan | f_Chankan | f_Tenhou | f_Chihou |
+                                  f_Renhou;
 
-constexpr U64 f_NormalPlay      = ~(f_Riichi |
-                                    f_Ippatsu |
-                                    f_Haitei | 
-                                    f_Houtei |
-                                    f_Rinshan |
-                                    f_Chankan |
-                                    f_Tenhou |
-                                    f_Chihou |
-                                    f_Renhou);
+constexpr U64 f_NormalPlay =
+    ~(f_Riichi | f_Ippatsu | f_Haitei | f_Houtei | f_Rinshan | f_Chankan |
+      f_Tenhou | f_Chihou | f_Renhou);
 
-constexpr U64 f_Yakuhai         =   f_East | f_South | f_West | f_North | 
-                                    f_Hatsu | f_Chun | f_Haku;
+constexpr U64 f_Yakuhai =
+    f_East | f_South | f_West | f_North | f_Hatsu | f_Chun | f_Haku;
 
-constexpr U64 f_Yaku1Fan        =   f_Riichi |
-                                    f_Ippatsu |
-                                    f_MenTsumo |
-                                    f_Pinfu |
-                                    f_Ipeikou |
-                                    f_Haitei |
-                                    f_Houtei |
-                                    f_Rinshan |
-                                    f_Chankan |
-                                    f_Tanyao |
-                                    f_Yakuhai |
-                                    f_ChantaO |
-                                    f_SanshokuSeqO |
-                                    f_IttsuO;
+constexpr U64 f_Yaku1Fan = f_Riichi | f_Ippatsu | f_MenTsumo | f_Pinfu |
+                           f_Ipeikou | f_Haitei | f_Houtei | f_Rinshan |
+                           f_Chankan | f_Tanyao | f_Yakuhai | f_ChantaO |
+                           f_SanshokuSeqO | f_IttsuO;
 
-constexpr U64 f_Yaku2Fan        =   f_ChantaC |
-                                    f_SanshokuSeqC |
-                                    f_SanshokuSet |
-                                    f_IttsuC |
-                                    f_Toitoi |
-                                    f_Sanankou |
-                                    f_Sankantsu |
-                                    f_Chitoitsu |
-                                    f_Honroutou |
-                                    f_Shousangen |
-                                    f_HonitsuO |
-                                    f_JunchanO;
+constexpr U64 f_Yaku2Fan = f_ChantaC | f_SanshokuSeqC | f_SanshokuSet |
+                           f_IttsuC | f_Toitoi | f_Sanankou | f_Sankantsu |
+                           f_Chitoitsu | f_Honroutou | f_Shousangen |
+                           f_HonitsuO | f_JunchanO;
 
-constexpr U64 f_Yaku3Fan        =   f_HonitsuC |
-                                    f_JunchanC |
-                                    f_Ryanpeikou;
+constexpr U64 f_Yaku3Fan = f_HonitsuC | f_JunchanC | f_Ryanpeikou;
 
-constexpr U64 f_Yaku5Fan        =   f_ChinitsuO;
-constexpr U64 f_Yaku6Fan        =   f_ChinitsuC;
+constexpr U64 f_Yaku5Fan = f_ChinitsuO;
+constexpr U64 f_Yaku6Fan = f_ChinitsuC;
 
-constexpr U64 f_YakumanMask     =   f_ChuurenPoutou |
-                                    f_SuuAnkou |
-                                    f_SuuKantsu |
-                                    f_Daisangen |
-                                    f_Shosushi |
-                                    f_Daisushi |
-                                    f_Kokushi |
-                                    f_Ryuisou |
-                                    f_Tsuuiisou |
-                                    f_Chinroutou |
-                                    f_Tenhou |
-                                    f_Chihou;
+constexpr U64 f_YakumanMask = f_ChuurenPoutou | f_SuuAnkou | f_SuuKantsu |
+                              f_Daisangen | f_Shosushi | f_Daisushi |
+                              f_Kokushi | f_Ryuisou | f_Tsuuiisou |
+                              f_Chinroutou | f_Tenhou | f_Chihou;
 
-constexpr std::array<U64, 6> k_YakuVal 
-{ f_Yaku1Fan, f_Yaku2Fan, f_Yaku3Fan, 0, f_Yaku5Fan, f_Yaku6Fan };
+constexpr std::array<U64, 6> k_YakuVal{f_Yaku1Fan, f_Yaku2Fan, f_Yaku3Fan,
+                                       0,          f_Yaku5Fan, f_Yaku6Fan};
 
 using Doras = vector<Tile, 10>;
 
 namespace _impl {
 constexpr std::size_t bit_count(uint64_t v) noexcept
 {
-    if (std::is_constant_evaluated()) 
+    if (std::is_constant_evaluated())
     {
         std::size_t n = 0;
-        while (v) 
+        while (v)
         {
             v &= v - 1; // clear right-most 1-bit
             ++n;
@@ -207,7 +154,7 @@ constexpr std::size_t bit_count(uint64_t v) noexcept
     return std::bitset<64>(v).count();
 }
 
-constexpr U16f basic_score(U64 yakus, U8f doras=0)
+constexpr U16f basic_score(U64 yakus, U8f doras = 0)
 {
     // check for yakuman
     if (yakus & f_DoubleYakuman)
@@ -217,7 +164,7 @@ constexpr U16f basic_score(U64 yakus, U8f doras=0)
     U8f fu = yakus & f_FuMask;
     U8f fan = doras;
     for (U8f i = 0; i < k_YakuVal.size(); ++i)
-        fan += (i+1)*bit_count(yakus & k_YakuVal[i]);
+        fan += (i + 1) * bit_count(yakus & k_YakuVal[i]);
     if (fan >= 11)
         return k_Sanbaiman;
     if (fan >= 8)
@@ -226,7 +173,7 @@ constexpr U16f basic_score(U64 yakus, U8f doras=0)
         return k_Haneman;
     if (fan == 5 || (fu >= 40 && fan == 4) || (fu >= 70 && fan == 3))
         return k_Mangan;
-    
+
     return fu << (2 + fan);
 }
 
@@ -241,8 +188,8 @@ constexpr void filter_redundant_yaku(U64 &yakus)
 }
 
 /**
- * Evaluate a particular yaku. Implemented for all single 
- * 
+ * Evaluate a particular yaku. Implemented for all single
+ *
  * @param hand The hand to evaluate.
  * @param win The win (set of sequences and pairs) to evaluate
  * @param agari_pai The tile that caused the win.
@@ -251,7 +198,7 @@ constexpr void filter_redundant_yaku(U64 &yakus)
 
 constexpr U64 menTsumo(const Hand &hand, Tile agari_pai)
 {
-    if (hand.player()==agari_pai.player() && hand.closed())
+    if (hand.player() == agari_pai.player() && hand.closed())
         return f_MenTsumo;
     return 0;
 }
@@ -274,14 +221,14 @@ constexpr U64 pinfu(const Hand &hand, const Win &win, Tile agari_pai)
                 triple_pts <<= 1;
 
             // meld must be closed unless the third tile is won from ron
-            if (!(agari34==_int(meld) && 
-                agari_pai.player()!=hand.player() && 
-                hand.hand_4hot_melds(_int(meld))!=meld))
+            if (!(agari34 == _int(meld) &&
+                  agari_pai.player() != hand.player() &&
+                  hand.hand_4hot_melds(_int(meld)) != meld))
                 triple_pts <<= 1;
-            fu += triple_pts;            
+            fu += triple_pts;
         }
-        else if ((agari34==_int(meld) && agari_pai.num() != c_num(7)) || 
-                    (agari34==_int(meld)+2 && agari_pai.num() != c_num(3)))
+        else if ((agari34 == _int(meld) && agari_pai.num() != c_num(7)) ||
+                 (agari34 == _int(meld) + 2 && agari_pai.num() != c_num(3)))
             wait_fu = 0;
     }
     for (const auto &meld : hand.melds()) // open melds
@@ -338,7 +285,7 @@ constexpr U64 ipeikou(const Win &win)
 
 constexpr U64 tanyao(const Hand &hand)
 {
-    for (int i : {0,8,9,17,18,26,27,28,29,30,31,32,33})
+    for (int i : {0, 8, 9, 17, 18, 26, 27, 28, 29, 30, 31, 32, 33})
         if (hand.hand_4hot_melds(i) != 0)
             return 0;
     return f_Tanyao;
@@ -378,7 +325,7 @@ constexpr U64 sanshokuSeq(const Hand &hand, const Win &win)
 {
     // parse win
     auto win_ptr = std::get_if<NormalWin>(&win);
-    U8f seq[7] {{}};
+    U8f seq[7]{{}};
     for (const auto &meld : hand.melds())
     {
         if (meld.is_set() || meld.first().is_honor())
@@ -389,15 +336,15 @@ constexpr U64 sanshokuSeq(const Hand &hand, const Win &win)
     {
         if (_is_set(meld) || _is_honor(_int(meld)))
             continue;
-        seq[_int(meld)%9] |= 1 << static_cast<U8f>(_int(meld)/9);
+        seq[_int(meld) % 9] |= 1 << static_cast<U8f>(_int(meld) / 9);
     }
-    return std::find(seq, seq+7, 7) != seq+7 ? f_SanshokuSeq : 0;
+    return std::find(seq, seq + 7, 7) != seq + 7 ? f_SanshokuSeq : 0;
 }
 
 constexpr U64 sanshokuSet(const Hand &hand, const Win &win)
 {
     auto win_ptr = std::get_if<NormalWin>(&win);
-    U8f set[9] {{}};
+    U8f set[9]{{}};
     for (const auto &meld : hand.melds())
     {
         if (!meld.is_set() || meld.first().is_honor())
@@ -408,9 +355,9 @@ constexpr U64 sanshokuSet(const Hand &hand, const Win &win)
     {
         if (!_is_set(meld) || _is_honor(_int(meld)))
             continue;
-        set[_int(meld)%9] |= 1 << static_cast<U8f>(_int(meld)/9);
+        set[_int(meld) % 9] |= 1 << static_cast<U8f>(_int(meld) / 9);
     }
-    return std::find(set, set+9, 7) != set+9 ? f_SanshokuSet : 0;
+    return std::find(set, set + 9, 7) != set + 9 ? f_SanshokuSet : 0;
 }
 
 constexpr U64 ittsu(const Hand &hand, const Win &win)
@@ -419,7 +366,7 @@ constexpr U64 ittsu(const Hand &hand, const Win &win)
     if (win_ptr == nullptr)
         return 0;
 
-    U8f straights[3] {{}};
+    U8f straights[3]{{}};
     for (const auto &meld : hand.melds())
     {
         if (meld.is_set() || meld.first().is_honor())
@@ -443,22 +390,23 @@ constexpr U64 ittsu(const Hand &hand, const Win &win)
     {
         if (_is_set(meld) || _is_honor(_int(meld)))
             continue;
-        switch (_int(meld)%9)
+        switch (_int(meld) % 9)
         {
         case 0:
-            straights[static_cast<U8f>(_int(meld)/9)] |= 1 << 0;
+            straights[static_cast<U8f>(_int(meld) / 9)] |= 1 << 0;
             break;
         case 3:
-            straights[static_cast<U8f>(_int(meld)/9)] |= 1 << 1;
+            straights[static_cast<U8f>(_int(meld) / 9)] |= 1 << 1;
             break;
         case 6:
-            straights[static_cast<U8f>(_int(meld)/9)] |= 1 << 2;
+            straights[static_cast<U8f>(_int(meld) / 9)] |= 1 << 2;
             break;
         default:
             break;
         }
     }
-    return std::find(straights, straights+3, 7) != straights+3 ? f_Ittsu : 0;
+    return std::find(straights, straights + 3, 7) != straights + 3 ? f_Ittsu
+                                                                   : 0;
 }
 
 constexpr U64 toitoi(const Hand &hand, const Win &win)
@@ -483,15 +431,18 @@ constexpr U64 sanankou(const Hand &hand, const Win &win, Tile agari_pai)
         return 0;
     U8f ankou = hand.n_closed_kongs();
     for (const auto &meld : win_ptr->first)
-        if (_is_set(meld) && !(_int(meld)==agari_pai.id34() && agari_pai.player()!=hand.player() && hand.hand_4hot(_int(meld))==3))
+        if (_is_set(meld) && !(_int(meld) == agari_pai.id34() &&
+                               agari_pai.player() != hand.player() &&
+                               hand.hand_4hot(_int(meld)) == 3))
             ankou++;
     return ankou == 3 ? f_Sanankou : 0;
 }
 
 constexpr U64 sankantsu(const Hand &hand)
 {
-    U8f kantsu = std::count_if(hand.melds().begin(), hand.melds().end(), 
-        [] (const Meld &meld)->bool { return meld.fourth(); });
+    U8f kantsu =
+        std::count_if(hand.melds().begin(), hand.melds().end(),
+                      [](const Meld &meld) -> bool { return meld.fourth(); });
     return kantsu == 3 ? f_Sankantsu : 0;
 }
 
@@ -502,7 +453,8 @@ constexpr U64 chitoitsu(const Win &win)
 
 constexpr U64 honroutou(const Hand &hand)
 {
-    for (auto i : {1,2,3,4,5,6,7,10,11,12,13,14,15,16,19,20,21,22,23,24,25})
+    for (auto i : {1,  2,  3,  4,  5,  6,  7,  10, 11, 12, 13,
+                   14, 15, 16, 19, 20, 21, 22, 23, 24, 25})
         if (hand.hand_4hot_melds(i))
             return 0;
     return f_Honroutou;
@@ -513,9 +465,11 @@ constexpr U64 shousangen(const Hand &hand, const Win &win)
     auto win_ptr = std::get_if<NormalWin>(&win);
     if (win_ptr == nullptr || win_ptr->second < k_FirstHonorIdx + k_NumWinds)
         return 0;
-    return  hand.hand_4hot_melds(k_Green34) + 
-            hand.hand_4hot_melds(k_Red34) + 
-            hand.hand_4hot_melds(k_White34) >= 8 ? f_Shousangen : 0;
+    return hand.hand_4hot_melds(k_Green34) + hand.hand_4hot_melds(k_Red34) +
+                       hand.hand_4hot_melds(k_White34) >=
+                   8
+               ? f_Shousangen
+               : 0;
 }
 
 constexpr U64 honitsu(const Hand &hand)
@@ -523,8 +477,8 @@ constexpr U64 honitsu(const Hand &hand)
     U8f tsu = 0;
     for (Suit s = Suit::Man; s < Suit::Wind; ++s)
     {
-        U8f s9 = 9*static_cast<U8f>(s);
-        for (U8f n = s9; n < s9+8; ++n)
+        U8f s9 = 9 * static_cast<U8f>(s);
+        for (U8f n = s9; n < s9 + 8; ++n)
         {
             if (hand.hand_4hot_melds(n))
             {
@@ -555,8 +509,8 @@ constexpr U64 junchan(const Hand &hand, const Win &win)
             return 0;
     }
     for (const auto &meld : hand.melds())
-        if (!((meld.first().is_19() && !meld.first().is_honor()) || 
-                (meld.third().is_19() && !meld.third().is_honor())))
+        if (!((meld.first().is_19() && !meld.first().is_honor()) ||
+              (meld.third().is_19() && !meld.third().is_honor())))
             return 0;
     return f_Junchan;
 }
@@ -564,15 +518,19 @@ constexpr U64 junchan(const Hand &hand, const Win &win)
 constexpr U64 ryanpeikou(const Win &win)
 {
     auto win_ptr = std::get_if<NormalWin>(&win);
-    if (win_ptr == nullptr || win_ptr->first.size()!=4)
+    if (win_ptr == nullptr || win_ptr->first.size() != 4)
         return 0;
     for (const auto &meld : win_ptr->first)
         if (_is_set(meld))
             return 0;
-    return  (win_ptr->first[0]==win_ptr->first[1] && win_ptr->first[2]==win_ptr->first[3]) ||
-            (win_ptr->first[0]==win_ptr->first[2] && win_ptr->first[1]==win_ptr->first[3]) ||
-            (win_ptr->first[0]==win_ptr->first[3] && win_ptr->first[1]==win_ptr->first[2]) 
-            ? f_Ryanpeikou : 0;
+    return (win_ptr->first[0] == win_ptr->first[1] &&
+            win_ptr->first[2] == win_ptr->first[3]) ||
+                   (win_ptr->first[0] == win_ptr->first[2] &&
+                    win_ptr->first[1] == win_ptr->first[3]) ||
+                   (win_ptr->first[0] == win_ptr->first[3] &&
+                    win_ptr->first[1] == win_ptr->first[2])
+               ? f_Ryanpeikou
+               : 0;
 }
 
 constexpr U64 chinitsu(const Hand &hand)
@@ -587,21 +545,22 @@ constexpr U64 chinitsu(const Hand &hand)
 
 constexpr U64 chuurenPoutou(const Hand &hand, Tile agari_pai)
 {
-    constexpr U8f counts[9] = {3,1,1,1,1,1,1,1,3};
+    constexpr U8f counts[9] = {3, 1, 1, 1, 1, 1, 1, 1, 3};
     if (hand.open())
         return 0;
     for (Suit s = Suit::Man; s < Suit::Wind; ++s)
     {
-        U8f s9 = 9*static_cast<U8f>(s);
+        U8f s9 = 9 * static_cast<U8f>(s);
         if (hand.hand_4hot(s9))
         {
             if (hand.hand_4hot(s9) < counts[0])
                 return 0;
         }
-        else continue;
+        else
+            continue;
 
         for (U8f n = 1; n < 9; ++n)
-            if (hand.hand_4hot(s9+n) < counts[n])
+            if (hand.hand_4hot(s9 + n) < counts[n])
                 return 0;
 
         if (hand.hand_4hot(agari_pai.id34()) > counts[agari_pai.num()])
@@ -640,9 +599,9 @@ constexpr U64 suuKantsu(const Hand &hand)
 
 constexpr U64 daisangen(const Hand &hand)
 {
-    if (hand.hand_4hot_melds(k_Green34)>=3 && 
-        hand.hand_4hot_melds(k_White34)>=3 && 
-        hand.hand_4hot_melds(k_Red34)>=3)
+    if (hand.hand_4hot_melds(k_Green34) >= 3 &&
+        hand.hand_4hot_melds(k_White34) >= 3 &&
+        hand.hand_4hot_melds(k_Red34) >= 3)
         return f_Daisangen;
     return 0;
 }
@@ -652,20 +611,20 @@ constexpr U64 shosushi(const Hand &hand, const Win &win)
     auto win_ptr = std::get_if<NormalWin>(&win);
     if (win_ptr == nullptr || win_ptr->second < k_FirstHonorIdx ||
         win_ptr->second >= k_FirstHonorIdx + k_NumWinds)
-        return 0;   
+        return 0;
     U8f shi = 1;
     for (auto i : {k_East34, k_South34, k_West34, k_North34})
-        if (hand.hand_4hot_melds(i)>=3)
+        if (hand.hand_4hot_melds(i) >= 3)
             shi++;
     return shi == 4 ? f_Shosushi : 0;
 }
 
 constexpr U64 daisushi(const Hand &hand)
 {
-    if (hand.hand_4hot_melds(k_East34)>=3 && 
-        hand.hand_4hot_melds(k_South34)>=3 && 
-        hand.hand_4hot_melds(k_West34)>=3 &&
-        hand.hand_4hot_melds(k_North34)>=3)
+    if (hand.hand_4hot_melds(k_East34) >= 3 &&
+        hand.hand_4hot_melds(k_South34) >= 3 &&
+        hand.hand_4hot_melds(k_West34) >= 3 &&
+        hand.hand_4hot_melds(k_North34) >= 3)
         return f_DoubleYakuman | f_Daisushi;
     return 0;
 }
@@ -682,7 +641,8 @@ constexpr U64 kokushi(const Hand &hand, const Win &win, Tile agari_pai)
 
 constexpr U64 ryuisou(const Hand &hand)
 {
-    for (auto i : {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,22,24,26,27,28,29,30,32,33})
+    for (auto i : {0,  1,  2,  3,  4,  5,  6,  7,  8,  9,  10, 11, 12, 13,
+                   14, 15, 16, 17, 18, 22, 24, 26, 27, 28, 29, 30, 32, 33})
         if (hand.hand_4hot_melds(i))
             return 0;
     return f_Ryuisou;
@@ -715,7 +675,7 @@ constexpr U64 chinitsu_honitsu(const Hand &hand)
     for (U8f i = k_FirstHonorIdx; i < k_UniqueTiles; ++i)
         if (hand.hand_4hot_melds(i))
             return f_Honitsu;
-    
+
     return f_Honitsu | f_Chinitsu;
 }
 
@@ -724,7 +684,7 @@ constexpr U64 junchan_chanta(const Hand &hand, const Win &win)
     auto win_ptr = std::get_if<NormalWin>(&win);
     if (win_ptr == nullptr)
         return 0;
-    
+
     U64 ret = f_Chanta | f_Junchan;
     if (!_is_19(win_ptr->second))
         return 0;
@@ -754,7 +714,7 @@ constexpr U64 junchan_chanta(const Hand &hand, const Win &win)
 
 } // namespace _impl
 
-template<U64 yaku>
+template <U64 yaku>
 constexpr U64 eval(const Hand &hand, const Win &win, Tile agari_pai)
 {
     U64 ret = 0;
@@ -775,7 +735,7 @@ constexpr U64 eval(const Hand &hand, const Win &win, Tile agari_pai)
         ret |= _impl::yakuhai(hand, k_Red34, f_Chun);
     if constexpr (yaku & f_Haku)
         ret |= _impl::yakuhai(hand, k_White34, f_Haku);
-    
+
     if constexpr (yaku & f_Chinitsu && yaku & f_Honitsu)
         ret |= (_impl::chinitsu_honitsu(hand) & yaku);
     else if constexpr (yaku & f_Chinitsu)
@@ -817,7 +777,7 @@ constexpr U64 eval(const Hand &hand, const Win &win, Tile agari_pai)
         ret |= _impl::toitoi(hand, win);
     if constexpr (yaku & f_Shousangen)
         ret |= _impl::shousangen(hand, win);
-    
+
     if constexpr (yaku & f_ChuurenPoutou)
         ret |= _impl::chuurenPoutou(hand, agari_pai);
     if constexpr (yaku & f_SuuAnkou)
@@ -839,10 +799,11 @@ constexpr U64 eval(const Hand &hand, const Win &win, Tile agari_pai)
     if constexpr (yaku & f_Chinroutou)
         ret |= _impl::chinroutou(hand);
 
-    return ret;    
+    return ret;
 }
 
-constexpr std::pair<U32f, U64> score_hand(const Hand &hand, const Win &win, Tile agari_pai, U8f doras=0)
+constexpr std::pair<U32f, U64> score_hand(const Hand &hand, const Win &win,
+                                          Tile agari_pai, U8f doras = 0)
 {
     U64 yakus = eval<f_YakumanMask>(hand, win, agari_pai);
     if (hand.flags & yakus)
@@ -858,12 +819,14 @@ constexpr std::pair<U32f, U64> score_hand(const Hand &hand, const Win &win, Tile
         {
             yakus |= 25 | f_Chitoitsu;
             yakus |= eval<f_Chinitsu | f_Honitsu>(hand, win, agari_pai);
-            if (!(yakus & f_Chinitsu) && eval<f_Honroutou>(hand, win, agari_pai))
+            if (!(yakus & f_Chinitsu) &&
+                eval<f_Honroutou>(hand, win, agari_pai))
                 yakus |= f_Honroutou;
-            else 
+            else
                 yakus |= eval<f_Tanyao>(hand, win, agari_pai);
             _impl::filter_redundant_yaku(yakus);
-            return {_impl::basic_score(hand.flags & yakus, doras), hand.flags & yakus};
+            return {_impl::basic_score(hand.flags & yakus, doras),
+                    hand.flags & yakus};
         }
     }
 
@@ -905,15 +868,17 @@ constexpr std::pair<U32f, U64> score_hand(const Hand &hand, const Win &win, Tile
 
     yakus |= eval<f_Ipeikou>(hand, win, agari_pai);
     if (!(yakus & f_Pinfu))
-    { 
+    {
         yakus |= eval<f_Sanankou>(hand, win, agari_pai);
         yakus |= eval<f_Sankantsu>(hand, win, agari_pai);
         yakus |= eval<f_Toitoi>(hand, win, agari_pai);
     }
     _impl::filter_redundant_yaku(yakus);
     yakus &= hand.flags;
-    if (yakus & f_YakuMask) return {_impl::basic_score(yakus, doras), yakus};
-    else return {0, yakus};
+    if (yakus & f_YakuMask)
+        return {_impl::basic_score(yakus, doras), yakus};
+    else
+        return {0, yakus};
 }
 
 inline std::pair<U32f, U64> score_hand(const Hand &hand, Tile agari_pai)

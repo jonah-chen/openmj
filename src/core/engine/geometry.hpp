@@ -3,7 +3,6 @@
 #include <glm/glm.hpp>
 #include <vector>
 
-
 // // 1st attribute buffer : vertices
 // glEnableVertexAttribArray(0);
 // glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);

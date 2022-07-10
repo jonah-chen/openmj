@@ -18,10 +18,7 @@ void LayerStack::push_layer(Layer *layer)
     layers_.emplace(layers_.begin() + end_++, layer);
 }
 
-void LayerStack::push_overlay(Layer *layer)
-{
-    layers_.emplace_back(layer);
-}
+void LayerStack::push_overlay(Layer *layer) { layers_.emplace_back(layer); }
 
 void LayerStack::pop_layer(Layer *layer)
 {

@@ -1,7 +1,7 @@
 
 #pragma once
-#include "core/mahjong/mahjong.hpp"
 #include "core/engine/gui.hpp"
+#include "core/mahjong/mahjong.hpp"
 #include <array>
 
 namespace mj {

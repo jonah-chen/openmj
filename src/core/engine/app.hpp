@@ -1,7 +1,7 @@
 
 #pragma once
-#include "layerstack.hpp"
 #include "gui.hpp"
+#include "layerstack.hpp"
 #include "window.hpp"
 #include <memory>
 
@@ -12,8 +12,8 @@ class App
 public:
     App();
     virtual ~App() {}
-    App(const App&) = delete;
-    App &operator=(const App&) = delete;
+    App(const App &) = delete;
+    App &operator=(const App &) = delete;
 
     void push_layer(Layer *layer);
     void push_overlay(Layer *layer);

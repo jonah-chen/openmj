@@ -20,7 +20,7 @@ public:
 class LayerStack
 {
 public:
-    using container = std::vector<Layer*>;
+    using container = std::vector<Layer *>;
     LayerStack() = default;
     ~LayerStack();
 
@@ -28,7 +28,7 @@ public:
     void push_overlay(Layer *layer);
     void pop_layer(Layer *layer);
     void pop_overlay(Layer *layer);
-    
+
     container::iterator begin() { return layers_.begin(); }
     container::iterator end() { return layers_.end(); }
     container::const_iterator begin() const { return layers_.begin(); }
@@ -40,7 +40,7 @@ public:
 
 private:
     container layers_;
-    std::size_t end_ {};
+    std::size_t end_{};
 };
 
 } // namespace draw
