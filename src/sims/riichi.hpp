@@ -165,7 +165,7 @@ RiichiState::output_type iterative_riichi(RngType &rng, RiichiState cfg,
 }
 
 template <typename SeedType, typename RngType = std::mt19937>
-RiichiState::output_type riichi(const RiichiState &cfg, U32f num_workers = 1,
+RiichiState::output_type riichi(const RiichiState &cfg, S32f num_workers = -1,
                                 U32f iters = 1, S8f tiles_left = -1,
                                 SeedType *_seeds = nullptr)
 {
@@ -177,6 +177,11 @@ RiichiState::output_type riichi(const RiichiState &cfg, U32f num_workers = 1,
                                 cfg.defense_prob.end()) >= 0.0f,
               "defense probability must be >= 0.0");
 
+    auto max_workers = std::thread::hardware_concurrency();
+    if (num_workers > max_workers)
+        num_workers = max_workers;
+    else if (num_workers == -1)
+        num_workers = max_workers;
 
     SeedType *seeds = _seeds ? _seeds : new SeedType[num_workers];
     if (_seeds == nullptr)
@@ -201,7 +206,7 @@ RiichiState::output_type riichi(const RiichiState &cfg, U32f num_workers = 1,
 
     for (auto &future : futures)
     {
-        auto [c, s, d, y] = future.get();
+        auto &&[c, s, d, y] = future.get();
         counts += c;
         scores += s;
         detail += d;
