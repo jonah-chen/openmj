@@ -58,6 +58,13 @@ constexpr Dir next(Dir dir, S8f iters = 1) noexcept
     return static_cast<Dir>((dir + iters) & 3);
 }
 
+constexpr U8f diff(Dir lhs, Dir rhs) noexcept
+{
+    return static_cast<U8f>(k_NumPlayers + static_cast<U16>(lhs) -
+                            static_cast<U16>(rhs)) %
+           k_NumPlayers;
+}
+
 /**
  * The contents of a mahjong tile is represented as a 16-bit integer. The 7 high
  * bits represent the tile itself, and the 9 low bits are reserved for flags.

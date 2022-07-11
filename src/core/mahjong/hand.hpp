@@ -2,6 +2,7 @@
 #pragma once
 #include "base.hpp"
 #include "core/adt/vector.hpp"
+#include "core/adt/adv_array.hpp"
 
 namespace mj {
 /**
@@ -11,7 +12,7 @@ using cPairs = vector<int, 7>;
 using cMelds = vector<int, 4>;
 using NormalWin = std::pair<cMelds, int>;
 using Win = std::variant<bool, cPairs, NormalWin>;
-using Hand4Hot = std::array<int, k_UniqueTiles>;
+using Hand4Hot = mod_array<int, k_UniqueTiles>;
 
 using Melds = vector<Meld, k_MaxNumMeld>;
 using WaitingTiles = vector<Tile, 13>;

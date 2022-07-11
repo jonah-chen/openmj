@@ -22,6 +22,12 @@ using S64 = int64_t;
 using F32 = float;
 using F64 = double;
 using F64 = double;
+
+using MJ_BOOL = S8f; // template safe boolean
+constexpr MJ_BOOL MJ_TRUE = 1;
+constexpr MJ_BOOL MJ_FALSE = 0;
+constexpr MJ_BOOL MJ_MAYBE = -1;
+
 constexpr U8 f_All8 = (U8)-1;
 constexpr U16 f_All16 = (U16)-1;
 constexpr U32 f_All32 = (U32)-1;
