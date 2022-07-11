@@ -87,7 +87,7 @@ target_link_libraries(gui_example PUBLIC ${libs} Engine)
 message(STATUS "Building Executables")
 add_executable(Riichi ${src_dir}/sims/riichi_app.cc ${src_dir}/sims/riichi.cc)
 target_precompile_headers(Riichi REUSE_FROM mj_pch)
-target_link_libraries(Riichi PUBLIC ${libs} Engine)
+target_link_libraries(Riichi PUBLIC ${libs} Engine pthread)
 
 
 
