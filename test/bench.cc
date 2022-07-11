@@ -127,7 +127,7 @@ static void Rand_Shanten(benchmark::State& state) {
     for (auto _ : state) {
         state.PauseTiming();
         mj::random::Rng34 rng34(rng);
-        mj::Hand4Hot h4 = rng34.draw_n(state.range(0));
+        mj::Hand4Hot h4 = rng34(state.range(0));
         state.ResumeTiming();
         benchmark::DoNotOptimize(mj::shanten(h4, 0, mj::k_ModeAll));
     }

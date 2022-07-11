@@ -13,7 +13,7 @@ namespace mj {
  * @return The iterable for the tuple of the index and the value.
  */
 template <typename T, typename IdxType = std::size_t>
-constexpr auto enumerate(T &&iterable)
+constexpr auto enumerate(T &&iterable, IdxType start_idx = {})
 {
     using TIter = decltype(std::begin(std::declval<T>()));
     struct iterator
@@ -33,14 +33,12 @@ constexpr auto enumerate(T &&iterable)
     };
     struct iterable_wrapper
     {
+        IdxType start;
         T iterable;
-        constexpr auto begin()
-        {
-            return iterator{IdxType(), std::begin(iterable)};
-        }
+        constexpr auto begin() { return iterator{start, std::begin(iterable)}; }
         constexpr auto end() { return iterator{IdxType(), std::end(iterable)}; }
     };
-    return iterable_wrapper{std::forward<T>(iterable)};
+    return iterable_wrapper{start_idx, std::forward<T>(iterable)};
 }
 
 /**
