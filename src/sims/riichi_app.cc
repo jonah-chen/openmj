@@ -14,7 +14,7 @@ int main()
     // state.set_defense(2.5f / 3.0f);
     state.furiten = false;
     // run the simulation
-    auto [a, b, c, d] = mj::sim::riichi<mj::U32f>(state, 8u, 100000u / 8, -1);
+    auto [a, b, c, d] = mj::sim::riichi(state, -1, 1000000u / 8, -1);
 
     auto amax = *std::max_element(a.begin(), a.end());
     if (amax > 0)

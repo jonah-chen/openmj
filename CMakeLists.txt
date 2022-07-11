@@ -123,6 +123,7 @@ if (BUILD_TESTS)
     makeTest(core/mahjong scoring_open)
     makeTest(core/mahjong rng)
     makeTest(cuda vector)
+    makeTest(sims riichi)
 
     if (CMAKE_CUDA_COMPILER)
     makeTestCU(cuda vector)
