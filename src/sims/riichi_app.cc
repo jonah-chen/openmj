@@ -6,13 +6,15 @@ int main()
     // create a random number generator
     std::mt19937 rng{10};
     mj::sim::RiichiState state;
-    state.hand = mj::Hand("m123p456s789w22d11", mj::k_West);
+    state.hand = mj::Hand("m123p456s1134567", mj::k_West);
     state.hand.flags =
         (mj::scoring::f_NormalPlay & mj::scoring::f_ClosedHandMask) |
         mj::scoring::f_Riichi1 | mj::scoring::f_EastP | mj::scoring::f_WestS;
+    state.defense_prob = {1.0f, 1.0f, 0.5f};
+    // state.set_def(2.5f / 3.0f);
     state.furiten = false;
     // run the simulation
-    auto [a, b, c, d] = mj::sim::riichi<mj::U32f>(state, 8u, 100000u / 8);
+    auto [a, b, c, d] = mj::sim::riichi<mj::U32f>(state, 8u, 100000u / 8, -1);
 
     auto amax = *std::max_element(a.begin(), a.end());
     if (amax > 0)
@@ -31,7 +33,7 @@ int main()
     })->second;
     for (auto [score, count] : b)
     {
-        std::cout << std::setw(5) << score << ": ";
+        std::cout << std::setw(5) << score << " (" << std::setw(6) << count << "): ";
         for ([[maybe_unused]] auto i : mj::range(20 * count / max_for_map))
             std::cout << "*";
         std::cout << "\n";
