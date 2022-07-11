@@ -11,7 +11,7 @@ namespace sim {
 struct RiichiState
 {
     constexpr static std::size_t k_MaxTurns =
-        (k_DeckSize - k_DeadWallSize) / 4 + 1;
+        (k_DeckSize - k_DeadWallSize - (k_MaxHandSize - 1) * 4) / 4 + 1;
 
     // win on N turns
     using count_type = mod_array<U32f, k_MaxTurns>;
@@ -32,7 +32,12 @@ struct RiichiState
     {
     }
 
-    constexpr void set_def(float prob) MJ_EXCEPT_CRIT
+    /**
+     * @brief Set the defense probability for all players defending.
+     * 
+     * @param prob the probability of defending.
+     */
+    constexpr void set_defense(float prob) MJ_EXCEPT_CRIT
     {
         MJ_ASSERT_CRIT(prob >= 0.0f && prob <= 1.0f, "Invalid probability");
         std::fill(defense_prob.begin(), defense_prob.end(), prob);
@@ -112,10 +117,11 @@ RiichiState::output_type iterative_riichi(RngType &rng, RiichiState cfg,
                         if (other[t] && cfg.my_discards[t])
                         {
                             check_win = false;
-                            other[t]--; // discard
+                            other[t]--; // discard safe tile (if any)
                             break;
                         }
                     }
+                    other[tile]--; // discard drawn tile (no safe tiles)
                 }
 
                 if (check_win)

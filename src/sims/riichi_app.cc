@@ -11,7 +11,7 @@ int main()
         (mj::scoring::f_NormalPlay & mj::scoring::f_ClosedHandMask) |
         mj::scoring::f_Riichi1 | mj::scoring::f_EastP | mj::scoring::f_WestS;
     state.defense_prob = {1.0f, 1.0f, 0.5f};
-    // state.set_def(2.5f / 3.0f);
+    // state.set_defense(2.5f / 3.0f);
     state.furiten = false;
     // run the simulation
     auto [a, b, c, d] = mj::sim::riichi<mj::U32f>(state, 8u, 100000u / 8, -1);
