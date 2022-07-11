@@ -26,53 +26,63 @@ struct RiichiState
     using output_type =
         std::tuple<count_type, score_type, detail_type, yakus_type>;
 
+    RiichiState() = default;
+    explicit RiichiState(const char *hand_str, Dir player=k_East) : hand(hand_str, player) {}
+    
     Hand hand;
-    Dir prevailing_wind {k_East};
-    Hand4Hot dead_tiles {};
-    Hand4Hot my_discards {};
+    Dir prevailing_wind{k_East};
+    Hand4Hot dead_tiles{};
+    Hand4Hot my_discards{};
+
+    std::array<Hand4Hot, 3> other_hand{};
     // TileWeights discard_prob;
     // TileWeights hold_prob;
-    bool furiten {true};
+    bool furiten{true};
+    bool other_hand_known{false};
 };
 
 // TODO: as of now, this assumes opponents tsumogiri
 template <typename RngType>
-RiichiState::output_type iterative_riichi(RngType &rng, RiichiState state,
+RiichiState::output_type iterative_riichi(RngType &rng, RiichiState cfg,
                                           U32f iters = 1, S8f tiles_left = -1)
 {
-    MJ_ASSERT(state.hand.check(scoring::f_Riichi), "riichi must be enabled");
+    MJ_ASSERT(cfg.hand.check(scoring::f_Riichi), "riichi must be enabled");
     // subtract the hand and dead tiles from a full wallcontainer34
     Hand4Hot full_wall;
     std::fill(full_wall.begin(), full_wall.end(), 4);
-    for (Tile tile : state.hand)
+    for (Tile tile : cfg.hand)
         full_wall[tile.id34()]--;
-    for (auto [idx, num] : enumerate(state.dead_tiles))
+    for (auto [idx, num] : enumerate(cfg.dead_tiles))
         full_wall[idx] -= num;
 
     // count tiles in full_wall
     if (tiles_left == -1)
         tiles_left = std::accumulate(full_wall.begin(), full_wall.end(), 0) -
                      k_DeadWallSize;
-    auto draws = tiles_left / 4;
+    auto draws = (tiles_left - 39) / 4;
 
     RiichiState::count_type counts{};
     RiichiState::score_type scores{};
     RiichiState::detail_type detail{};
     RiichiState::yakus_type yakus{};
-    Dir m_player = state.hand.player();
+    Dir m_player = cfg.hand.player();
 
-    for (auto _ : range(iters))
+    for ([[maybe_unused]] auto _ : range(iters))
     {
         random::Rng34 wall(rng, full_wall);
+        if (!cfg.other_hand_known && !cfg.furiten)
+            for (auto &hand : cfg.other_hand)
+                wall(k_MaxHandSize - 1, hand);
+
         bool won = false;
 
         for (auto i : range(draws))
         {
             Dir player = m_player;
-            for (auto j : range(k_NumPlayers))
+            for ([[maybe_unused]] auto j : range(k_NumPlayers))
             {
                 // make a copy of hand
-                Hand hand = state.hand;
+                Hand hand = cfg.hand;
                 // draw a tile from the wall
                 Tile tile = convert34(wall());
                 tile.set_dir(player);
@@ -85,8 +95,8 @@ RiichiState::output_type iterative_riichi(RngType &rng, RiichiState state,
                 {
                     // there is a win
                     auto [score, yaku] = scoring::score_hand(hand, tile);
-                    score = scoring::points::win(score, m_player==k_East, m_player==player);
-
+                    score = scoring::points::win(score, m_player == k_East,
+                                                 m_player == player);
 
                     // add to the cumulative counts
                     counts[i]++;
@@ -97,7 +107,7 @@ RiichiState::output_type iterative_riichi(RngType &rng, RiichiState state,
                     won = true;
                 }
 
-                if (won || state.furiten)
+                if (won || cfg.furiten)
                     break;
 
                 player = next(player);
@@ -112,7 +122,7 @@ RiichiState::output_type iterative_riichi(RngType &rng, RiichiState state,
 }
 
 template <typename SeedType, typename RngType = std::mt19937>
-RiichiState::output_type riichi(RiichiState state, U32f num_workers = 1,
+RiichiState::output_type riichi(const RiichiState &cfg, U32f num_workers = 1,
                                 U32f iters = 1, S8f tiles_left = -1,
                                 SeedType *_seeds = nullptr)
 {
@@ -126,9 +136,9 @@ RiichiState::output_type riichi(RiichiState state, U32f num_workers = 1,
     {
         auto seed = seeds[i];
         futures.emplace_back(
-            std::async(std::launch::async, [state, iters, tiles_left, seed]() {
+            std::async(std::launch::async, [cfg, iters, tiles_left, seed]() {
                 RngType rng(seed);
-                return iterative_riichi(rng, state, iters, tiles_left);
+                return iterative_riichi(rng, cfg, iters, tiles_left);
             }));
     }
 

@@ -9,7 +9,7 @@ TEST reproduce()
     mj::random::Rng34 rng34_1 { rng1 };
     mj::random::Rng34 rng34_2 { rng2 };
 
-    for (auto i : mj::range(mj::k_DeckSize))
+    for ([[maybe_unused]] auto i : mj::range(mj::k_DeckSize))
     {
         assert(rng34_1() == rng34_2(), "RNGs should be reproducible");
     }
@@ -43,7 +43,7 @@ TEST count_custom_wall()
     std::fill_n(tiles.begin(), mj::k_UniqueTiles, 2);
     tiles[0] = 0;
     mj::random::Rng34 rng34 { rng, tiles };
-    for (auto i : mj::range(mj::k_UniqueTiles * 2 - 2))
+    for ([[maybe_unused]] auto i : mj::range(mj::k_UniqueTiles * 2 - 2))
         check[rng34()]++;
     for (const auto &[idx, i] : mj::enumerate(check))
     {

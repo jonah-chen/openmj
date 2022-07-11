@@ -10,7 +10,7 @@ int main()
     state.hand.flags =
         (mj::scoring::f_NormalPlay & mj::scoring::f_ClosedHandMask) |
         mj::scoring::f_Riichi1 | mj::scoring::f_EastP | mj::scoring::f_WestS;
-    state.furiten = true;
+    state.furiten = false;
     // run the simulation
     auto [a, b, c, d] = mj::sim::riichi<mj::U32f>(state, 8u, 100000u / 8);
 
@@ -20,7 +20,7 @@ int main()
         for (auto [idx, count] : mj::enumerate(a))
         {
             std::cout << std::setw(2) << idx << ": ";
-            for (int i = 0; i < 20 * count / amax; ++i)
+            for ([[maybe_unused]] auto i : mj::range(20 * count / amax))
                 std::cout << "*";
             std::cout << "\n";
         }
@@ -32,7 +32,7 @@ int main()
     for (auto [score, count] : b)
     {
         std::cout << std::setw(5) << score << ": ";
-        for (int i = 0; i < 20 * count / max_for_map; ++i)
+        for ([[maybe_unused]] auto i : mj::range(20 * count / max_for_map))
             std::cout << "*";
         std::cout << "\n";
     }

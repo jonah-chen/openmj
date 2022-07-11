@@ -16,7 +16,7 @@ using WallContainer34 = vector<int, k_DeckSize>;
 constexpr void fill_wall(WallContainer &w) noexcept
 {
     for (U8f i : range(k_UniqueTiles))
-        for (U8f j : range(4))
+        for ([[maybe_unused]] U8f j : range(4))
             w.push_back(convert34(i));
 }
 
@@ -28,7 +28,7 @@ constexpr void fill_wall(WallContainer &w) noexcept
 constexpr void fill_wall(WallContainer34 &w) noexcept
 {
     for (U8f i : range(k_UniqueTiles))
-        for (U8f j : range(4))
+        for ([[maybe_unused]] U8f j : range(4))
             w.push_back(i);
 }
 
@@ -175,7 +175,7 @@ public:
      * @param h the hand to place the drawn tiles in
      * @throws AssertionError if the wall does not have n tiles.
      */
-    void draw_n(U8f n, Hand4Hot &h) MJ_EXCEPT_WARN
+    void operator()(U8f n, Hand4Hot &h) MJ_EXCEPT_WARN
     {
         MJ_ASSERT(n <= wall_.size(), "Rng34: not enough tiles");
         for (U8f i = 0; i < n; ++i)
@@ -188,10 +188,10 @@ public:
      * @param n the number of tiles to draw
      * @return Hand4Hot the hand containing the drawn tiles
      */
-    Hand4Hot draw_n(U8f n) MJ_EXCEPT_WARN
+    Hand4Hot operator()(U8f n) MJ_EXCEPT_WARN
     {
         Hand4Hot h{};
-        draw_n(n, h);
+        operator()(n, h);
         return h;
     }
 
