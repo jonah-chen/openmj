@@ -1,16 +1,15 @@
 
-#include "test/test.hpp"
 #include "core/mahjong/mahjong.hpp"
+#include "test/test.hpp"
 
 TEST t_EmptyMeld()
 {
     using namespace mj;
     constexpr Meld empty;
-    assert(empty.first() == Tile() && 
-            empty.second() == Tile() &&
-            empty.third() == Tile() &&
-            empty.fourth() == Tile(), "empty meld should be all empty");
-    
+    assert(empty.first() == Tile() && empty.second() == Tile() &&
+               empty.third() == Tile() && empty.fourth() == Tile(),
+           "empty meld should be all empty");
+
     assert(!empty, "empty meld should be falsy");
 }
 

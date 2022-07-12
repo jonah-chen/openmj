@@ -196,27 +196,27 @@ constexpr U32f player_loss(U16f basic_score)
 
 constexpr U32f dealer_loss(U16f basic_score)
 {
-    return 100 * ((99 + 2*basic_score) / 100);
+    return 100 * ((99 + 2 * basic_score) / 100);
 }
 
 constexpr U32f player_ron(U16f basic_score)
 {
-    return 100 * ((99 + 4*basic_score) / 100);
+    return 100 * ((99 + 4 * basic_score) / 100);
 }
 
 constexpr U32f dealer_ron(U16f basic_score)
 {
-    return 100 * ((99 + 6*basic_score) / 100);
+    return 100 * ((99 + 6 * basic_score) / 100);
 }
 
 constexpr U32f player_tsumo(U16f basic_score)
 {
-    return 2*player_loss(basic_score) + dealer_loss(basic_score);
+    return 2 * player_loss(basic_score) + dealer_loss(basic_score);
 }
 
 constexpr U32f dealer_tsumo(U16f basic_score)
 {
-    return 3*dealer_loss(basic_score);
+    return 3 * dealer_loss(basic_score);
 }
 
 constexpr U32f win(U16f basic_score, bool dealer, bool tsumo)
@@ -924,7 +924,8 @@ constexpr std::pair<U32f, U64> score_hand(const Hand &hand, const Win &win,
         return {0, yakus};
 }
 
-inline std::pair<U32f, U64> score_hand(const Hand &hand, Tile agari_pai, U8f doras = 0)
+inline std::pair<U32f, U64> score_hand(const Hand &hand, Tile agari_pai,
+                                       U8f doras = 0)
 {
     auto wins = hand.agari();
     U32f best_score = 0;
