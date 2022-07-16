@@ -82,7 +82,7 @@ public:
     constexpr static U16 f_Rinshan = 0x0020;
 
 public:
-    constexpr Tile() noexcept : id_(f_All16) {}
+    constexpr Tile() noexcept {}
 
     constexpr explicit Tile(U16 id) noexcept : id_(id) {}
 
@@ -109,7 +109,7 @@ public:
     constexpr bool check(U16 flag) const { return id_ & flag; }
 
 private:
-    U16 id_;
+    U16 id_{f_All16};
 
 public:
     constexpr Suit suit() const noexcept

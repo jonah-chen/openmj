@@ -1,0 +1,38 @@
+/**
+ * This file is for reading the specific type of config file for the OpenMJ 
+ * simulation and game settings. This file is not in standard YAML format,
+ * as it has additional features to easily parse mahjong tiles, mahjong hands,
+ * and other configs.
+ */
+
+#pragma once
+#include "yaml_data.hpp"
+namespace mj {
+namespace io {
+class Yaml
+{
+public:
+    constexpr static std::size_t k_MaxFileSize = 0x100000; // 1 MB max
+public:
+    Yaml() = default;
+    Yaml(std::filesystem::path fp);
+    Yaml(const Yaml &);
+    Yaml &operator=(const Yaml &);
+    ~Yaml();
+
+    operator bool() const { return buf_ != nullptr; }
+
+private:
+    // we need some buffer here to store the file contents
+    char *buf_{nullptr};
+    std::size_t buf_size_{0};
+    std::size_t *ref_count_{nullptr};
+
+    // here is where the actual data is stored
+    std::unordered_map<std::string_view, YamlData> data_;
+};
+
+
+
+} // namespace io
+} // namespace mj

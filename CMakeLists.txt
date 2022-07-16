@@ -58,6 +58,7 @@ message(STATUS "Building Libraries")
 
 add_library(Mahjong STATIC ${src_dir}/core/mahjong/hand.cc
                            ${extern_dir}/shanten-number/calsht.cpp
+                           ${src_dir}/core/io/yaml.cc
                            ${src_dir}/sims/riichi.cc)
 target_precompile_headers(Mahjong REUSE_FROM mj_pch)
 target_link_libraries(Mahjong pthread)
@@ -130,6 +131,7 @@ if (BUILD_TESTS)
     makeTest(core/mahjong rng)
     makeTest(cuda vector)
     makeTest(sims riichi)
+    makeTest(core/io yaml)
 
     if (CMAKE_CUDA_COMPILER)
     makeTestCU(cuda vector)
