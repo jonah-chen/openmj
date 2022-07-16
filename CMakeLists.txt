@@ -60,6 +60,7 @@ add_library(Mahjong STATIC ${src_dir}/core/mahjong/hand.cc
                            ${extern_dir}/shanten-number/calsht.cpp
                            ${src_dir}/sims/riichi.cc)
 target_precompile_headers(Mahjong REUSE_FROM mj_pch)
+target_link_libraries(Mahjong pthread)
 
 add_library(imgui_GLFW STATIC ${extern_dir}/imgui/imgui_impl_glfw.cpp
                           ${extern_dir}/imgui/imgui_impl_opengl3.cpp
@@ -92,7 +93,7 @@ target_link_libraries(gui_example PUBLIC ${libs} Engine)
 message(STATUS "Building Executables")
 add_executable(Riichi ${src_dir}/sims/riichi_app.cc ${src_dir}/sims/riichi.cc)
 target_precompile_headers(Riichi REUSE_FROM mj_pch)
-target_link_libraries(Riichi PUBLIC ${libs} Engine pthread)
+target_link_libraries(Riichi PUBLIC ${libs} Engine)
 
 
 
