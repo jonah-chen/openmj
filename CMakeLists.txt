@@ -12,7 +12,12 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_FLAGS_DEBUG "-O0 -Wall -g -fno-rtti -DMJ_LOGGING=2 -w")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -Wall -fno-rtti -flto=auto -DNDEBUG -DMJ_LOGGING=0")
 
-option(BUILD_BENCH "Build Benchmarks" ON)
+if (CMAKE_BUILD_TYPE STREQUAL Debug)
+    option(BUILD_BENCH "Build Benchmarks" OFF)
+else()
+    option(BUILD_BENCH "Build Benchmarks" ON)
+endif()
+
 option(BUILD_TESTS "Build Tests" ON)
 
 check_language(CUDA)
@@ -51,11 +56,11 @@ include_directories(${GLEW_INCLUDE_DIRS})
 
 message(STATUS "Building Libraries")
 
-add_library(Mahjong STATIC ${src_dir}/core/mahjong/hand.cc)
+add_library(Mahjong STATIC ${src_dir}/core/mahjong/hand.cc
+                           ${extern_dir}/shanten-number/calsht.cpp
+                           ${src_dir}/sims/riichi.cc)
 target_precompile_headers(Mahjong REUSE_FROM mj_pch)
-
-add_library(tomohxx_Shanten STATIC ${extern_dir}/shanten-number/calsht.cpp)
-target_precompile_headers(tomohxx_Shanten REUSE_FROM mj_pch)
+target_link_libraries(Mahjong pthread)
 
 add_library(imgui_GLFW STATIC ${extern_dir}/imgui/imgui_impl_glfw.cpp
                           ${extern_dir}/imgui/imgui_impl_opengl3.cpp
@@ -72,17 +77,23 @@ add_library(Engine STATIC ${src_dir}/core/engine/gui.cc ${extern_dir}/imgui/imgu
                         ${src_dir}/core/engine/app.cc
                         ${src_dir}/core/engine/texture.cc
                         ${src_dir}/core/engine/hand.cc)
+
 target_precompile_headers(Engine REUSE_FROM mj_pch)
 target_link_libraries(Engine PUBLIC glfw imgui_GLFW GLEW OpenGL)
 
 
-set(libs Mahjong tomohxx_Shanten)
+set(libs Mahjong)
 
 
 message(STATUS "Building Examples")
 add_executable(gui_example ${example_dir}/gui.cc ${src_dir}/sims/selector.cc)
 target_precompile_headers(gui_example REUSE_FROM mj_pch)
 target_link_libraries(gui_example PUBLIC ${libs} Engine)
+
+message(STATUS "Building Executables")
+add_executable(Riichi ${src_dir}/sims/riichi_app.cc ${src_dir}/sims/riichi.cc)
+target_precompile_headers(Riichi REUSE_FROM mj_pch)
+target_link_libraries(Riichi PUBLIC ${libs} Engine)
 
 
 
@@ -116,7 +127,9 @@ if (BUILD_TESTS)
     makeTest(core/mahjong hand)
     makeTest(core/mahjong scoring_closed)
     makeTest(core/mahjong scoring_open)
+    makeTest(core/mahjong rng)
     makeTest(cuda vector)
+    makeTest(sims riichi)
 
     if (CMAKE_CUDA_COMPILER)
     makeTestCU(cuda vector)

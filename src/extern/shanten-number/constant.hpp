@@ -3,7 +3,7 @@
 
 #include "core/mahjong/constants.hpp"
 namespace mj {
-namespace ext{
+namespace ext {
 namespace tomohxx {
 constexpr int K = 34;
 

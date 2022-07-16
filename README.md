@@ -20,7 +20,7 @@ The project is currently very WIP, but the instructions for using each component
 
 ### Contributing
 
-If you have any ideas or performance improvements for any of the currently developed algorithms, I really appreciate it if you can contribute. Also, please read the [contributing instructions](CONTRIBUTING.md)). 
+If you have any ideas or performance improvements for any of the currently developed algorithms, I really appreciate it if you can contribute. Also, please read the [contributing instructions](CONTRIBUTING.md). 
 
 ### Licence
 

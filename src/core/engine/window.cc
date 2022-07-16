@@ -6,15 +6,18 @@ namespace mj {
 namespace draw {
 #if MJ_LOGGING > 0
 namespace {
-struct GLException : public std::exception 
+struct GLException : public std::exception
 {
-    constexpr const char* what() const noexcept override { return "GLException"; }
+    constexpr const char *what() const noexcept override
+    {
+        return "GLException";
+    }
 };
-void APIENTRY 
-debugCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length,
-    const GLchar *message, const void *userParam)
+void APIENTRY debugCallback(GLenum source, GLenum type, GLuint id,
+                            GLenum severity, GLsizei length,
+                            const GLchar *message, const void *userParam)
 {
-    switch (severity) 
+    switch (severity)
     {
     case GL_DEBUG_SEVERITY_HIGH:
         MJ_CRIT("HIGH SEVERITY (%d:%d): %s", type, id, message);
@@ -30,14 +33,15 @@ debugCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei le
         break;
     }
 }
-} // anon namespace
+} // namespace
 #endif
 
-Window::Window(const char* title, int width, int height, bool resizable)
+Window::Window(const char *title, int width, int height, bool resizable)
 {
     if (!windows)
     {
-        MJ_ALWAYS_THROW(glfwInit() != GLFW_TRUE, std::runtime_error, "Failed to initialize GLFW");
+        MJ_ALWAYS_THROW(glfwInit() != GLFW_TRUE, std::runtime_error,
+                        "Failed to initialize GLFW");
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, k_OpenglMajorVersion);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, k_OpenglMinorVersion);
         glfwWindowHint(GLFW_OPENGL_PROFILE, k_OpenglProfile);
@@ -46,7 +50,7 @@ Window::Window(const char* title, int width, int height, bool resizable)
 
     glfwWindowHint(GLFW_RESIZABLE, resizable);
 
-    GLFWmonitor* monitor = nullptr;
+    GLFWmonitor *monitor = nullptr;
     if (width && height)
     {
         width_ = width;
@@ -55,7 +59,7 @@ Window::Window(const char* title, int width, int height, bool resizable)
     else
     {
         monitor = glfwGetPrimaryMonitor();
-        const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+        const GLFWvidmode *mode = glfwGetVideoMode(monitor);
         width_ = mode->width;
         height_ = mode->height;
     }
@@ -69,7 +73,8 @@ Window::Window(const char* title, int width, int height, bool resizable)
 
     glfwMakeContextCurrent(window_);
 
-    MJ_ALWAYS_THROW(!windows && glewInit() != GLEW_OK, std::runtime_error, "Failed to initialize GLEW");
+    MJ_ALWAYS_THROW(!windows && glewInit() != GLEW_OK, std::runtime_error,
+                    "Failed to initialize GLEW");
     windows++;
 
 #if MJ_LOGGING > 0

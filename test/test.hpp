@@ -2,14 +2,19 @@
 #pragma once
 
 #define MJ_RETURN 
-using TEST = void;
+#define TEST static void
 
 #include <iostream>
 #include <string>
 #include <cstdlib>
 
-#if __cplusplus > 202002L
+#if __cplusplus >= 202002L
 #include <concepts>
+#define FLOATPOINT_T template<std::floating_point T>
+#define EQ_COMPARE_T template<std::equality_comparable T>
+#else
+#define FLOATPOINT_T template<typename T>
+#define EQ_COMPARE_T template<typename T>
 #endif
 
 #ifdef assert
@@ -56,6 +61,7 @@ void assert_crit(const T& t, const std::string& msg="Critical Error", int ec=255
     }
 }
 
+
 #if __cplusplus >= 202002L
 /**
  * Weak equality between floating point values.
@@ -67,44 +73,44 @@ void assert_crit(const T& t, const std::string& msg="Critical Error", int ec=255
  * @return true if a and b are within eps of each other
  * @return false if a and b are not within eps of each other
  */
-template<std::floating_point T>
+FLOATPOINT_T
 constexpr bool eq(T a, T b, T eps=1e-6)
 {
     return std::abs(a - b) < eps;
 }
 
+#endif
+
 /**
  * Does the same thing as == for non-floating point values. This is here so eq
  * can be used for all comparisons.
  */
-template<std::equality_comparable T>
+EQ_COMPARE_T
 constexpr bool eq(T a, T b, double eps=1e-6)
 {
     return a == b;
 }
 
-template<std::equality_comparable T>
+EQ_COMPARE_T
 void assert_eq(T a, T b, const std::string &msg="", double eps=1e-6)
 {
     assert(eq(a, b, eps), msg + "|Expected " + std::to_string(a) + " to equal " + std::to_string(b));
 }
 
-template<std::equality_comparable T>
+EQ_COMPARE_T
 void assert_neq(T a, T b, const std::string &msg="", double eps=1e-6)
 {
     assert(!eq(a, b, eps), msg + "|Expected " + std::to_string(a) + " to not equal " + std::to_string(b));
 }
 
-template<std::equality_comparable T>
+EQ_COMPARE_T
 void assert_crit_eq(T a, T b, const std::string &msg="", double eps=1e-6)
 {
     assert_crit(eq(a, b, eps), msg + "|Expected " + std::to_string(a) + " to equal " + std::to_string(b));
 }
 
-template<std::equality_comparable T>
+EQ_COMPARE_T
 void assert_crit_neq(T a, T b, const std::string &msg="", double eps=1e-6)
 {
     assert_crit(!eq(a, b, eps), msg + "|Expected " + std::to_string(a) + " to not equal " + std::to_string(b));
 }
-
-#endif

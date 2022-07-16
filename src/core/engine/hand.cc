@@ -14,31 +14,31 @@ Config Config::d_GameConfig()
     cfg.tile_width = 0.05f;
     cfg.tile_aspect = 1.4f;
     cfg.x_gap = 0.1f;
-    cfg.hand_base = {{{0.1f,0.9f},{0.9f,0.9f},{0.9f,0.1f},{0.1f,0.1f}}};
+    cfg.hand_base = {{{0.1f, 0.9f}, {0.9f, 0.9f}, {0.9f, 0.1f}, {0.1f, 0.1f}}};
     cfg.discard_base = {};
-    cfg.dx = {{{1,0}, {0,-1}, {-1,0}, {0,1}}};
+    cfg.dx = {{{1, 0}, {0, -1}, {-1, 0}, {0, 1}}};
     cfg.tsumogiri_tint = {0.8f, 0.8f, 0.8f, 0.8f};
     return cfg;
 }
 namespace {
-inline ImVec2 operator+(const ImVec2& lhs, const ImVec2& rhs) 
+inline ImVec2 operator+(const ImVec2 &lhs, const ImVec2 &rhs)
 {
     return ImVec2(lhs.x + rhs.x, lhs.y + rhs.y);
 }
-inline ImVec2 operator*(const ImVec2& lhs, float rhs) 
+inline ImVec2 operator*(const ImVec2 &lhs, float rhs)
 {
     return ImVec2(lhs.x * rhs, lhs.y * rhs);
 }
-inline ImVec2 operator*(float lhs, const ImVec2& rhs) 
+inline ImVec2 operator*(float lhs, const ImVec2 &rhs)
 {
     return ImVec2(lhs * rhs.x, lhs * rhs.y);
 }
 
-} // anon namespace
+} // namespace
 
 HandElem::HandElem(const Config &cfg, const HandDense &hand, Dir relative_pos)
     : cfg_(cfg), hand_(hand)
-{    
+{
     move_dir_ = cfg.dx[relative_pos];
     rot_ = cfg.rot[relative_pos];
     base_ = cfg.hand_base[relative_pos];
@@ -48,7 +48,7 @@ void HandElem::on_gui_render()
 {
     MJ_ASSERT_CRIT(cfg_.tex_id, "HandElem::on_gui_render: tex_id is 0");
 
-    ImGui::SetCursorPos(ImVec2(0,0));
+    ImGui::SetCursorPos(ImVec2(0, 0));
     ImVec2 size = ImGui::GetContentRegionAvail();
     // calculate tile size
     float tile_width_abs = size.x * cfg_.tile_width;
@@ -67,21 +67,24 @@ void HandElem::on_gui_render()
         {
             // we need to make an id. we can use 8 bytes
             char *pos_ptr = (char *)&pos;
-            ImGui::PushID(pos_ptr, pos_ptr+8);
-            if (ImGui::ImageButtonRotated((void*)(intptr_t)cfg_.tex_id, 
-                    tile_size, rot_, ImVec2(left/34., 0), ImVec2((left+1)/34., 0.5)))
+            ImGui::PushID(pos_ptr, pos_ptr + 8);
+            if (ImGui::ImageButtonRotated(
+                    (void *)(intptr_t)cfg_.tex_id, tile_size, rot_,
+                    ImVec2(left / 34., 0), ImVec2((left + 1) / 34., 0.5)))
                 callback_(hand_[i]);
             ImGui::PopID();
         }
         else
         {
-            ImGui::ImageRotated((void*)(intptr_t)cfg_.tex_id, tile_size, rot_, 
-            ImVec2(left/34., 0), ImVec2((left+1)/34., 0.5));
+            ImGui::ImageRotated((void *)(intptr_t)cfg_.tex_id, tile_size, rot_,
+                                ImVec2(left / 34., 0),
+                                ImVec2((left + 1) / 34., 0.5));
         }
     }
 }
 
-DiscardElem::DiscardElem(const Config &cfg, const Discards &discards, Dir relative_pos)
+DiscardElem::DiscardElem(const Config &cfg, const Discards &discards,
+                         Dir relative_pos)
     : cfg_(cfg), discards_(discards)
 {
     base_ = cfg.discard_base[relative_pos];
@@ -91,12 +94,11 @@ DiscardElem::DiscardElem(const Config &cfg, const Discards &discards, Dir relati
     throw std::runtime_error("DiscardElem::DiscardElem: not fully implemented");
 }
 
-
 void DiscardElem::on_gui_render()
 {
     MJ_ASSERT_CRIT(cfg_.tex_id, "DiscardElem::on_gui_render: tex_id is 0");
 
-    ImGui::SetCursorPos(ImVec2(0,0));
+    ImGui::SetCursorPos(ImVec2(0, 0));
     ImVec2 size = ImGui::GetContentRegionAvail();
     // calculate tile size
     float tile_width_abs = size.x * cfg_.tile_width;
@@ -109,28 +111,32 @@ void DiscardElem::on_gui_render()
 
     for (unsigned int i = 0; i < discards_.size(); ++i)
     {
-        int dy = std::min(i/6, 2u);
-        int dx = i - (dy*6);
+        int dy = std::min(i / 6, 2u);
+        int dx = i - (dy * 6);
 
-        ImVec2 pos = base_abs + (tile_width_gap * dx * dx_) + (tile_height_gap * dy * dy_);
+        ImVec2 pos = base_abs + (tile_width_gap * dx * dx_) +
+                     (tile_height_gap * dy * dy_);
         int left = discards_[i].id34();
-        ImVec4 tint = discards_[i] & Tile::f_Tsumogiri ? cfg_.tsumogiri_tint : ImVec4(1,1,1,1);
+        ImVec4 tint = discards_[i] & Tile::f_Tsumogiri ? cfg_.tsumogiri_tint
+                                                       : ImVec4(1, 1, 1, 1);
         ImGui::SetCursorPos(pos);
         if (callback_)
         {
             // we need to make an id. we can use 8 bytes
             char *pos_ptr = (char *)&pos;
-            ImGui::PushID(pos_ptr, pos_ptr+8);
-            if (ImGui::ImageButtonRotated((void*)(intptr_t)cfg_.tex_id, 
-                    tile_size, rot_, ImVec2(left/34., 0), ImVec2((left+1)/34., 0.5), 
-                    -1, ImVec4(0,0,0,0), tint))
+            ImGui::PushID(pos_ptr, pos_ptr + 8);
+            if (ImGui::ImageButtonRotated(
+                    (void *)(intptr_t)cfg_.tex_id, tile_size, rot_,
+                    ImVec2(left / 34., 0), ImVec2((left + 1) / 34., 0.5), -1,
+                    ImVec4(0, 0, 0, 0), tint))
                 callback_(discards_[i]);
             ImGui::PopID();
         }
         else
         {
-            ImGui::ImageRotated((void*)(intptr_t)cfg_.tex_id, tile_size, rot_,
-            ImVec2(left/34., 0), ImVec2((left+1)/34., 0.5), tint);
+            ImGui::ImageRotated((void *)(intptr_t)cfg_.tex_id, tile_size, rot_,
+                                ImVec2(left / 34., 0),
+                                ImVec2((left + 1) / 34., 0.5), tint);
         }
     }
 }

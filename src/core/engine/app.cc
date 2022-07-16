@@ -38,7 +38,7 @@ void App::run()
 
         for (auto *layer : layers_)
             layer->on_update(frame_time);
-        
+
         gui_->begin();
         for (auto *layer : layers_)
             layer->on_gui_render();

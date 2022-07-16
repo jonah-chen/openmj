@@ -1,10 +1,10 @@
 
 #pragma once
 
+#include "core/mahjong/constants.hpp"
 #include <cstdio>
 #include <cstdlib>
 #include <stdexcept>
-#include "core/mahjong/constants.hpp"
 
 class AssertionError : public std::exception
 {
@@ -16,32 +16,36 @@ public:
     }
 };
 
-#define MJ_ALWAYS_THROW(COND, CLASS, MSG) \
-    if (COND) throw CLASS(MSG)
+#define MJ_ALWAYS_THROW(COND, CLASS, MSG)                                      \
+    if (COND)                                                                  \
+    throw CLASS(MSG)
 
 #if MJ_LOGGING > 0
 #warning "critical logging enabled"
 #include <string>
-#define MJ_ASSERT_CRIT(x, ...) \
-    if (!(x)) { \
-        fprintf(stderr, "Critical Assertion Failed: %s:%s(%d):\n", __FILE__, __func__, __LINE__); \
-        fprintf(stderr, __VA_ARGS__); \
-        fprintf(stderr, "\n"); \
-        throw AssertionError(); \
+#define MJ_ASSERT_CRIT(x, ...)                                                 \
+    if (!(x))                                                                  \
+    {                                                                          \
+        fprintf(stderr, "Critical Assertion Failed: %s:%s(%d):\n", __FILE__,   \
+                __func__, __LINE__);                                           \
+        fprintf(stderr, __VA_ARGS__);                                          \
+        fprintf(stderr, "\n");                                                 \
+        throw AssertionError();                                                \
     }
-#define MJ_CRIT(...) \
-    fprintf(stderr, "Critical: %s:%s(%d):\n", __FILE__, __func__, __LINE__); \
-    fprintf(stderr, __VA_ARGS__); \
+#define MJ_CRIT(...)                                                           \
+    fprintf(stderr, "Critical: %s:%s(%d):\n", __FILE__, __func__, __LINE__);   \
+    fprintf(stderr, __VA_ARGS__);                                              \
     fprintf(stderr, "\n")
-#define MJ_THROW(COND, CLASS, MSG) \
-    if (COND) throw CLASS(MSG)
+#define MJ_THROW(COND, CLASS, MSG)                                             \
+    if (COND)                                                                  \
+    throw CLASS(MSG)
 #define MJ_EXCEPT_CRIT
-    #ifdef __NVCC__
-    #include <cassert>
-    #define MJ_CUDA_ASSERT(x) assert(x)
-    #else
-    #define MJ_CUDA_ASSERT(x) MJ_ASSERT_CRIT(x, "CUDA Assertion Failed on CPU")
-    #endif
+#ifdef __NVCC__
+#include <cassert>
+#define MJ_CUDA_ASSERT(x) assert(x)
+#else
+#define MJ_CUDA_ASSERT(x) MJ_ASSERT_CRIT(x, "CUDA Assertion Failed on CPU")
+#endif
 #else
 #define MJ_ASSERT_CRIT(x, ...)
 #define MJ_CRIT(...)
@@ -52,16 +56,18 @@ public:
 
 #if MJ_LOGGING > 1
 #warning "warn logging enabled"
-#define MJ_ASSERT(x, ...) \
-    if (!(x)) { \
-        fprintf(stderr, "Assertion Failed: %s:%s(%d):\n", __FILE__, __func__, __LINE__); \
-        fprintf(stderr, __VA_ARGS__); \
-        fprintf(stderr, "\n"); \
-        throw AssertionError(); \
+#define MJ_ASSERT(x, ...)                                                      \
+    if (!(x))                                                                  \
+    {                                                                          \
+        fprintf(stderr, "Assertion Failed: %s:%s(%d):\n", __FILE__, __func__,  \
+                __LINE__);                                                     \
+        fprintf(stderr, __VA_ARGS__);                                          \
+        fprintf(stderr, "\n");                                                 \
+        throw AssertionError();                                                \
     }
-#define MJ_WARN(...) \
-    fprintf(stderr, "Warning: %s:%s(%d):\n", __FILE__, __func__, __LINE__); \
-    fprintf(stderr, __VA_ARGS__); \
+#define MJ_WARN(...)                                                           \
+    fprintf(stderr, "Warning: %s:%s(%d):\n", __FILE__, __func__, __LINE__);    \
+    fprintf(stderr, __VA_ARGS__);                                              \
     fprintf(stderr, "\n")
 #define MJ_EXCEPT_WARN
 #else
@@ -72,9 +78,9 @@ public:
 
 #if MJ_LOGGING > 2
 #warning "info logging enabled"
-#define MJ_INFO(...) \
-    fprintf(stdout, "Info: %s:%s(%d):\n", __FILE__, __func__, __LINE__); \
-    fprintf(stdout, __VA_ARGS__); \
+#define MJ_INFO(...)                                                           \
+    fprintf(stdout, "Info: %s:%s(%d):\n", __FILE__, __func__, __LINE__);       \
+    fprintf(stdout, __VA_ARGS__);                                              \
     fprintf(stdout, "\n")
 #else
 #define MJ_INFO(...)

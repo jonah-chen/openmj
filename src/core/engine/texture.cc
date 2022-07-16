@@ -21,17 +21,16 @@ Texture::Texture(const char *path)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
     if (nrComponents_ == 3)
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width_, height_, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width_, height_, 0, GL_RGB,
+                     GL_UNSIGNED_BYTE, data);
     else if (nrComponents_ == 4)
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width_, height_, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width_, height_, 0, GL_RGBA,
+                     GL_UNSIGNED_BYTE, data);
     glBindTexture(GL_TEXTURE_2D, 0);
     stbi_image_free(data);
 }
 
-Texture::~Texture()
-{
-    glDeleteTextures(1, &id_);
-}
+Texture::~Texture() { glDeleteTextures(1, &id_); }
 
 void Texture::bind(unsigned int slot) noexcept
 {
@@ -39,10 +38,7 @@ void Texture::bind(unsigned int slot) noexcept
     glBindTexture(GL_TEXTURE_2D, id_);
 }
 
-void Texture::unbind() noexcept
-{
-    glBindTexture(GL_TEXTURE_2D, 0);
-}
+void Texture::unbind() noexcept { glBindTexture(GL_TEXTURE_2D, 0); }
 
 } // namespace draw
 } // namespace mj
