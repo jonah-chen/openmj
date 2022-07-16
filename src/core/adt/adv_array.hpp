@@ -51,7 +51,7 @@ template <typename T, std::size_t N> struct mod_array : public std::array<T, N>
     {
         return !(*this == other);
     }
-    constexpr count_type n_tiles() const noexcept
+    constexpr count_type sum() const noexcept
     {
         return std::accumulate(this->begin(), this->end(), 0);
     }

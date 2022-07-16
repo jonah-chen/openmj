@@ -20,7 +20,7 @@ RiichiState::output_type iterative_riichi(RiichiState::rng_type &rng,
     full_wall -= cfg.dead_tiles;
 
     if (tiles_left == -1)
-        tiles_left = full_wall.n_tiles() - k_DeadWallSize;
+    tiles_left = full_wall.sum() - k_DeadWallSize;
     auto draws = (tiles_left - 3 * (k_MaxHandSize - 1)) / 4;
 
     RiichiState::count_type counts{};
@@ -32,10 +32,11 @@ RiichiState::output_type iterative_riichi(RiichiState::rng_type &rng,
     for ([[maybe_unused]] auto _ : range(iters))
     {
         random::Rng34 wall(rng, full_wall);
-        std::uniform_real_distribution<F32> dist(0.0f, 1.0f);
+        static std::uniform_real_distribution<F32> dist(0.0f, 1.0f);
+        
         if (!cfg.other_hand_known && !cfg.furiten)
-            for (auto &hand : cfg.other_hand)
-                wall(k_MaxHandSize - 1, hand);
+            for (auto i : range(cfg.other_hand.size()))
+                wall(cfg.other_hand_size[i], cfg.other_hand[i]);
 
         bool won = false;
 

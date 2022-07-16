@@ -10,6 +10,22 @@ namespace mj {
 namespace sim {
 struct RiichiState
 {
+    Hand hand;
+    Dir prevailing_wind{k_East};
+    Hand4Hot dead_tiles{};
+    Hand4Hot my_discards{}; // these tiles must be included in dead_tiles
+
+    std::array<Hand4Hot, k_NumPlayers - 1>
+        other_hand{}; // these tiles must be in dead_tiles
+    std::array<float, k_NumPlayers - 1>
+        defense_prob{}; // these tiles must be included in dead_tiles
+    std::array<U8, k_NumPlayers - 1> other_hand_size{};
+    // TileWeights discard_prob;
+    // TileWeights hold_prob;
+    bool furiten{true};
+    bool other_hand_known{false};
+
+
     using rng_type = std::minstd_rand;
     using seed_type = rng_type::result_type;
 
@@ -29,10 +45,18 @@ struct RiichiState
     using output_type =
         std::tuple<count_type, score_type, detail_type, yakus_type>;
 
-    RiichiState() = default;
+    RiichiState()
+    {
+        std::fill(other_hand_size.begin(), other_hand_size.end(),
+                  k_MaxHandSize - 1);
+    }
     explicit RiichiState(const char *hand_str, Dir player = k_East)
         : hand(hand_str, player)
     {
+        std::fill(other_hand_size.begin(), other_hand_size.end(),
+                  k_MaxHandSize - 1);
+        hand.flags = mj::scoring::f_NormalPlay & mj::scoring::f_ClosedHandMask;
+        hand.set(scoring::f_Riichi1);
     }
 
     /**
@@ -46,20 +70,6 @@ struct RiichiState
         std::fill(defense_prob.begin(), defense_prob.end(), prob);
     }
 
-    Hand hand;
-    Dir prevailing_wind{k_East};
-    Hand4Hot dead_tiles{};
-    Hand4Hot my_discards{}; // these tiles must be included in dead_tiles
-
-    std::array<Hand4Hot, k_NumPlayers - 1>
-        other_hand{}; // these tiles must be in dead_tiles
-    std::array<float, k_NumPlayers - 1>
-        defense_prob{}; // these tiles must be included in dead_tiles
-
-    // TileWeights discard_prob;
-    // TileWeights hold_prob;
-    bool furiten{true};
-    bool other_hand_known{false};
 };
 
 RiichiState::output_type iterative_riichi(RiichiState::rng_type &rng,

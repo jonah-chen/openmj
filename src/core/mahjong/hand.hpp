@@ -78,6 +78,9 @@ public:
      */
     WaitingTiles tenpai() const;
 
+    /**
+     * Sort the tiles in the hand by ascending order.
+     */
     constexpr void sort() const
     {
         if (sorted_)
@@ -86,6 +89,10 @@ public:
         sorted_ = true;
     }
 
+    /**
+     * Move the final tile in the hand to the correct place
+     * @pre The hand was sorted before drawing.
+     */
     constexpr void sort_after_draw() const
     {
         if (sorted_)
@@ -97,7 +104,6 @@ public:
         sorted_ = true;
     }
 
-    constexpr Dir player() const { return (*this)[0].player(); }
 
     /**
      * Flag operations
@@ -123,6 +129,7 @@ public:
     }
     constexpr const Meld &meld(U8f idx) const noexcept { return melds_[idx]; }
     constexpr Meld &meld(U8f idx) noexcept { return melds_[idx]; }
+    constexpr Dir player() const { return (*this)[0].player(); }
 
     constexpr void mark_sorted() const noexcept { sorted_ = true; }
 

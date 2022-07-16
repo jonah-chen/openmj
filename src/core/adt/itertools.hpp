@@ -13,30 +13,39 @@ namespace mj {
  * @return The iterable for the tuple of the index and the value.
  */
 template <typename T, typename IdxType = std::size_t>
-constexpr auto enumerate(T &&iterable, IdxType start_idx = {})
+CUDACOMPAT constexpr auto enumerate(T &&iterable, IdxType start_idx = {})
 {
     using TIter = decltype(std::begin(std::declval<T>()));
     struct iterator
     {
         IdxType i;
         TIter iter;
-        constexpr bool operator!=(const iterator &other) const
+        CUDACOMPAT constexpr bool operator!=(const iterator &other) const
         {
             return iter != other.iter;
         }
-        constexpr void operator++()
+        CUDACOMPAT constexpr void operator++()
         {
             ++i;
             ++iter;
         }
-        constexpr auto operator*() const { return std::tie(i, *iter); }
+        CUDACOMPAT constexpr auto operator*() const
+        {
+            return std::tie(i, *iter);
+        }
     };
     struct iterable_wrapper
     {
         IdxType start;
         T iterable;
-        constexpr auto begin() { return iterator{start, std::begin(iterable)}; }
-        constexpr auto end() { return iterator{IdxType(), std::end(iterable)}; }
+        CUDACOMPAT constexpr auto begin()
+        {
+            return iterator{start, std::begin(iterable)};
+        }
+        CUDACOMPAT constexpr auto end()
+        {
+            return iterator{IdxType(), std::end(iterable)};
+        }
     };
     return iterable_wrapper{start_idx, std::forward<T>(iterable)};
 }
@@ -51,25 +60,25 @@ constexpr auto enumerate(T &&iterable, IdxType start_idx = {})
  * @return The range iterable.
  */
 template <typename IdxType>
-constexpr auto range(IdxType _start, IdxType _end, IdxType _step = 1)
+CUDACOMPAT constexpr auto range(IdxType _start, IdxType _end, IdxType _step = 1)
 {
     struct iterator
     {
         IdxType i;
         IdxType step;
-        constexpr bool operator!=(const iterator &other) const
+        CUDACOMPAT constexpr bool operator!=(const iterator &other) const
         {
             return i != other.i;
         }
-        constexpr void operator++() { i += step; }
-        constexpr auto &operator*() { return i; }
-        constexpr auto operator*() const { return i; }
+        CUDACOMPAT constexpr void operator++() { i += step; }
+        CUDACOMPAT constexpr auto &operator*() { return i; }
+        CUDACOMPAT constexpr auto operator*() const { return i; }
     };
     struct iterable_wrapper
     {
         IdxType start, back, step;
-        constexpr auto begin() { return iterator{start, step}; }
-        constexpr auto end() { return iterator{back, step}; }
+        CUDACOMPAT constexpr auto begin() { return iterator{start, step}; }
+        CUDACOMPAT constexpr auto end() { return iterator{back, step}; }
     };
     return iterable_wrapper{_start, _end, _step};
 }
@@ -81,7 +90,7 @@ constexpr auto range(IdxType _start, IdxType _end, IdxType _step = 1)
  * @param _end The end index.
  * @return The range iterable.
  */
-template <typename IdxType> constexpr auto range(IdxType _end)
+template <typename IdxType> CUDACOMPAT constexpr auto range(IdxType _end)
 {
     return range(IdxType{}, _end);
 }
@@ -93,7 +102,7 @@ template <typename IdxType> constexpr auto range(IdxType _end)
  * @param _end The end index.
  * @return The range iterable.
  */
-template <typename IdxType> constexpr auto range1(IdxType _end)
+template <typename IdxType> CUDACOMPAT constexpr auto range1(IdxType _end)
 {
     return range(IdxType{1}, _end + 1);
 }

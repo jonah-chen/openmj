@@ -117,6 +117,11 @@ public:
     CounterType &at(const key_type &key) { return data_.at(key); }
 
     const CounterType &at(const key_type &key) const { return data_.at(key); }
+    
+    // find
+    iterator find(const key_type &key) { return data_.find(key); }
+
+    const_iterator find(const key_type &key) const { return data_.find(key); }
 
 private:
     map_type data_;
