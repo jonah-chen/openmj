@@ -13,6 +13,7 @@ class Yaml
 {
 public:
     constexpr static std::size_t k_MaxFileSize = 0x100000; // 1 MB max
+    constexpr static std::size_t k_IndentSize = 4; // tab size
 public:
     Yaml() = default;
     Yaml(std::filesystem::path fp);
@@ -21,6 +22,9 @@ public:
     ~Yaml();
 
     operator bool() const { return buf_ != nullptr; }
+
+    constexpr const char *str() const noexcept { return buf_; }
+    const YamlData &operator[](std::string_view key) const { return data_.at(key); }
 
 private:
     // we need some buffer here to store the file contents

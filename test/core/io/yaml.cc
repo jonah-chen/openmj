@@ -4,14 +4,11 @@
 
 int main()
 {
-    const char *a = "hello world...";
-    std::string_view s1(a, 5);
-    std::string_view s2(a+6, 5);
-    std::unordered_map<std::string_view, long> m;
-    m[s1] = 1;
-    m[s2] = 2;
-    for (const auto &[k, v] : m)
-        std::cout << k << ":" << v << std::endl;
-
+    // mj::io::Yaml y("../example/sample.mj.yaml");
+    std::cout << std::bit_cast<mj::U64>("East\0\0\0") << std::endl;
+    std::cout << std::bit_cast<mj::U64>("South\0\0") << std::endl;
+    std::cout << std::bit_cast<mj::U64>("West\0\0\0") << std::endl;
+    std::cout << std::bit_cast<mj::U64>("North\0\0") << std::endl;
+    
     return g_FailureCount;
 }
