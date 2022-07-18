@@ -17,15 +17,32 @@ struct YamlData
     using probability = mod_array<F32, k_UniqueTiles>;
     using tiles = Hand4Hot;
 
-    template <typename T> YamlData &operator=(T &&v)
+    template <typename T>
+    YamlData &operator=(T &&v)
     {
         data_ = std::forward<T>(v);
         return *this;
     }
 
-    template <typename T> T *get() { return std::get_if<T>(&data_); }
+    template <typename T>
+    T *get()
+    {
+        return std::get_if<T>(&data_);
+    }
+    template <typename T>
+    const T *get() const
+    {
+        return std::get_if<T>(&data_);
+    }
 
     std::optional<YamlData> operator[](std::size_t i)
+    {
+        auto *p = std::get_if<list>(&data_);
+        if (p == nullptr || i >= p->size())
+            return std::nullopt;
+        return (*p)[i];
+    }
+    std::optional<YamlData> operator[](std::size_t i) const
     {
         auto *p = std::get_if<list>(&data_);
         if (p == nullptr || i >= p->size())
@@ -38,6 +55,21 @@ struct YamlData
         if (p == nullptr || p->find(key) == p->end())
             return std::nullopt;
         return (*p)[key];
+    }
+    std::optional<const YamlData> operator[](std::string_view key) const
+    {
+        auto *p = std::get_if<child>(&data_);
+        if (p == nullptr || p->find(key) == p->end())
+            return std::nullopt;
+        return p->at(key);
+    }
+    std::optional<YamlData> operator[](const char *key)
+    {
+        return operator[](std::string_view(key));
+    }
+    std::optional<const YamlData> operator[](const char *key) const
+    {
+        return operator[](std::string_view(key));
     }
 
 private:

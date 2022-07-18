@@ -1,9 +1,9 @@
 
-#include <benchmark/benchmark.h>
 #include "core/mahjong/mahjong.hpp"
 #include "core/mahjong/rng.hpp"
-#include <random>
 #include <atomic>
+#include <benchmark/benchmark.h>
+#include <random>
 #include <thread>
 
 void gen_hand(std::mt19937_64 &rng)
@@ -22,8 +22,8 @@ void calc_agari_omp(mj::Hand &h, int N)
 
 void calc_agari_thread(mj::Hand &h, int N)
 {
-    auto fn = [&h,N]() {
-        for (int i = 0; i < N/8; ++i)
+    auto fn = [&h, N]() {
+        for (int i = 0; i < N / 8; ++i)
             benchmark::DoNotOptimize(h.agari());
     };
     std::thread t1(fn);
@@ -48,7 +48,7 @@ void calc_agari_thread(mj::Hand &h, int N)
 void calc_agari_thread_split(mj::Hand &h, int N)
 {
     std::atomic<int> k{0};
-    auto fn = [&h,N,&k]() {
+    auto fn = [&h, N, &k]() {
         while (k++ < N)
             benchmark::DoNotOptimize(h.agari());
     };
@@ -71,7 +71,7 @@ void calc_agari_thread_split(mj::Hand &h, int N)
     t8.join();
 }
 
-void BM_OMP(benchmark::State& state)
+void BM_OMP(benchmark::State &state)
 {
     // std::mt19937_64 rng {std::random_device{}()};
     mj::Hand h("s11123445678999");
@@ -81,7 +81,7 @@ void BM_OMP(benchmark::State& state)
     }
 }
 
-void BM_THREAD(benchmark::State& state)
+void BM_THREAD(benchmark::State &state)
 {
     // std::mt19937_64 rng {std::random_device{}()};
     mj::Hand h("s11123445678999");
@@ -91,7 +91,7 @@ void BM_THREAD(benchmark::State& state)
     }
 }
 
-void BM_SPLIT(benchmark::State& state)
+void BM_SPLIT(benchmark::State &state)
 {
     // std::mt19937_64 rng {std::random_device{}()};
     mj::Hand h("s11123445678999");
@@ -101,10 +101,28 @@ void BM_SPLIT(benchmark::State& state)
     }
 }
 
-BENCHMARK(BM_THREAD)->RangeMultiplier(2)->Range(1<<8, 1<<18)->Threads(8)->UseRealTime()->Unit(benchmark::kMillisecond)
-    ->Repetitions(32)->DisplayAggregatesOnly();
-BENCHMARK(BM_OMP)->RangeMultiplier(2)->Range(1<<8, 1<<18)->Threads(8)->UseRealTime()->Unit(benchmark::kMillisecond)
-    ->Repetitions(32)->DisplayAggregatesOnly();
-BENCHMARK(BM_SPLIT)->RangeMultiplier(2)->Range(1<<8, 1<<18)->Threads(8)->UseRealTime()->Unit(benchmark::kMillisecond)
-    ->Repetitions(32)->DisplayAggregatesOnly();
+BENCHMARK(BM_THREAD)
+    ->RangeMultiplier(2)
+    ->Range(1 << 8, 1 << 18)
+    ->Threads(8)
+    ->UseRealTime()
+    ->Unit(benchmark::kMillisecond)
+    ->Repetitions(32)
+    ->DisplayAggregatesOnly();
+BENCHMARK(BM_OMP)
+    ->RangeMultiplier(2)
+    ->Range(1 << 8, 1 << 18)
+    ->Threads(8)
+    ->UseRealTime()
+    ->Unit(benchmark::kMillisecond)
+    ->Repetitions(32)
+    ->DisplayAggregatesOnly();
+BENCHMARK(BM_SPLIT)
+    ->RangeMultiplier(2)
+    ->Range(1 << 8, 1 << 18)
+    ->Threads(8)
+    ->UseRealTime()
+    ->Unit(benchmark::kMillisecond)
+    ->Repetitions(32)
+    ->DisplayAggregatesOnly();
 BENCHMARK_MAIN();

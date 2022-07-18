@@ -21,7 +21,6 @@ public:
     virtual Tile dora() = 0;
 };
 
-
 namespace random {
 using WallContainer = vector<Tile, k_DeckSize>;
 using WallContainer34 = vector<int, k_DeckSize>;
@@ -69,7 +68,8 @@ constexpr void fill_wall(WallContainer34 &w, const Hand4Hot &tiles) noexcept
  *
  * @tparam RngType The type of random number generator to use.
  */
-template <typename RngType> class RngDeck : public TileSrc
+template <typename RngType>
+class RngDeck : public TileSrc
 {
 public:
     RngDeck(RngType &rng) : rng_(rng)
@@ -157,7 +157,8 @@ private:
  *
  * @tparam RngType The type of random number generator to use.
  */
-template <typename RngType> class Rng34
+template <typename RngType>
+class Rng34
 {
 public:
     Rng34(RngType &rng) : rng_(rng)
@@ -218,7 +219,8 @@ private:
     WallContainer34 wall_;
 };
 
-template <typename RngType> class Weighted34
+template <typename RngType>
+class Weighted34
 {
 public:
     Weighted34(RngType &rng) : rng_(rng) {}

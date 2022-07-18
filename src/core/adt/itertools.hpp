@@ -90,7 +90,8 @@ CUDACOMPAT constexpr auto range(IdxType _start, IdxType _end, IdxType _step = 1)
  * @param _end The end index.
  * @return The range iterable.
  */
-template <typename IdxType> CUDACOMPAT constexpr auto range(IdxType _end)
+template <typename IdxType>
+CUDACOMPAT constexpr auto range(IdxType _end)
 {
     return range(IdxType{}, _end);
 }
@@ -102,7 +103,8 @@ template <typename IdxType> CUDACOMPAT constexpr auto range(IdxType _end)
  * @param _end The end index.
  * @return The range iterable.
  */
-template <typename IdxType> CUDACOMPAT constexpr auto range1(IdxType _end)
+template <typename IdxType>
+CUDACOMPAT constexpr auto range1(IdxType _end)
 {
     return range(IdxType{1}, _end + 1);
 }

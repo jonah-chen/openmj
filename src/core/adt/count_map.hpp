@@ -2,7 +2,8 @@
 #pragma once
 #include "core/mahjong/constants.hpp"
 namespace mj {
-template <typename KeyType, typename CounterType = U32f> class count_map
+template <typename KeyType, typename CounterType = U32f>
+class count_map
 {
 public:
     using map_type = std::unordered_map<KeyType, CounterType>;
@@ -117,7 +118,7 @@ public:
     CounterType &at(const key_type &key) { return data_.at(key); }
 
     const CounterType &at(const key_type &key) const { return data_.at(key); }
-    
+
     // find
     iterator find(const key_type &key) { return data_.find(key); }
 

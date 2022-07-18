@@ -10,10 +10,11 @@ namespace mj {
  * @tparam N The number of elements in the array.
  * @note Only arrays of the same size can be added, subtracted, or compared.
  */
-template <typename T, std::size_t N> struct mod_array : public std::array<T, N>
+template <typename T, std::size_t N>
+struct mod_array : public std::array<T, N>
 {
-    using std::array<T, N>::array;
     using count_type = T;
+
     constexpr mod_array operator+(const mod_array &other) const noexcept
     {
         mod_array result;
@@ -70,7 +71,8 @@ template <typename T, std::size_t N> struct mod_array : public std::array<T, N>
  * @tparam N The number of elements in the array.
  * @note Only arrays of the same size can be added, subtracted, or compared.
  */
-template <typename T, std::size_t N> struct vec_array : public mod_array<T, N>
+template <typename T, std::size_t N>
+struct vec_array : public mod_array<T, N>
 {
     using mod_array<T, N>::mod_array;
     constexpr vec_array operator*(const T &other) const noexcept

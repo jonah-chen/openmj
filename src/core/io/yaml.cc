@@ -197,7 +197,7 @@ bool try_parse_tile(std::string_view value, Data &loc)
         value[1] >= Tile::n2suit_offset + Tile::n2suit_size)
         return false;
 
-    Suit suit = Tile::n2suit[value[1]];
+    Suit suit = Tile::n2suit[value[1] - Tile::n2suit_offset];
     if (suit == Suit::End)
         return false;
     Tile tile(suit, value[0] - '1');
@@ -272,6 +272,9 @@ bool try_parse_int(std::string_view value, Data &loc)
         return false;
     // TODO: if there is another character after the number that isn't empty,
     // then it's not a int
+    if (ptr != value.data() + value.size())
+        return false;
+
     loc = result;
     return true;
 }
@@ -285,6 +288,8 @@ bool try_parse_float(std::string_view value, Data &loc)
         return false;
     // TODO: if there is another character after the number that isn't empty,
     // then it's not a float
+    if (ptr != value.data() + value.size())
+        return false;
     loc = result;
     return true;
 }

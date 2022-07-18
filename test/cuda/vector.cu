@@ -1,45 +1,47 @@
 
-#include "test/test.hpp"
 #include "core/adt/vector.hpp"
+#include "test/test.hpp"
 
 struct vec3
 {
     float x, y, z;
     float *c;
     vec3() : x(0), y(0), z(0), c(nullptr) {}
-    vec3(const vec3 &v) : x(v.x), y(v.y), z(v.z), c(v.c+1) {}
-    vec3(float x, float y=1.f, float z=2.f) : x(x), y(y), z(z), c(nullptr) {}
+    vec3(const vec3 &v) : x(v.x), y(v.y), z(v.z), c(v.c + 1) {}
+    vec3(float x, float y = 1.f, float z = 2.f) : x(x), y(y), z(z), c(nullptr)
+    {
+    }
 };
 
-CUDAKERNEL test1 (int *a)
+CUDAKERNEL test1(int *a)
 {
     mj::vector<int, 20> v(10, 2);
     for (auto i : v)
         atomicAdd(a, i);
     v[1] = 0;
     for (auto i : v)
-        atomicAdd(a+1, i);
+        atomicAdd(a + 1, i);
     v.push_back(3);
     for (auto i : v)
-        atomicAdd(a+2, i);
-    atomicAdd(a+3, v.size());
+        atomicAdd(a + 2, i);
+    atomicAdd(a + 3, v.size());
 
     v.erase(v.begin() + 1); // erase the 0
     for (auto i : v)
-        atomicAdd(a+4, i);
+        atomicAdd(a + 4, i);
 
     v.erase(v.begin(), v.begin() + 2); // erase two 2s
     for (auto i : v)
-        atomicAdd(a+5, i);
+        atomicAdd(a + 5, i);
     v.insert(v.begin() + 4, 21);
-    atomicAdd(a+6, v.size());
-    atomicAdd(a+7, v[4]);
+    atomicAdd(a + 6, v.size());
+    atomicAdd(a + 7, v[4]);
 
     v.pop_back();
     for (auto i : v)
-        atomicAdd(a+8, i);
+        atomicAdd(a + 8, i);
     v.clear();
-    atomicAdd(a+9, v.size());
+    atomicAdd(a + 9, v.size());
 }
 
 CUDAKERNEL test2(vec3 *a)

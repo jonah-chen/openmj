@@ -3,7 +3,8 @@
 #include "common.hpp"
 
 namespace mj {
-template <typename T, std::size_t N> class vector
+template <typename T, std::size_t N>
+class vector
 {
 public:
     using value_type = T;

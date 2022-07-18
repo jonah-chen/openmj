@@ -1,6 +1,6 @@
 
-#include "test/test.hpp"
 #include "core/adt/vector.hpp"
+#include "test/test.hpp"
 
 int main()
 {
@@ -15,7 +15,7 @@ int main()
     assert(v.front() == 1, "v.front()");
     assert(v[3] == 4, "v[3]");
     assert(v.back() == 4, "v.back()");
-    
+
     v.pop_back();
     assert(v.size() == 3, "size should be 3");
     assert(v[0] == 1, "v[0] after pop_back");
