@@ -4,11 +4,6 @@
 
 int main()
 {
-    // mj::io::Yaml y("../example/sample.mj.yaml");
-    std::cout << std::bit_cast<mj::U64>("East\0\0\0") << std::endl;
-    std::cout << std::bit_cast<mj::U64>("South\0\0") << std::endl;
-    std::cout << std::bit_cast<mj::U64>("West\0\0\0") << std::endl;
-    std::cout << std::bit_cast<mj::U64>("North\0\0") << std::endl;
-    
+    mj::io::Yaml y("../example/sample.mj.yaml");
     return g_FailureCount;
 }
