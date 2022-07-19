@@ -14,6 +14,7 @@ def build_c():
     run(['ninja'])
     if run(['ctest', '--output-on-failure']).returncode != 0:
         raise Exception('Tests failed.')
+    print(__file__)
     chdir(split(__file__)[0])
 
 
@@ -21,7 +22,7 @@ def build_ext(name, version, sources, **kwargs):
     ext = Extension(name, sources, extra_compile_args=['-std=c++20'],
                     include_dirs=['../src'],
                     library_dirs=[BUILD_DIR], **kwargs)
-    setup(name='test2', version=version, ext_modules=[ext])
+    setup(name=name, version=version, ext_modules=[ext])
 
 
 def post():
@@ -39,5 +40,4 @@ def post():
 build_c()
 build_ext('test', '1.0', ['cc/test.cc'], language='c++',
           libraries=['Mahjong'])
-build_ext('testagain', '1.0', ['cc/test.cc'], language='c++',)
 post()
