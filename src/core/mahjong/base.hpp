@@ -82,7 +82,7 @@ public:
     constexpr static U16 f_Rinshan = 0x0020;
 
 public:
-    constexpr Tile() noexcept : id_(f_All16) {}
+    constexpr Tile() noexcept {}
 
     constexpr explicit Tile(U16 id) noexcept : id_(id) {}
 
@@ -95,7 +95,7 @@ public:
 
     constexpr explicit Tile(const char *str, Dir player = k_East,
                             U16 flags = 0) MJ_EXCEPT_CRIT
-        : Tile(n2suit[str[1] - 100], str[0] - '1', player, flags)
+        : Tile(n2suit[str[1] - n2suit_offset], str[0] - '1', player, flags)
     {
         MJ_ASSERT_CRIT(suit() != Suit::End, "Invalid suit");
     }
@@ -109,7 +109,7 @@ public:
     constexpr bool check(U16 flag) const { return id_ & flag; }
 
 private:
-    U16 id_;
+    U16 id_{f_All16};
 
 public:
     constexpr Suit suit() const noexcept
@@ -197,8 +197,10 @@ public:
         return "??";
     }
 
-private:
+public:
     constexpr static std::array<char, 5> suits = {'m', 'p', 's', 'w', 'd'};
+    constexpr static U8f n2suit_offset = 100;
+    constexpr static U8f n2suit_size = 20;
     constexpr static std::array<Suit, 20> n2suit = {
         Suit::Dragon, Suit::End, Suit::End, Suit::End, Suit::End,
         Suit::End,    Suit::End, Suit::End, Suit::End, Suit::Man,

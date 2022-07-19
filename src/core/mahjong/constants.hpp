@@ -88,4 +88,38 @@ constexpr U8f k_SuitPos = 13;
 constexpr const char *k_DefaultFont = "../assets/fonts/DroidSans.ttf";
 constexpr float k_DefaultFontSize = 24.0f;
 
+constexpr bool k_LittleEndian
+#ifdef __BYTE_ORDER__
+#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+    = true;
+#else
+    = false;
+#endif
+#else
+    = (std::bit_cast<U16>("\x12") == 0x12);
+#endif
+
+constexpr bool k_BigEndian
+#ifdef __BYTE_ORDER__
+#if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
+    = true;
+#else
+    = false;
+#endif
+#else
+    = (std::bit_cast<U16>("\x12") == 0x1200);
+#endif
+
+template <U8f N>
+constexpr U64 k_BitMask()
+{
+    if constexpr (N == 0)
+        return 0;
+    if constexpr (k_LittleEndian && N <= 64)
+        return (U64)-1 >> (64 - N);
+    if constexpr (k_BigEndian && N <= 64)
+        return (U64)-1 << (64 - N);
+    return 0;
+}
+
 } // namespace mj

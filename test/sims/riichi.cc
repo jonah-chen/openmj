@@ -24,21 +24,20 @@ static auto sanity_test(mj::sim::RiichiState cfg)
     std::vector<mj::sim::RiichiState::seed_type> seeds;
     for (auto i : mj::range(std::thread::hardware_concurrency()))
         seeds.push_back(i + 100);
-    
+
     using namespace mj::sim;
-    auto out =
-        riichi(cfg, -1, iters, -1, seeds.data());
+    auto out = riichi(cfg, -1, iters, -1, seeds.data());
     auto [counts, scores, detail, yakus] = out;
     // test that detail contains same scores as score
     for (auto i : mj::range(counts.size()))
     {
-        mj::U32f total_occurence = 0;        
+        mj::U32f total_occurence = 0;
         for (const auto &[score, occurence] : detail[i])
         {
             total_occurence += occurence;
             // check score is a key of scores
             assert(scores.find(score) != scores.end(),
-                      "score must be a key of scores");
+                   "score must be a key of scores");
         }
         assert(total_occurence == counts[i], "total occurence should be equal");
     }
@@ -67,10 +66,10 @@ TEST t_RiichiTsumo()
         using namespace mj::scoring;
         std::array<mj::U64, 2> gt_yakus = {
             20 | f_Riichi1 | f_Pinfu | f_MenTsumo,
-            20 | f_Riichi1 | f_Pinfu | f_IttsuC | f_MenTsumo
-        };
-        for (auto y: gt_yakus)
-            assert(yakus.find(y) != yakus.end(), "yaku " + yaku_str(y) + " not found.");
+            20 | f_Riichi1 | f_Pinfu | f_IttsuC | f_MenTsumo};
+        for (auto y : gt_yakus)
+            assert(yakus.find(y) != yakus.end(),
+                   "yaku " + yaku_str(y) + " not found.");
         assert_eq(yakus.size(), gt_yakus.size());
     }
     {
@@ -78,13 +77,12 @@ TEST t_RiichiTsumo()
         auto [counts, scores, detail, yakus] = sanity_test(cfg);
         using namespace mj::scoring;
         std::array<mj::U64, 4> gt_yakus = {
-            30 | f_Riichi1 | f_Pinfu,
-            30 | f_Riichi1 | f_Pinfu | f_IttsuC,
+            30 | f_Riichi1 | f_Pinfu, 30 | f_Riichi1 | f_Pinfu | f_IttsuC,
             20 | f_Riichi1 | f_Pinfu | f_MenTsumo,
-            20 | f_Riichi1 | f_Pinfu | f_IttsuC | f_MenTsumo
-        };
-        for (auto y: gt_yakus)
-            assert(yakus.find(y) != yakus.end(), "yaku " + yaku_str(y) + " not found.");
+            20 | f_Riichi1 | f_Pinfu | f_IttsuC | f_MenTsumo};
+        for (auto y : gt_yakus)
+            assert(yakus.find(y) != yakus.end(),
+                   "yaku " + yaku_str(y) + " not found.");
         assert_eq(yakus.size(), gt_yakus.size());
     }
 }

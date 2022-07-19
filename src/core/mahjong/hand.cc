@@ -260,7 +260,8 @@ S8 shanten(const Hand4Hot &h4, U8f n_melds, int mode)
 }
 
 namespace _hand_impl {
-template <U8f N> Hand<N>::Hand(const char *str, Dir dir) : tiles4_(), tiles4m_()
+template <U8f N>
+Hand<N>::Hand(const char *str, Dir dir) : tiles4_(), tiles4m_()
 {
     constexpr const char *suits = "mpswd";
     U8f cur_suit = 0;
@@ -282,7 +283,8 @@ template <U8f N> Hand<N>::Hand(const char *str, Dir dir) : tiles4_(), tiles4m_()
     sorted_ = true;
 }
 
-template <U8f N> Wins Hand<N>::agari() const
+template <U8f N>
+Wins Hand<N>::agari() const
 {
     Wins wins;
     if (n_melds() == 0)
@@ -306,7 +308,8 @@ template <U8f N> Wins Hand<N>::agari() const
     return wins;
 }
 
-template <U8f N> WaitingTiles Hand<N>::tenpai() const
+template <U8f N>
+WaitingTiles Hand<N>::tenpai() const
 {
     if (size() + 3u * n_melds() < k_MaxHandSize - 1u)
         return {};
@@ -366,7 +369,8 @@ template <U8f N> WaitingTiles Hand<N>::tenpai() const
     return waiting;
 }
 
-template <U8f N> S8 Hand<N>::shanten() const
+template <U8f N>
+S8 Hand<N>::shanten() const
 {
     return mj::shanten(hand_4hot(), n_melds(), k_ModeAll);
 };

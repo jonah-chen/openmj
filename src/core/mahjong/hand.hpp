@@ -1,8 +1,8 @@
 
 #pragma once
 #include "base.hpp"
-#include "core/adt/vector.hpp"
 #include "core/adt/adv_array.hpp"
+#include "core/adt/vector.hpp"
 
 namespace mj {
 /**
@@ -34,7 +34,8 @@ using Discards = vector<Tile, k_MaxDiscards>;
 S8 shanten(const Hand4Hot &h4, U8f n_melds, int mode);
 
 namespace _hand_impl {
-template <U8f N> class Hand
+template <U8f N>
+class Hand
 {
 public:
     using HandDense = vector<Tile, N>;
@@ -104,7 +105,6 @@ public:
         sorted_ = true;
     }
 
-
     /**
      * Flag operations
      */
@@ -148,7 +148,8 @@ public:
         sorted_ = false;
     }
 
-    template <typename... Args> constexpr void emplace_back(Args &&...args)
+    template <typename... Args>
+    constexpr void emplace_back(Args &&...args)
     {
         tiles_.emplace_back(std::forward<Args>(args)...);
         const auto &t = tiles_.back();

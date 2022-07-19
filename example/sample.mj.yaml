@@ -1,0 +1,22 @@
+# This is a comment.
+# Richii Config
+GAME:
+  Description: "This is just a test" # strings MUST be in quotes
+  Player: West # W works also
+  Prevailing: East # E works also
+  Round: 2
+  Repeat: 0
+  Riichi: 1
+  DrawsRemain: 30
+
+TILES:
+  # Hand: H(m123456789s1234)
+  Dead: [1,1,0,0,0,1,1,1,2,1,1,0,0,0,1,1,1,2,1,1,0,0,0,1,1,1,2,1,2,3,4,4,4,4] #34
+  Discard: [9,1,1,1,1,1,1,1,9], [9,9,9,9,9,9,9] #1-9 of normal, 7 honors
+  Dora: 3s
+
+SYSTEM:
+  Workers: 8
+  Iters: 1000
+  Testing:
+
