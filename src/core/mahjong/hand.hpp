@@ -38,10 +38,19 @@ template <U8f N>
 class Hand
 {
 public:
+    constexpr static int ec_InvalidString = -1;
+    constexpr static int ec_InvalidSize = -2;
+
     using HandDense = vector<Tile, N>;
     U64 flags{f_All64};
-    Hand() : tiles4_(), tiles4m_() {}
-    Hand(const char *, Dir = k_East);
+    int ec{};
+
+public:
+    constexpr Hand() = default;
+    constexpr Hand(const char *str, Dir dir = k_East)
+    {
+        ec = try_parse_string(str, dir);
+    }
 
     /**
      * @return If the hand is open or not.
@@ -371,10 +380,10 @@ public:
 
 private:
     mutable HandDense tiles_{};
-    Hand4Hot tiles4_;
-    Hand4Hot tiles4m_;
+    Hand4Hot tiles4_{};
+    Hand4Hot tiles4m_{};
     mutable bool sorted_{};
-    Melds melds_;
+    Melds melds_{};
     U8f n_closed_kongs_{};
 
 public:
@@ -387,6 +396,33 @@ public:
         for (const auto &m : melds_)
             s += m.to_string();
         return s;
+    }
+
+private:
+    constexpr int try_parse_string(const char *str, Dir dir)
+    {
+        constexpr const char *suits = "mpswd";
+        U8f cur_suit = 0;
+        for (; *str; ++str)
+        {
+            if (*str < '1' || *str > '9')
+            {
+                while (suits[cur_suit] != *str)
+                    if (++cur_suit == 5)
+                        return ec_InvalidString;
+            }
+            else
+            {
+                // MJ_ASSERT(size() < N, "too many tiles in hand. use a bigger
+                // varient"
+                //                     " of hand like BigHand instead");
+                if (size() >= N)
+                    return ec_InvalidSize;
+                emplace_back(Suit(cur_suit), *str - '1', dir);
+            }
+        }
+        sorted_ = true;
+        return 0;
     }
 };
 

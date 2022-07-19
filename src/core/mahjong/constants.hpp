@@ -38,7 +38,8 @@ enum Dir : U8f
     k_East,
     k_South,
     k_West,
-    k_North
+    k_North,
+    k_ErrDir
 };
 
 constexpr U8f k_FirstHonorIdx = 27;

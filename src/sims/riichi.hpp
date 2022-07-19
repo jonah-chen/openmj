@@ -53,6 +53,8 @@ struct RiichiState
     explicit RiichiState(const char *hand_str, Dir player = k_East)
         : hand(hand_str, player)
     {
+        if (hand.ec)
+            return;
         std::fill(other_hand_size.begin(), other_hand_size.end(),
                   k_MaxHandSize - 1);
         hand.flags = mj::scoring::f_NormalPlay & mj::scoring::f_ClosedHandMask;

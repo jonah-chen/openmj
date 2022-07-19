@@ -13,7 +13,7 @@ def build_c():
         '-DBUILD_BENCH=OFF', '-DBUILD_TESTS=ON', '-GNinja'])
     run(['ninja'])
     if run(['ctest', '--output-on-failure']).returncode != 0:
-        raise Exception('Tests failed.')
+        raise AssertionError('Tests failed.')
     chdir('../discord')
 
 
@@ -30,7 +30,7 @@ def post():
         if f.startswith('lib'):
             lib_path = join('build', f)
     if not lib_path:
-        raise SystemError('Could not find lib directory for cc modules.')
+        raise FileNotFoundError('Could not find lib directory for cc modules.')
     for f in listdir(lib_path):
         if f.endswith('.so'):
             copy(join(lib_path, f), f)

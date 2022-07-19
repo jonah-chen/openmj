@@ -46,3 +46,6 @@ Makefile
 
 # environment files
 *.env
+
+# pycache
+__pycache__/
