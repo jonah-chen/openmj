@@ -6,16 +6,16 @@ namespace mj {
 namespace io {
 struct YamlData
 {
-    using child = std::unordered_map<std::string_view, YamlData>;
-    using list = std::vector<YamlData>;
-    using string = std::string_view;
-    using integer = S32f;
-    using decimal = F32;
-    using boolean = bool;
-    using direction = Dir;
-    using tile = Tile;
-    using probability = mod_array<F32, k_UniqueTiles>;
-    using tiles = Hand4Hot;
+    using Child = std::unordered_map<std::string_view, std::unique_ptr<YamlData>>;
+    using List = std::vector<std::unique_ptr<YamlData>>;
+    using String = std::string_view;
+    using Integer = S32f;
+    using Decimal = F32;
+    using Boolean = bool;
+    using Direction = Dir;
+    using Tile = typename mj::Tile;
+    using Probability = mod_array<F32, k_UniqueTiles>;
+    using Tiles = Hand4Hot;
 
     YamlData() = default;
 
@@ -34,57 +34,84 @@ struct YamlData
         return *this;
     }
 
-    template <typename T>
-    T *get()
+    template <typename T, typename = std::enable_if_t<std::is_same_v<T, String>>>
+    constexpr String get() const
     {
-        return std::get_if<T>(&data_);
+        return std::get<String>(data_);
     }
-    template <typename T>
-    const T *get() const
+    template <typename T, typename = std::enable_if_t<std::is_same_v<T, Integer>>>
+    constexpr Integer get() const
     {
-        return std::get_if<T>(&data_);
+        return std::get<Integer>(data_);
+    }
+    template <typename T, typename = std::enable_if_t<std::is_same_v<T, Decimal>>>
+    constexpr Decimal get() const
+    {
+        return std::get<Decimal>(data_);
+    }
+    template <typename T, typename = std::enable_if_t<std::is_same_v<T, Boolean>>>
+    constexpr Boolean get() const
+    {
+        return std::get<Boolean>(data_);
+    }
+    template <typename T, typename = std::enable_if_t<std::is_same_v<T, Direction>>>
+    constexpr Direction get() const
+    {
+        return std::get<Direction>(data_);
+    }
+    template <typename T, typename = std::enable_if_t<std::is_same_v<T, Tile>>>
+    constexpr Tile get() const
+    {
+        return std::get<Tile>(data_);
+    }
+    template <typename T, typename = std::enable_if_t<std::is_same_v<T, Probability>>>
+    constexpr const Probability &get() const
+    {
+        return std::get<Probability>(data_);
+    }
+    template <typename T, typename = std::enable_if_t<std::is_same_v<T, Tiles>>>
+    constexpr const Tiles &get() const
+    {
+        return std::get<Tiles>(data_);
     }
 
-    std::optional<YamlData> operator[](std::size_t i)
+    const YamlData &operator[](std::string_view key) const
     {
-        auto *p = std::get_if<list>(&data_);
-        if (p == nullptr || i >= p->size())
-            return std::nullopt;
-        return (*p)[i];
+        return *std::get<Child>(data_).at(key);
     }
-    std::optional<YamlData> operator[](std::size_t i) const
-    {
-        auto *p = std::get_if<list>(&data_);
-        if (p == nullptr || i >= p->size())
-            return std::nullopt;
-        return (*p)[i];
-    }
-    std::optional<YamlData> operator[](std::string_view key)
-    {
-        auto *p = std::get_if<child>(&data_);
-        if (p == nullptr || p->find(key) == p->end())
-            return std::nullopt;
-        return (*p)[key];
-    }
-    std::optional<const YamlData> operator[](std::string_view key) const
-    {
-        auto *p = std::get_if<child>(&data_);
-        if (p == nullptr || p->find(key) == p->end())
-            return std::nullopt;
-        return p->at(key);
-    }
-    std::optional<YamlData> operator[](const char *key)
+
+    const YamlData &operator[](const char *key) const
     {
         return operator[](std::string_view(key));
     }
-    std::optional<const YamlData> operator[](const char *key) const
+
+    template<typename T, typename = std::enable_if_t<std::is_integral_v<T>>>
+    const YamlData &operator[](T index) const
     {
-        return operator[](std::string_view(key));
+        return *std::get<List>(data_).at(index);
+    }
+
+    static Child &make_child(std::string_view name, Child &parent)
+    {
+        auto &&out = parent.emplace(name, std::make_unique<YamlData>());
+        MJ_ASSERT_CRIT(out.second, "child already exists");
+        return std::get<Child>(out.first->second->data_);
+    }
+
+    template <typename T>
+    T *get_if()
+    {
+        return std::get_if<T>(&data_);
+    }
+    template <typename T>
+    const T *get_if() const
+    {
+        return std::get_if<T>(&data_);
     }
 
 private:
-    std::variant<child, list, string, integer, decimal, boolean, direction,
-                 tile, probability, tiles>
+    std::variant<Child, List, String, Integer, Decimal, Boolean, Direction,
+                 Tile, Probability, Tiles>
         data_;
 };
 

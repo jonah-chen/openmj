@@ -41,7 +41,13 @@ constexpr void purge_lead_trail_whitespace(std::string_view &sv) noexcept
 }
 
 using Data = mj::io::YamlData;
-using Child = Data::child;
+using Child = Data::Child;
+
+Data &construct(std::string_view key, Child &parent)
+{
+    auto &&out = parent.emplace(key, std::make_unique<Data>());
+    return *out.first->second;
+}
 
 /**
  * Ignore the inline comments and purge the whitspaces to ensure the value is
@@ -121,7 +127,7 @@ bool try_parse_tiles(std::string_view value, Data &loc)
     if (std::count(value.begin(), value.end(), ',') != mj::k_UniqueTiles - 1)
         return false;
 
-    Data::tiles out;
+    Data::Tiles out;
     if (!try_parse_cs_array(value, out))
         return false;
     // check for any number > 4
@@ -135,7 +141,7 @@ bool try_parse_tiles(std::string_view value, Data &loc)
 
 bool try_parse_probability(std::string_view value, Data &loc)
 {
-    using prob_val = Data::probability::value_type;
+    using prob_val = Data::Probability::value_type;
     if ((value.front() != '(' || value.back() != ')') &&
         (value.front() != '[' || value.back() != ']'))
         return false;
@@ -148,10 +154,10 @@ bool try_parse_probability(std::string_view value, Data &loc)
         if (std::count(value.begin(), value.end(), ',') !=
             mj::k_UniqueTiles - 1)
             return false;
-        Data::probability out;
+        Data::Probability out;
         if (!try_parse_cs_array(value, out))
             return false;
-        loc = out;
+        loc = std::move(out);
         return true;
     }
 
@@ -171,12 +177,13 @@ bool try_parse_probability(std::string_view value, Data &loc)
     std::array<prob_val, 7> honors;
     if (!try_parse_cs_array(second, honors))
         return false;
-    Data::probability out;
+    Data::Probability out;
     for (std::size_t i = 0; i < mj::k_FirstHonorIdx; ++i)
         out[i] = normal[i % 9];
     for (std::size_t i = mj::k_FirstHonorIdx; i < mj::k_UniqueTiles; ++i)
         out[i] = honors[i - mj::k_FirstHonorIdx];
-    loc = out;
+    loc = std::move(out);
+    return true;
 }
 
 bool try_parse_tile(std::string_view value, Data &loc)
@@ -258,7 +265,7 @@ bool try_parse_bool(std::string_view value, Data &loc)
 
 bool try_parse_int(std::string_view value, Data &loc)
 {
-    Data::integer result;
+    Data::Integer result;
     auto [ptr, err] =
         std::from_chars(value.data(), value.data() + value.size(), result);
     if ((void *)err)
@@ -274,7 +281,7 @@ bool try_parse_int(std::string_view value, Data &loc)
 
 bool try_parse_float(std::string_view value, Data &loc)
 {
-    Data::decimal result;
+    Data::Decimal result;
     auto [ptr, err] =
         std::from_chars(value.data(), value.data() + value.size(), result);
     if ((void *)err)
@@ -291,7 +298,7 @@ bool try_parse_list(std::string_view value, Data &loc)
 {
     if (value.front() != '[' || value.back() != ']')
         return false;
-    Data::list out;
+    Data::List out;
     value = value.substr(1, value.size() - 2);
     while (!value.empty())
     {
@@ -303,7 +310,7 @@ bool try_parse_list(std::string_view value, Data &loc)
             std::size_t end = value.find_first_of(value.front(), 1);
             MJ_ALWAYS_THROW(end == std::string_view::npos, std::runtime_error,
                             "Malformed string");
-            out.emplace_back(value.substr(1, end - 1));
+            out.emplace_back(std::make_unique<Data>(value.substr(1, end - 1)));
 
             // find the next comma
             std::size_t comma = value.find_first_of(',', end);
@@ -315,23 +322,23 @@ bool try_parse_list(std::string_view value, Data &loc)
         {
             // find the next comma
             std::size_t comma = value.find_first_of(',');
-            out.push_back({});
+            out.emplace_back(std::make_unique<Data>());
             if (comma == std::string_view::npos)
             {
                 purge_lead_trail_whitespace(value);
-                parse_value(value, out.back());
+                parse_value(value, *out.back());
                 break;
             }
             else
             {
                 std::string_view elem = value.substr(0, comma);
                 purge_lead_trail_whitespace(elem);
-                parse_value(elem, out.back());
+                parse_value(elem, *out.back());
                 value = value.substr(comma + 1);
             }
         }
     }
-    loc = out;
+    loc = std::move(out);
     return true;
 }
 
@@ -401,7 +408,7 @@ std::string_view parse_layer(std::string_view str, std::size_t indent,
             MJ_ALWAYS_THROW(new_layer_name.empty(), std::runtime_error,
                             "Yaml::Yaml: Improper indentation");
             str = parse_layer(str, whitespaces, tabsize,
-                              *layer[new_layer_name].get<Child>());
+                              Data::make_child(new_layer_name, layer));
             new_layer_name = {};
             continue;
         }
@@ -424,7 +431,7 @@ std::string_view parse_layer(std::string_view str, std::size_t indent,
         if (value.empty()) // we are in a new layer
             new_layer_name = key;
         else
-            parse_value(value, layer[key]);
+            parse_value(value, construct(key, layer));
         str = line.substr(end_line + 1);
     }
     return str;

@@ -24,10 +24,10 @@ public:
     operator bool() const { return buf_ != nullptr; }
 
     constexpr const char *str() const noexcept { return buf_; }
-    const YamlData &operator[](const char *key) const { return data_.at(key); }
+    const YamlData &operator[](const char *key) const { return *data_.at(key); }
     const YamlData &operator[](std::string_view key) const
     {
-        return data_.at(key);
+        return *data_.at(key);
     }
 
 private:
@@ -37,7 +37,7 @@ private:
     std::size_t *ref_count_{nullptr};
 
     // here is where the actual data is stored
-    std::unordered_map<std::string_view, YamlData> data_;
+    YamlData::Child data_;
 };
 
 } // namespace io
