@@ -43,3 +43,6 @@
 Makefile
 /.cache/
 /NOTES.md
+
+# environment files
+*.env
