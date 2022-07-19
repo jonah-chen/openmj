@@ -1,5 +1,5 @@
 from subprocess import run
-from os.path import split, join
+from os.path import split, join, abspath
 from os import chdir, listdir
 from distutils.core import setup, Extension
 from shutil import copy
@@ -14,8 +14,7 @@ def build_c():
     run(['ninja'])
     if run(['ctest', '--output-on-failure']).returncode != 0:
         raise Exception('Tests failed.')
-    print(__file__)
-    chdir(split(__file__)[0])
+    chdir(split(abspath(__file__))[0])
 
 
 def build_ext(name, version, sources, **kwargs):
