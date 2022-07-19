@@ -17,7 +17,17 @@ struct YamlData
     using probability = mod_array<F32, k_UniqueTiles>;
     using tiles = Hand4Hot;
 
-    template <typename T>
+    YamlData() = default;
+
+    template <typename T, typename = std::enable_if_t<!std::is_same_v<
+                              std::remove_reference_t<T>, YamlData>>>
+    YamlData(T &&v)
+    {
+        data_ = std::forward<T>(v);
+    }
+
+    template <typename T, typename = std::enable_if_t<!std::is_same_v<
+                              std::remove_reference_t<T>, YamlData>>>
     YamlData &operator=(T &&v)
     {
         data_ = std::forward<T>(v);

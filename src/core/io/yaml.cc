@@ -99,6 +99,8 @@ bool try_parse_cs_array(std::string_view value, ArrayType &arr)
     return true;
 }
 
+void parse_value(std::string_view value, Data &loc);
+
 bool try_parse_string_0(std::string_view value, Data &loc)
 {
     if ((value.front() == '"' && value.back() == '"') ||
@@ -106,16 +108,6 @@ bool try_parse_string_0(std::string_view value, Data &loc)
     {
         loc = value.substr(1, value.size() - 2);
         return true;
-    }
-    return false;
-}
-
-bool try_parse_list(std::string_view value, Data &loc)
-{
-    if (value.front() == '[' && value.back() == ']')
-    {
-        value = value.substr(1, value.size() - 2);
-        // TODO: parse list elements
     }
     return false;
 }
@@ -143,6 +135,7 @@ bool try_parse_tiles(std::string_view value, Data &loc)
 
 bool try_parse_probability(std::string_view value, Data &loc)
 {
+    using prob_val = Data::probability::value_type;
     if ((value.front() != '(' || value.back() != ')') &&
         (value.front() != '[' || value.back() != ']'))
         return false;
@@ -155,7 +148,7 @@ bool try_parse_probability(std::string_view value, Data &loc)
         if (std::count(value.begin(), value.end(), ',') !=
             mj::k_UniqueTiles - 1)
             return false;
-        mj::io::YamlData::probability out;
+        Data::probability out;
         if (!try_parse_cs_array(value, out))
             return false;
         loc = out;
@@ -172,10 +165,10 @@ bool try_parse_probability(std::string_view value, Data &loc)
     std::string_view second =
         value.substr(open_second + 1, value.size() - open_second - 2);
 
-    std::array<Data::probability::value_type, 9> normal;
+    std::array<prob_val, 9> normal;
     if (!try_parse_cs_array(first, normal))
         return false;
-    std::array<Data::probability::value_type, 7> honors;
+    std::array<prob_val, 7> honors;
     if (!try_parse_cs_array(second, honors))
         return false;
     Data::probability out;
@@ -265,7 +258,7 @@ bool try_parse_bool(std::string_view value, Data &loc)
 
 bool try_parse_int(std::string_view value, Data &loc)
 {
-    mj::io::YamlData::integer result;
+    Data::integer result;
     auto [ptr, err] =
         std::from_chars(value.data(), value.data() + value.size(), result);
     if ((void *)err)
@@ -281,7 +274,7 @@ bool try_parse_int(std::string_view value, Data &loc)
 
 bool try_parse_float(std::string_view value, Data &loc)
 {
-    mj::io::YamlData::decimal result;
+    Data::decimal result;
     auto [ptr, err] =
         std::from_chars(value.data(), value.data() + value.size(), result);
     if ((void *)err)
@@ -291,6 +284,54 @@ bool try_parse_float(std::string_view value, Data &loc)
     if (ptr != value.data() + value.size())
         return false;
     loc = result;
+    return true;
+}
+
+bool try_parse_list(std::string_view value, Data &loc)
+{
+    if (value.front() != '[' || value.back() != ']')
+        return false;
+    Data::list out;
+    value = value.substr(1, value.size() - 2);
+    while (!value.empty())
+    {
+        purge_lead_trail_whitespace(value);
+        if (value.front() == '"' || value.front() == '\'')
+        {
+            // string
+            // find the end of the string
+            std::size_t end = value.find_first_of(value.front(), 1);
+            MJ_ALWAYS_THROW(end == std::string_view::npos, std::runtime_error,
+                            "Malformed string");
+            out.emplace_back(value.substr(1, end - 1));
+
+            // find the next comma
+            std::size_t comma = value.find_first_of(',', end);
+            if (comma == std::string_view::npos)
+                break;
+            value = value.substr(comma + 1);
+        }
+        else
+        {
+            // find the next comma
+            std::size_t comma = value.find_first_of(',');
+            out.push_back({});
+            if (comma == std::string_view::npos)
+            {
+                purge_lead_trail_whitespace(value);
+                parse_value(value, out.back());
+                break;
+            }
+            else
+            {
+                std::string_view elem = value.substr(0, comma);
+                purge_lead_trail_whitespace(elem);
+                parse_value(elem, out.back());
+                value = value.substr(comma + 1);
+            }
+        }
+    }
+    loc = out;
     return true;
 }
 

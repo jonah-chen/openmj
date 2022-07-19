@@ -14,8 +14,11 @@ TILES:
   Dead: [1,1,0,0,0,1,1,1,2,1,1,0,0,0,1,1,1,2,1,1,0,0,0,1,1,1,2,1,2,3,4,4,4,4] #34
   Discard: [9,1,1,1,1,1,1,1,9], [9,9,9,9,9,9,9] #1-9 of normal, 7 honors
   Dora: 3s
+  Danger: [3s, 2s, 8m ] # lists
 
 SYSTEM:
   Workers: 8
   Iters: 1000
+
+Names: ["Bob's", 'Bill,2 #"', 34, 1.2, 5p, South  ,OFF ]
 
