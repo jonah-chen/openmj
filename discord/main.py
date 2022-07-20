@@ -1,22 +1,24 @@
-import nextcord
-from nextcord.ext import commands
+from nextcord import Intents
+from nextcord.ext.commands import Bot
 import os
+from itertools import repeat
 import test
 
 MODULES = [test]
-CMDS = [fn for m in MODULES for nm, fn in m.__dict__.items() if callable(
-    fn) and not (nm.startswith('__') and nm.endswith('__'))]
-
-intents = nextcord.Intents.default()
+PM_MODULES = []
+cmds = lambda mods: [fn for m in mods for nm, fn in m.__dict__.items() if 
+    callable(fn) and not (nm.startswith('__') and nm.endswith('__'))]
+intents = Intents.default()
 intents.message_content = True
-client = commands.Bot(command_prefix='!', intents=intents)
+client = Bot(command_prefix='!', intents=intents)
 
 
-def build(fn):
+def build(fn, tgt=lambda x:x):
     @client.command(name=fn.__name__)
     async def _(ctx, msg=''):
-        await ctx.send(fn(msg))
+        await tgt(ctx).send(fn(msg))
 
 
-tuple(map(build, CMDS))
+tuple(map(build, cmds(MODULES)))
+tuple(map(build, cmds(PM_MODULES), repeat(lambda x:x.author)))
 client.run(os.environ['OPENMJ_DISCORD_TOKEN'])

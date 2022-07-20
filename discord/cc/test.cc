@@ -76,8 +76,8 @@ static PyObject *py_test(PyObject *self, PyObject *args)
     return Py_BuildValue("s", ss.str().c_str());
 }
 
-// build
-static PyMethodDef methods[] = {{"ping", ping, METH_VARARGS, "Ping"},
+// name, fn_ptr, args_type, docstring
+static PyMethodDef methods[] = {{"ping", ping, METH_VARARGS, "ping"},
                                 {"test", py_test, METH_VARARGS, "test"},
                                 {NULL, NULL, 0, NULL}};
 
