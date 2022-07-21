@@ -45,6 +45,15 @@ static void Rand_Shanten(benchmark::State &state)
 }
 
 template <typename... Args>
+void Create(benchmark::State &state, Args &&...args)
+{
+    for (auto _ : state)
+    {
+        benchmark::DoNotOptimize(mj::Hand(std::forward<Args>(args)...));
+    }
+}
+
+template <typename... Args>
 void Shanten(benchmark::State &state, Args &&...args)
 {
     auto args_tuple = std::make_tuple(std::move(args)...);
@@ -77,6 +86,9 @@ void Agari(benchmark::State &state, Args &&...args)
     }
 }
 
+BENCHMARK_CAPTURE(Create, m123345567p333w22, "m123345567p333w22")
+    ->Repetitions(MJ_BENCH_REPS)
+    ->DisplayAggregatesOnly(true);
 BENCHMARK_CAPTURE(Shanten, m123345567p333w22, "m123345567p333w22")
     ->Repetitions(MJ_BENCH_REPS)
     ->DisplayAggregatesOnly(true);

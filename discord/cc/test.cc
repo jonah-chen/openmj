@@ -35,6 +35,9 @@ static PyObject *py_test(PyObject *self, PyObject *args)
     if (direction == mj::k_ErrDir)
         return Py_BuildValue("s", "Invalid direction");
     mj::sim::RiichiState state(hand_str + 1, direction);
+    if (state.hand.tenpai().empty())
+        return Py_BuildValue("s", "Sorry, your hand is in NO_TEN");
+
     if (state.hand.ec == mj::Hand::ec_InvalidString)
         return Py_BuildValue("s", "Invalid hand string");
     if (state.hand.ec == mj::Hand::ec_InvalidSize)

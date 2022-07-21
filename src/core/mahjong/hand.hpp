@@ -413,12 +413,19 @@ private:
             }
             else
             {
-                // MJ_ASSERT(size() < N, "too many tiles in hand. use a bigger
-                // varient"
-                //                     " of hand like BigHand instead");
                 if (size() >= N)
                     return ec_InvalidSize;
-                emplace_back(Suit(cur_suit), *str - '1', dir);
+                
+                Suit suit = Suit(cur_suit);
+                U8f num = *str - '1';
+                if (suit == Suit::Wind && num >= 4)
+                    return ec_InvalidString;
+                if (suit == Suit::Dragon && num >= 3)
+                    return ec_InvalidString;
+                if (num >= 9)
+                    return ec_InvalidString;
+
+                emplace_back(suit, num, dir);
             }
         }
         sorted_ = true;
