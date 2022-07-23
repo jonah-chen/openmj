@@ -261,29 +261,6 @@ S8 shanten(const Hand4Hot &h4, U8f n_melds, int mode)
 
 namespace _hand_impl {
 template <U8f N>
-Hand<N>::Hand(const char *str, Dir dir) : tiles4_(), tiles4m_()
-{
-    constexpr const char *suits = "mpswd";
-    U8f cur_suit = 0;
-    for (; *str; ++str)
-    {
-        if (*str < '1' || *str > '9')
-        {
-            while (suits[cur_suit] != *str)
-                if (++cur_suit == 5)
-                    return;
-        }
-        else
-        {
-            MJ_ASSERT(size() < N, "too many tiles in hand. use a bigger varient"
-                                  " of hand like BigHand instead");
-            emplace_back(Suit(cur_suit), *str - '1', dir);
-        }
-    }
-    sorted_ = true;
-}
-
-template <U8f N>
 Wins Hand<N>::agari() const
 {
     Wins wins;
