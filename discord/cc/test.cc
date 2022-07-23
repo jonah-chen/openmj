@@ -18,10 +18,6 @@ constexpr mj::Dir dir_from_char(char c)
         return mj::k_ErrDir;
     }
 }
-static PyObject *ping(PyObject *self, PyObject *args)
-{
-    return Py_BuildValue("s", "pong");
-}
 
 static PyObject *py_test(PyObject *self, PyObject *args)
 {
@@ -75,13 +71,12 @@ static PyObject *py_test(PyObject *self, PyObject *args)
             ss << "*";
         ss << "\n";
     }
-    ss << "```\n";
+    ss << "```";
     return Py_BuildValue("s", ss.str().c_str());
 }
 
 // name, fn_ptr, args_type, docstring
-static PyMethodDef methods[] = {{"ping", ping, METH_VARARGS, "ping"},
-                                {"test", py_test, METH_VARARGS, "test"},
+static PyMethodDef methods[] = {{"test", py_test, METH_VARARGS, "test"},
                                 {NULL, NULL, 0, NULL}};
 
 static struct PyModuleDef module = {PyModuleDef_HEAD_INIT, "test", NULL, -1,

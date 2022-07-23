@@ -23,6 +23,11 @@ def build_ext(name, version, sources, **kwargs):
                     library_dirs=[BUILD_DIR], **kwargs)
     setup(name=name, version=version, ext_modules=[ext])
 
+def build_all(version, **kwargs):
+    for name in listdir('cc'):
+        if name.endswith('.cc'):
+            build_ext(name[:-3], version, [join('cc', name)], **kwargs)
+
 
 def post():
     lib_path = None
@@ -37,6 +42,5 @@ def post():
 
 
 build_c()
-build_ext('test', '1.0', ['cc/test.cc'], language='c++',
-          libraries=['Mahjong'])
+build_all('1.0', language='c++', libraries=['Mahjong'])
 post()
